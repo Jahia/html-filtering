@@ -62,8 +62,9 @@
     <description>This modules provides configuration for HTML filtering.</description>
 
     <scm>
-        <connection>scm:dummy:uri</connection>
-        <developerConnection>scm:dummy:uri</developerConnection>
+        <connection>scm:git@github.com:Jahia/richtext-configuration.git</connection>
+        <developerConnection>scm:git@github.com:Jahia/richtext-configuration.git</developerConnection>
+        <url>https://github.com/Jahia/richtext-configuration</url>
     </scm>
 
     <properties>
@@ -71,7 +72,6 @@
         <export-package>
             org.jahia.modules.richtext
         </export-package>
-
     </properties>
 
     <repositories>

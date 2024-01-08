@@ -24,12 +24,12 @@ jobs:
     name: Build Module
     runs-on: ubuntu-latest
     container:
-      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_8.0.312-node
+      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-    steps:          
-      - uses: actions/checkout@v2  
+    steps:
+      - uses: actions/checkout@v2
       - uses: jahia/jahia-modules-action/build@v2
         with:
           module_id: richtext-configuration
@@ -54,13 +54,13 @@ jobs:
     # Use self-hosted if you want to run on our own runners
     # you would typically want to use self-hosted runners for integration tests
     runs-on: self-hosted
-    # Timeout is important as it forces the job to fail if it hangs for any reason, 
+    # Timeout is important as it forces the job to fail if it hangs for any reason,
     # If not specified it will be left running until workflow run limit is reached (72h)
     timeout-minutes: 45
     steps:
       # The helper is used to print instructions, such as how to connect to the runner.
       # It should be defined as a workflow step (vs a step in an action itself) since some
-      # annotations are only posted upon completion of the step (i.e. you'd only see 
+      # annotations are only posted upon completion of the step (i.e. you'd only see
       # the connection instructions annotation posted once the integration tests are done)
       - uses: jahia/jahia-modules-action/helper@v2
       - uses: actions/checkout@v2

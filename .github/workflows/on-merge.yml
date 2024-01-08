@@ -13,14 +13,6 @@ on:
       - '**'
 
 jobs:
-  to-remove:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo test
-        shell: bash
-        run: |
-          echo ${{ github.event.pull_request.head.ref }}
-
   update-signature:
     name: Update module signature
     runs-on: ubuntu-latest

@@ -1,0 +1,16 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: Exciting New Features 🎉
+      labels:
+        - v1.11
+        - enhancement
+    - title: Bug fixes 🛠
+      labels:
+        - v1.11
+        - bugfix
+    - title: Other Changes
+      labels:
+        - "*"

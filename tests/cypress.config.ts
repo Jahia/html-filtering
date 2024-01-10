@@ -2,6 +2,8 @@ import {defineConfig} from 'cypress';
 
 export default defineConfig({
     chromeWebSecurity: false,
+    requestTimeout: 10000,
+    responseTimeout: 10000,
     reporter: 'cypress-multi-reporters',
     reporterOptions: {
         configFile: 'reporter-config.json'

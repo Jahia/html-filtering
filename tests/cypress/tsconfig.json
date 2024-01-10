@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "**/*.ts"
+  ],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "isolatedModules": false,
+    "types": [
+      "cypress",
+      "node"
+    ],
+    "lib": [ "es2015" ]
+  }
+}

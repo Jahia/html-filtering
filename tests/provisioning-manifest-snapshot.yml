@@ -1,0 +1,4 @@
+- installBundle:
+    - 'mvn:org.jahia.modules/richtext-configuration'
+  uninstallPreviousVersion: true
+- karafCommand: "bundle:list"

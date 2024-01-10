@@ -100,22 +100,22 @@ jobs:
 #          reporter: java-junit
 #          fail-on-error: 'false'
 
-#  publish:
-#    name: Publish module
-#    needs: [integration-tests-standalone]
-#    # Update this to be the branch you want to publish from
-#    # Note: to be verified but it might be a redundant with branch restriction at the top
-#    # If it is, please remove it.
-#    if: github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    container:
-#      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
-#      credentials:
-#        username: ${{ secrets.DOCKERHUB_USERNAME }}
-#        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: jahia/jahia-modules-action/publish@v1
-#        with:
-#          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-#          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+  publish:
+    name: Publish module
+    needs: [build]
+    # Update this to be the branch you want to publish from
+    # Note: to be verified but it might be a redundant with branch restriction at the top
+    # If it is, please remove it.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jahia/jahia-modules-action/publish@v2
+        with:
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}

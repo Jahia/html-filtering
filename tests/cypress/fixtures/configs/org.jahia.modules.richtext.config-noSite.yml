@@ -1,0 +1,4 @@
+htmlFiltering:
+  disallow:
+    elements:
+      - name: strong

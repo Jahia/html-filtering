@@ -85,7 +85,7 @@ public class GqlHtmlFilteringMutation {
         String h =  policyFactory.sanitize(html, new HtmlChangeListener<Object>() {
             @Override
             public void discardedTag(@Nullable Object o, String tag) {
-                gqlHTMLFilteringTest.getRemovedTags().add(tag);
+                gqlHTMLFilteringTest.getRemovedElements().add(tag);
             }
 
             @Override
@@ -99,14 +99,14 @@ public class GqlHtmlFilteringMutation {
     }
 
     private GqlHTMLFilteringRemovedAttributes findOrCreateRemovedAttributesByTag(GqlHTMLFilteringTest gqlHTMLFilteringTest, String tag) {
-        Optional<GqlHTMLFilteringRemovedAttributes> opt = gqlHTMLFilteringTest.getRemovedAttributes().stream().filter(t -> tag.equals(t.getTag())).findFirst();
+        Optional<GqlHTMLFilteringRemovedAttributes> opt = gqlHTMLFilteringTest.getRemovedAttributes().stream().filter(t -> tag.equals(t.getElement())).findFirst();
 
         if (opt.isPresent()) {
             return opt.get();
         }
 
         GqlHTMLFilteringRemovedAttributes gqlHTMLFilteringRemovedAttributes = new GqlHTMLFilteringRemovedAttributes();
-        gqlHTMLFilteringRemovedAttributes.setTag(tag);
+        gqlHTMLFilteringRemovedAttributes.setElement(tag);
         gqlHTMLFilteringTest.getRemovedAttributes().add(gqlHTMLFilteringRemovedAttributes);
         return gqlHTMLFilteringRemovedAttributes;
     }

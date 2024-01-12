@@ -1,5 +1,6 @@
 package org.jahia.modules.richtext;
 
+import org.json.JSONObject;
 import org.owasp.html.PolicyFactory;
 
 public interface RichTextConfigurationInterface {
@@ -15,6 +16,8 @@ public interface RichTextConfigurationInterface {
     public PolicyFactory getDefaultOwaspPolicyFactory();
 
     public PolicyFactory getMergedOwaspPolicyFactory(String... siteKeys);
+
+    public JSONObject getMergedJSONPolicy(String... siteKeys);
 
     public boolean configExists(String siteKey);
 }

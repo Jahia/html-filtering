@@ -14,7 +14,7 @@ public class GqlHTMLFilteringTest {
 
     private String html;
     private List<GqlHTMLFilteringRemovedAttributes> removeAttributes = new ArrayList<>();
-    private Set<String> removeTags = new HashSet<>();
+    private Set<String> removeElements = new HashSet<>();
 
 
     @GraphQLField
@@ -25,10 +25,10 @@ public class GqlHTMLFilteringTest {
     }
 
     @GraphQLField
-    @GraphQLName("removedTags")
-    @GraphQLDescription("List of removed tags. Any attributes removed with the tag are not reported")
-    public Set<String> getRemovedTags() {
-        return removeTags;
+    @GraphQLName("removedElements")
+    @GraphQLDescription("List of removed elements. Any attributes removed with the tag are not reported")
+    public Set<String> getRemovedElements() {
+        return removeElements;
     }
 
 
@@ -47,7 +47,7 @@ public class GqlHTMLFilteringTest {
         this.removeAttributes = removeAttributes;
     }
 
-    public void setRemoveTags(Set<String> removeTags) {
-        this.removeTags = removeTags;
+    public void setRemoveElements(Set<String> removeElements) {
+        this.removeElements = removeElements;
     }
 }

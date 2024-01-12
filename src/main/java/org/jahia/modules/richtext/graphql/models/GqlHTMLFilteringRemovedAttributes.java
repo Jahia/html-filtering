@@ -10,14 +10,14 @@ import java.util.Set;
 @GraphQLDescription("Model for HTML filtering remove attributes")
 public class GqlHTMLFilteringRemovedAttributes {
 
-    private String tag;
+    private String element;
     private Set<String> attributes = new HashSet<>();
 
     @GraphQLField
-    @GraphQLName("tag")
-    @GraphQLDescription("Tag for which attributes were removed")
-    public String getTag() {
-        return tag;
+    @GraphQLName("element")
+    @GraphQLDescription("Element for which attributes were removed")
+    public String getElement() {
+        return element;
     }
 
 
@@ -28,8 +28,8 @@ public class GqlHTMLFilteringRemovedAttributes {
         return attributes;
     }
 
-    public void setTag(String tag) {
-        this.tag = tag;
+    public void setElement(String element) {
+        this.element = element;
     }
 
     public void setAttributes(Set<String> attributes) {

@@ -68,6 +68,7 @@
     </scm>
 
     <properties>
+        <jahia-depends>graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MC0CFHH5gM/Zpl8kOBTjCGqH1xA5pqdaAhUAlUgJeofDw/DfOp6piIOe9St+y+U=</jahia-module-signature>
         <export-package>
             org.jahia.modules.richtext

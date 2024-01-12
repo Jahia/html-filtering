@@ -106,6 +106,17 @@ public class RichTextConfiguration implements RichTextConfigurationInterface, Ma
 
     @Override
     public PolicyFactory getMergedOwaspPolicyFactory(String... siteKeys) {
+        JSONObject mergedPolicy = getMergedJSONPolicy(siteKeys);
+
+        if (!mergedPolicy.isEmpty()) {
+            return Parser.parseToPolicy(mergedPolicy);
+        }
+
+        return null;
+    }
+
+    @Override
+    public JSONObject getMergedJSONPolicy(String... siteKeys) {
         JSONObject mergedPolicy = new JSONObject();
 
         for (String key : siteKeys) {
@@ -114,11 +125,7 @@ public class RichTextConfiguration implements RichTextConfigurationInterface, Ma
             }
         }
 
-        if (!mergedPolicy.isEmpty()) {
-            return Parser.parseToPolicy(mergedPolicy);
-        }
-
-        return null;
+        return mergedPolicy;
     }
 
     @Override

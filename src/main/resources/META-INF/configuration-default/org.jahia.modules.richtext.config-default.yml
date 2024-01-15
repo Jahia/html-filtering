@@ -65,4 +65,4 @@ htmlFiltering:
     - name: value
       elements: li
   elements:
-    - name: h1, h2, h3, h4, h5, h6, hgroup, p, a, img, figure, figcaption, canvas, picture, br, strong, b, em, i, span, div, ul, ol, li, dl, dd, dt, table, tbody, thead, tfoot, tr, td, th, col, colgroup, caption, blockquote, q, cite, code, pre, var, abbr, address, del, s, details, summary, ins, sub, sup, small, mark, hr, button, legend, audio, video, source, track, nav, article, main, aside, section, time, header, footer, wbr
+    - name: h1, h2, h3, h4, h5, h6, hgroup, p, a, img, figure, figcaption, canvas, picture, br, strong, b, em, i, span, div, ul, ol, li, dl, dd, dt, table, tbody, thead, tfoot, tr, td, th, col, colgroup, caption, blockquote, q, cite, code, pre, var, abbr, address, del, s, details, summary, ins, sub, sup, small, mark, hr, button, legend, audio, video, source, track, nav, article, main, aside, section, time, header, footer, wbr, u

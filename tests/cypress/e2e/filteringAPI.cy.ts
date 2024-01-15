@@ -46,13 +46,12 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            console.log(response);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(37);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
                 attribute: 'class',
                 elements: [],
                 isGlobal: true,
-                pattern: '(myclass1|myclass2ss)',
+                pattern: '(myclass1|myclass2)',
                 __typename: 'GqlRichTextConfigAttribute'
             });
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({

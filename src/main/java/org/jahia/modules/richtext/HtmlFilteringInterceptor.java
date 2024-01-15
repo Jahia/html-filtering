@@ -53,10 +53,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
@@ -127,6 +129,23 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             if (logger.isTraceEnabled()) {
                 logger.trace("Original value: " + content);
             }
+        }
+
+        if (filteringConfig.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
+            logger.info(String.format("Dry run: Skipping Sanitization of [%s]", node.getProperty("text").getRealProperty().getPath()));
+            policyFactory.sanitize(content, new HtmlChangeListener<Object>() {
+                @Override
+                public void discardedTag(@Nullable Object o, String tag) {
+                    logger.info(String.format("Removed tag: %s", tag));
+                }
+
+                @Override
+                public void discardedAttributes(@Nullable Object o, String tag, String... strings) {
+                    logger.info(String.format("Removed attributes %s for tag %s", String.join(", ", strings), tag));
+                }
+            }, null);
+
+            return originalValue;
         }
 
         String result = policyFactory.sanitize(content);

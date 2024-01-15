@@ -20,4 +20,6 @@ public interface RichTextConfigurationInterface {
     public JSONObject getMergedJSONPolicy(String... siteKeys);
 
     public boolean configExists(String siteKey);
+
+    public boolean htmlSanitizerDryRun(String siteKey);
 }

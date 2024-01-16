@@ -75,7 +75,7 @@ public class GqlHtmlFilteringMutation {
         RichTextConfigurationInterface filteringConfig = BundleUtils.getOsgiService(RichTextConfigurationInterface.class, null);
         GqlHTMLFilteringTest gqlHTMLFilteringTest = new GqlHTMLFilteringTest();
 
-        if (filteringConfig == null || !filteringConfig.configExists(siteKey)) {
+        if (filteringConfig == null) {
             gqlHTMLFilteringTest.setHtml(html);
             return gqlHTMLFilteringTest;
         }

@@ -50,3 +50,16 @@ jobs:
           incident_google_client_email: ${{ secrets.INCIDENT_GOOGLE_CLIENT_EMAIL }}
           incident_google_api_key_base64: ${{ secrets.INCIDENT_GOOGLE_PRIVATE_KEY_BASE64 }}
           zencrepes_secret: ${{ secrets.ZENCREPES_WEBHOOK_SECRET }}
+      - name: Test Report
+        uses: phoenix-actions/test-reporting@v12
+        id: test-report
+        if: success() || failure()
+        with:
+          name: Nightly
+          path: tests/artifacts/results/xml_reports/**/*.xml
+          reporter: java-junit
+          fail-on-error: 'false'
+          output-to: 'step-summary'
+      - name: Print test report URL
+        run: |
+          echo "Test report URL is ${{ steps.test-report.outputs.runHtmlUrl }}"

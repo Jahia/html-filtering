@@ -6,7 +6,6 @@ htmlFiltering:
     - mailto
   attributes:
     - name: class
-      pattern: "(myclass1|myclass2)"
     - name: dir
     - name: hidden
     - name: id

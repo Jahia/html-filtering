@@ -30,7 +30,7 @@ describe('Default HTML filtering', () => {
     });
 
     it('allows asset links', () => {
-        // note that the actual href text being sent over to the sanitizer is '##doc-context##/{workspace}/##ref:link1##'
+        // Note that the actual href text being sent over to the sanitizer is '##doc-context##/{workspace}/##ref:link1##'
         const text = '<p><a href="/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf" ' +
             'title="Conference Guide.pdf">/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf</a></p>';
         modifyContent(path, text);

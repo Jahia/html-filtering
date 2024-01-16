@@ -64,7 +64,7 @@ describe('HTML rich text filtering API', () => {
                 pattern: null,
                 __typename: 'GqlRichTextConfigAttribute'
             });
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.elements).length(70);
+            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.elements).length(71);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.protocols).length(3);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).length(1);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).contain('strong');

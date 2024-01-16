@@ -46,7 +46,7 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(39);
+            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(40);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
                 attribute: 'class',
                 elements: [],

@@ -46,7 +46,7 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(37);
+            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(40);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
                 attribute: 'class',
                 elements: [],
@@ -64,7 +64,7 @@ describe('HTML rich text filtering API', () => {
                 pattern: null,
                 __typename: 'GqlRichTextConfigAttribute'
             });
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.elements).length(70);
+            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.elements).length(71);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.protocols).length(3);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).length(1);
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).contain('strong');

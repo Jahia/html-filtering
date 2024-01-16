@@ -20,7 +20,7 @@ public abstract class Parser {
     static {
         PATTERNS = new HashMap<>();
         PATTERNS.put("NUMBER_OR_PERCENT", Pattern.compile("[0-9]+%?"));
-        PATTERNS.put("ONSITE_URL", Pattern.compile("(?:[\\p{L}\\p{N}\\\\\\.\\#@\\$%\\+&;\\-_~,\\?=/!]+|\\#(\\w)+)"));
+        PATTERNS.put("ONSITE_URL", Pattern.compile("(?:[\\p{L}\\p{N}\\\\\\.\\#@\\$%\\+&;\\-_~,\\?=/!{}:]+|\\#(\\w)+)"));
         PATTERNS.put("HTML_ID", Pattern.compile("[a-zA-Z0-9\\:\\-_\\.]+"));
         PATTERNS.put("OFFSITE_URL", Pattern.compile("\\s*(?:(?:ht|f)tps?://|mailto:)[\\p{L}\\p{N}]"
                         + "[\\p{L}\\p{N}\\p{Zs}\\.\\#@\\$%\\+&;:\\-_~,\\?=/!\\(\\)]*+\\s*"));

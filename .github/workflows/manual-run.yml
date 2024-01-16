@@ -1,16 +1,16 @@
 # This workflows can be triggered manually via the GitHub actions UI
 # It is used to trigger an integration tests run using snapshot artifacts
 # You can customize it with any parameters necesasry.
-# Note that workflow_dispatch workflows are only available from master. 
-# So you'll need to first merge it to be able to start testing it, but once 
+# Note that workflow_dispatch workflows are only available from master.
+# So you'll need to first merge it to be able to start testing it, but once
 # a first version is merged, you can point the GitHub UI towards a manual-run.yml workflow in a branch
 # So merge this one early, even if its configuration is not fully finalized
-# 
+#
 # Github actions command reference: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 # Our GitHub Action is available here: https://github.com/Jahia/jahia-modules-action
 name: Manual Tests Run
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       jahia_image:
@@ -32,10 +32,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: KengoTODA/actions-setup-docker-compose@main
         with:
-          version: '1.29.2'   
+          version: '1.29.2'
       - uses: actions/setup-node@v2
         with:
-          node-version: 'lts/*'   
+          node-version: 'lts/*'
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: richtext-configuration
@@ -64,10 +64,11 @@ jobs:
           incident_google_api_key_base64: ${{ secrets.INCIDENT_GOOGLE_API_KEY_BASE64 }}
           zencrepes_secret: ${{ secrets.ZENCREPES_WEBHOOK_SECRET }}
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: phoenix-actions/test-reporting@v12
         if: success() || failure()
         with:
-          name: Tests Report (Standalone)
-          path: tests/artifacts/results/xml_reports/*.xml
+          name: Tests Report (Manual Run)
+          path: tests/artifacts/results/xml_reports/**/*.xml
           reporter: java-junit
           fail-on-error: 'false'
+          output-to: 'step-summary'

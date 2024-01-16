@@ -51,7 +51,7 @@ describe('HTML rich text filtering API', () => {
                 attribute: 'class',
                 elements: [],
                 isGlobal: true,
-                pattern: '(myclass1|myclass2)',
+                pattern: null,
                 __typename: 'GqlRichTextConfigAttribute'
             });
             expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({

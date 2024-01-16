@@ -1,4 +1,5 @@
 htmlFiltering:
+  htmlSanitizerDryRun: false
   protocols:
     - http
     - https

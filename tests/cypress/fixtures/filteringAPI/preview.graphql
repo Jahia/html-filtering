@@ -1,0 +1,17 @@
+mutation PreviewFiltering($text: String!, $siteKey: String!) {
+  richtextConfiguration {
+    htmlFiltering {
+      testFiltering(
+        siteKey: $siteKey
+        html: $text
+      ) {
+        html
+        removedElements
+        removedAttributes {
+          element
+          attributes
+        }
+      }
+    }
+  }
+}

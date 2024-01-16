@@ -9,13 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@GraphQLDescription("Model for richtext configuration")
-public class GqlRichTextConfig implements RichTextConfigInterface {
+@GraphQLDescription("Model for disallowed richtext configuration")
+public class GqlRichTextDisallowedConfig implements RichTextConfigInterface {
 
     private Set<String> protocols = new HashSet<>();
     private Set<String> elements = new HashSet<>();
     private List<GqlRichTextConfigAttribute> attributes = new ArrayList<>();
-    private GqlRichTextDisallowedConfig disallow = new GqlRichTextDisallowedConfig();
 
     @GraphQLField
     @GraphQLName("protocols")
@@ -36,12 +35,5 @@ public class GqlRichTextConfig implements RichTextConfigInterface {
     @GraphQLDescription("HTML attributes")
     public List<GqlRichTextConfigAttribute> getAttributes() {
         return attributes;
-    }
-
-    @GraphQLField
-    @GraphQLName("disallow")
-    @GraphQLDescription("Disallowed html elements and attributes")
-    public GqlRichTextDisallowedConfig getDisallow() {
-        return disallow;
     }
 }

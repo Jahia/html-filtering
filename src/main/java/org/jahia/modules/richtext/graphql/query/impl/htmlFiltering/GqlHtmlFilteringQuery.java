@@ -76,7 +76,7 @@ public class GqlHtmlFilteringQuery {
     }
 
     @GraphQLField
-    @GraphQLName("richTextConfiguration")
+    @GraphQLName("richtextConfiguration")
     @GraphQLDescription("RichText filtering configuration for a given site")
     public GqlRichTextConfig getRichTextConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
         RichTextConfigurationInterface filteringConfig = BundleUtils.getOsgiService(RichTextConfigurationInterface.class, null);
@@ -93,24 +93,38 @@ public class GqlHtmlFilteringQuery {
         getElements(config, gqlRichTextConfig);
         getAttributes(config, gqlRichTextConfig);
 
+        if (config.has("disallow")) {
+            RichTextConfigInterface disallow = gqlRichTextConfig.getDisallow();
+            config = config.getJSONObject("disallow");
+            getProtocols(config, disallow);
+            getElements(config, disallow);
+            getAttributes(config, disallow);
+        }
+
         return gqlRichTextConfig;
     }
 
-    private void getProtocols(JSONObject config, GqlRichTextConfig gqlRichTextConfig) {
+    private void getProtocols(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
         if (config.has("protocols")) {
             JSONArray protocols = config.getJSONArray("protocols");
             protocols.forEach(p -> gqlRichTextConfig.getProtocols().add((String) p));
         }
     }
 
-    private void getElements(JSONObject config, GqlRichTextConfig gqlRichTextConfig) {
+    private void getElements(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
         if (config.has("elements")) {
             JSONArray elements = config.getJSONArray("elements");
-            elements.forEach(e -> ((JSONObject)e).getJSONArray("name").forEach(el -> gqlRichTextConfig.getElements().add((String) el)));
+            elements.forEach(e -> {
+                if (((JSONObject)e).get("name") instanceof JSONArray) {
+                    ((JSONObject)e).getJSONArray("name").forEach(el -> gqlRichTextConfig.getElements().add((String) el));
+                } else {
+                    gqlRichTextConfig.getElements().add(((JSONObject)e).getString("name"));
+                }
+            });
         }
     }
 
-    private void getAttributes(JSONObject config, GqlRichTextConfig gqlRichTextConfig) {
+    private void getAttributes(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
         if (config.has("attributes")) {
             JSONArray attributes = config.getJSONArray("attributes");
             List<GqlRichTextConfigAttribute> a = gqlRichTextConfig.getAttributes();

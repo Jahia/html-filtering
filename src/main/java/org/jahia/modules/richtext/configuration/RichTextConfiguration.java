@@ -137,6 +137,17 @@ public class RichTextConfiguration implements RichTextConfigurationInterface, Ma
         return false;
     }
 
+    @Override
+    public boolean htmlSanitizerDryRun(String siteKey) {
+        if (configExists(siteKey)) {
+            JSONObject f = configs.get(siteKeyToPid.get(siteKey)).getJSONObject("htmlFiltering");
+
+            return f.has("htmlSanitizerDryRun") && f.getBoolean("htmlSanitizerDryRun");
+        }
+
+        return false;
+    }
+
     private void mergeJsonObject(JSONObject target, JSONObject source) {
         for (String key : source.keySet()) {
             if (source.get(key) instanceof JSONObject) {

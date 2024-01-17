@@ -12,8 +12,6 @@ jobs:
   static-analysis:
     name: Static Analysis (linting, vulns)
     runs-on: ubuntu-latest
-    env:
-      NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/
     steps:
       - uses: actions/checkout@v4
       - uses: Jahia/jahia-modules-action/static-analysis@v2
@@ -25,6 +23,8 @@ jobs:
   build:
     name: Build Module
     runs-on: ubuntu-latest
+    env:
+      NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/
     container:
       image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
       credentials:

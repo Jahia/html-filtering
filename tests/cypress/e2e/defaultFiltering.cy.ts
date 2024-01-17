@@ -54,4 +54,27 @@ describe('Default HTML filtering', () => {
             expect(value).to.contain('title');
         });
     });
+
+    it('rejects invalid protocol links', () => {
+        const text = '<p>This is an <a href="javascript://%0aalert(document.location)">xss test</a></p>';
+        modifyContent(path, text);
+        getContent(path).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.contain('<p>');
+            expect(value).to.not.contain('<a');
+            expect(value).to.not.contain('href');
+        });
+    });
+
+    it('rejects invalid href links', () => {
+        const text = '<p>This is an <a href="#javascript:alert(\'hello\')" target="_blank">xss test</a></p>';
+        modifyContent(path, text);
+        getContent(path).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.contain('<p>');
+            expect(value).to.contain('<a');
+            expect(value).to.not.contain('href');
+            expect(value).to.contain('target');
+        });
+    });
 });

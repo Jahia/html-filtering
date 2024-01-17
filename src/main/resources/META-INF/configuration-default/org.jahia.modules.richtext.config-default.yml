@@ -38,7 +38,7 @@ htmlFiltering:
       pattern: NUMBER_OR_PERCENT
       elements: canvas, img, table, td, th, col, colgroup, video
     - name: href
-      pattern: ONSITE_URL
+      pattern: LINKS_URL
       elements: a
     - name: hreflang
       elements: a

@@ -29,13 +29,29 @@ describe('Default HTML filtering', () => {
         deleteNode(path);
     });
 
-    it('allows asset links', () => {
+    it('allows internal links', () => {
         // Note that the actual href text being sent over to the sanitizer is '##doc-context##/{workspace}/##ref:link1##'
         const text = '<p><a href="/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf" ' +
             'title="Conference Guide.pdf">/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf</a></p>';
         modifyContent(path, text);
         getContent(path).then(result => {
-            expect(result.data.jcr.nodeByPath.property.value).to.contain('href');
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.contain('<p>');
+            expect(value).to.contain('<a');
+            expect(value).to.contain('href');
+            expect(value).to.contain('title');
+        });
+    });
+
+    it('allows external links', () => {
+        const text = '<p>This is a <a href="http://google.com" title="My google link">google link</a></p>';
+        modifyContent(path, text);
+        getContent(path).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.contain('<p>');
+            expect(value).to.contain('<a');
+            expect(value).to.contain('href');
+            expect(value).to.contain('title');
         });
     });
 });

@@ -19,11 +19,14 @@ public abstract class Parser {
 
     static {
         PATTERNS = new HashMap<>();
+        String onsiteUrl = "(?:[\\p{L}\\p{N}\\\\\\.\\#@\\$%\\+&;\\-_~,\\?=/!{}:]+|\\#(\\w)+)";
+        String offsiteUrl = "(\\s*(?:(?:ht|f)tps?://|mailto:)[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{Zs}\\.\\#@\\$%\\+&;:\\-_~,\\?=/!\\(\\)"
+                + "]*+\\s*)";
         PATTERNS.put("NUMBER_OR_PERCENT", Pattern.compile("[0-9]+%?"));
-        PATTERNS.put("ONSITE_URL", Pattern.compile("(?:[\\p{L}\\p{N}\\\\\\.\\#@\\$%\\+&;\\-_~,\\?=/!]+|\\#(\\w)+)"));
+        PATTERNS.put("ONSITE_URL", Pattern.compile(onsiteUrl));
+        PATTERNS.put("OFFSITE_URL", Pattern.compile(onsiteUrl));
+        PATTERNS.put("LINKS_URL", Pattern.compile(String.format("(?:%s|%s)", onsiteUrl, offsiteUrl)));
         PATTERNS.put("HTML_ID", Pattern.compile("[a-zA-Z0-9\\:\\-_\\.]+"));
-        PATTERNS.put("OFFSITE_URL", Pattern.compile("\\s*(?:(?:ht|f)tps?://|mailto:)[\\p{L}\\p{N}]"
-                        + "[\\p{L}\\p{N}\\p{Zs}\\.\\#@\\$%\\+&;:\\-_~,\\?=/!\\(\\)]*+\\s*"));
         PATTERNS.put("HTML_CLASS", Pattern.compile("[a-zA-Z0-9\\s,\\-_]+"));
         PATTERNS.put("NUMBER", Pattern.compile("[+-]?(?:(?:[0-9]+(?:\\.[0-9]*)?)|\\.[0-9]+)"));
         PATTERNS.put("NAME", Pattern.compile("[a-zA-Z0-9\\-_\\$]+"));

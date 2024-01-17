@@ -16,13 +16,10 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSitesService;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.owasp.html.HtmlChangeListener;
-import org.owasp.html.PolicyFactory;
 
-import javax.annotation.Nullable;
+
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 

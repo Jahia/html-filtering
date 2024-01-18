@@ -1,6 +1,5 @@
 package org.jahia.modules.richtext.configuration;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.richtext.RichTextConfigurationInterface;
@@ -17,15 +16,6 @@ import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,18 +27,13 @@ import java.util.stream.Collectors;
 }, immediate = true)
 public class RichTextConfiguration implements RichTextConfigurationInterface, ManagedServiceFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(RichTextConfiguration.class);
-    private static String CONFIG_FILE_NAME_BASE = "org.jahia.modules.richtext.config-";
-    private static String DEFAULT_CONFIG_FILE_NAME = CONFIG_FILE_NAME_BASE + DEFAULT_POLICY_KEY + ".yml";
+    private static final Logger logger = LoggerFactory.getLogger(RichTextConfiguration.class);
+    private static final String CONFIG_FILE_NAME_BASE = "org.jahia.modules.richtext.config-";
     private Map<String, JSONObject> configs = new HashMap<>();
     private Map<String, String> siteKeyToPid = new HashMap<>();
-    private BundleContext context;
-    private SettingsBean settingsBean = org.jahia.settings.SettingsBean.getInstance();
 
     @Activate
     public void activate(BundleContext context) {
-        this.context = context;
-        deployDefaultConfig();
         logger.info("Activate RichTextConfiguration service");
     }
 
@@ -170,25 +155,6 @@ public class RichTextConfiguration implements RichTextConfigurationInterface, Ma
                 }
             } else {
                 target.put(key, source.get(key));
-            }
-        }
-    }
-
-    private void deployDefaultConfig() {
-        URL url = context.getBundle().getResource("META-INF/configuration-default/" + DEFAULT_CONFIG_FILE_NAME);
-        if (url != null) {
-            Path path = Paths.get(settingsBean.getJahiaVarDiskPath(), "karaf", "etc", DEFAULT_CONFIG_FILE_NAME);
-            if (!Files.exists(path)) {
-                try (InputStream input = url.openStream()) {
-                    List<String> lines = IOUtils.readLines(input, StandardCharsets.UTF_8);
-                    lines.add(0, "# This is default configuration provided by Jahia");
-                    try (Writer w = new FileWriter(path.toFile())) {
-                        IOUtils.writeLines(lines, null, w);
-                    }
-                    logger.info("Copied default richtext configuration to {}", path);
-                } catch (IOException e) {
-                    logger.error("Unable to copy richtext configuration", e);
-                }
             }
         }
     }

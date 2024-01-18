@@ -28,6 +28,8 @@ jobs:
     name: Build Module
     needs: update-signature
     runs-on: ubuntu-latest
+    env:
+      NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/
     container:
       image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
       credentials:
@@ -38,6 +40,8 @@ jobs:
       - uses: jahia/jahia-modules-action/build@v2
         with:
           module_id: richtext-configuration
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
 
 #  sbom:
 #    name: SBOM processing

@@ -134,6 +134,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         if (filteringConfig.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
             String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
             logger.info(String.format("Dry run: Skipping Sanitization of [%s]", propInfo));
+
             policyFactory.sanitize(content, new HtmlChangeListener<Object>() {
                 @Override
                 public void discardedTag(@Nullable Object o, String tag) {

@@ -2,7 +2,7 @@ import {addNode, deleteNode} from '@jahia/cypress';
 import {
     disableHtmlFiltering,
     enableHtmlFiltering,
-    getContent,
+    getContent, installConfig,
     modifyContent
 } from '../fixtures/utils';
 
@@ -15,6 +15,9 @@ describe('Default HTML filtering', () => {
     const path = `/sites/${siteKey}/contents/${textName}`;
 
     before(() => {
+        // Copy of module config but with dry run disabled
+        // As we don't know exact pid it is difficult to modify it with api
+        installConfig('configs/org.jahia.modules.richtext.config-default.yml');
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
             primaryNodeType: 'jnt:bigText',

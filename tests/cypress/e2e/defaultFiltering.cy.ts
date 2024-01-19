@@ -15,7 +15,7 @@ describe('Default HTML filtering', () => {
     const path = `/sites/${siteKey}/contents/${textName}`;
 
     before(() => {
-        editConfig('htmlFiltering.htmlSanitizerDryRun', 'true', 'default');
+        editConfig('htmlFiltering.htmlSanitizerDryRun', 'false', 'default');
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
             primaryNodeType: 'jnt:bigText',

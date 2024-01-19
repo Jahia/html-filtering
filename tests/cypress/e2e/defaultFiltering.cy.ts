@@ -1,6 +1,6 @@
 import {addNode, deleteNode} from '@jahia/cypress';
 import {
-    disableHtmlFiltering,
+    disableHtmlFiltering, editConfig,
     enableHtmlFiltering,
     getContent,
     modifyContent
@@ -15,6 +15,7 @@ describe('Default HTML filtering', () => {
     const path = `/sites/${siteKey}/contents/${textName}`;
 
     before(() => {
+        editConfig('htmlFiltering.htmlSanitizerDryRun', 'false', 'default');
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
             primaryNodeType: 'jnt:bigText',

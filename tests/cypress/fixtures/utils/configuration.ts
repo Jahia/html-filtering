@@ -27,7 +27,7 @@ export const getConfig = siteKey => {
     });
 };
 
-export const addConfig = (key, value, siteKey = 'default') => {
+export const editConfig = (key, value, siteKey = 'default') => {
     const addConfigGql = gql`
         mutation addConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
             admin {

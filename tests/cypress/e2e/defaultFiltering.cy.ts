@@ -30,7 +30,21 @@ describe('Default HTML filtering', () => {
         deleteNode(path);
     });
 
-    it('allows internal links', () => {
+    it('allows internal links - content', () => {
+        // Note that the actual href text being sent over to the sanitizer is '##cms-context##/{mode}/{lang}/##ref:link1##'
+        const text = '<p><a href="/cms/{mode}/{lang}/sites/mySite/home/search-results.html" title="search-results">search results</a></p>';
+        modifyContent(path, text);
+        getContent(path).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.contain('<p>');
+            expect(value).to.contain('<a');
+            expect(value).to.contain('href');
+            expect(value).to.contain('{mode}');
+            expect(value).to.contain('{lang}');
+        });
+    });
+
+    it('allows internal links - files', () => {
         // Note that the actual href text being sent over to the sanitizer is '##doc-context##/{workspace}/##ref:link1##'
         const text = '<p><a href="/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf" ' +
             'title="Conference Guide.pdf">/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf</a></p>';
@@ -41,6 +55,7 @@ describe('Default HTML filtering', () => {
             expect(value).to.contain('<a');
             expect(value).to.contain('href');
             expect(value).to.contain('title');
+            expect(value).to.contain('{workspace}');
         });
     });
 

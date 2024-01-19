@@ -16,6 +16,9 @@ describe('HTML rich text filtering', () => {
     // TODO Need to clean up configuration manually (delete in file system) for local re-runs
 
     before(() => {
+        // Copy of module config but with dry run disabled
+        // As we don't know exact pid it is difficult to modify it with api
+        installConfig('configs/org.jahia.modules.richtext.config-default.yml');
         createSite(siteKey);
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,

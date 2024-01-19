@@ -1,6 +1,6 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
 import {
-    addConfig,
+    editConfig,
     disableHtmlFiltering,
     enableHtmlFiltering,
     getContent,
@@ -16,9 +16,7 @@ describe('HTML rich text filtering', () => {
     // TODO Need to clean up configuration manually (delete in file system) for local re-runs
 
     before(() => {
-        // Copy of module config but with dry run disabled
-        // As we don't know exact pid it is difficult to modify it with api
-        installConfig('configs/org.jahia.modules.richtext.config-default.yml');
+        editConfig('htmlFiltering.htmlSanitizerDryRun', 'true', 'default');
         createSite(siteKey);
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
@@ -106,7 +104,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('can update config and filter using updated rules', () => {
-        addConfig('htmlFiltering.disallow.elements[1].name', 'i', 'filteringSite');
+        editConfig('htmlFiltering.disallow.elements[1].name', 'i', 'filteringSite');
         modifyContent(path, '<p>This text<i>is important!</i> but not this one</p>');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('<p>');

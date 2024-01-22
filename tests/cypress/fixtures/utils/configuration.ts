@@ -28,8 +28,8 @@ export const getConfig = siteKey => {
 };
 
 export const editConfig = (key, value, siteKey = 'default') => {
-    const addConfigGql = gql`
-        mutation addConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
+    const editConfigGql = gql`
+        mutation editConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
             admin {
                 jahia {
                     configuration(pid: $pid, identifier: $identifier) {
@@ -40,7 +40,7 @@ export const editConfig = (key, value, siteKey = 'default') => {
         }
     `;
     return cy.apollo({
-        mutation: addConfigGql,
+        mutation: editConfigGql,
         variables: {pid, identifier: siteKey, key, value}
     });
 };

@@ -152,6 +152,11 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
 
         String result = policyFactory.sanitize(content);
 
+        // Preserve URL context placeholders that might've been encoded by the sanitizer
+        result = result.replace("%7bmode%7d", "{mode}");
+        result = result.replace("%7blang%7d", "{lang}");
+        result = result.replace("%7bworkspace%7d", "{workspace}");
+
         if (result != content && !result.equals(content)) {
             modifiedValue = node.getSession().getValueFactory().createValue(result);
             if (logger.isDebugEnabled()) {

@@ -1,6 +1,6 @@
 # This is default configuration provided by Jahia
 htmlFiltering:
-  htmlSanitizerDryRun: true
+  htmlSanitizerDryRun: false
   protocols:
     - http
     - https

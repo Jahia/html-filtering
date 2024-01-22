@@ -104,8 +104,9 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             }
         }
 
+        String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
+
         if (filteringConfig.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
-            String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
             logger.info(String.format("Dry run: Skipping Sanitization of [%s]", propInfo));
 
             policyFactory.sanitize(content, new HtmlChangeListener<Object>() {
@@ -124,6 +125,8 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         }
 
         String result = policyFactory.sanitize(content);
+
+        logger.warn(String.format("Sanitized [%s]", propInfo));
 
         // Preserve URL context placeholders that might've been encoded by the sanitizer
         result = result.replace("%7bmode%7d", "{mode}");

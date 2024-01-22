@@ -1,6 +1,6 @@
 import {addNode, deleteNode} from '@jahia/cypress';
 import {
-    disableHtmlFiltering, editConfig,
+    disableHtmlFiltering,
     enableHtmlFiltering,
     getContent,
     modifyContent

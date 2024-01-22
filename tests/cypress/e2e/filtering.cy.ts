@@ -16,7 +16,6 @@ describe('HTML rich text filtering', () => {
     // TODO Need to clean up configuration manually (delete in file system) for local re-runs
 
     before(() => {
-        editConfig('htmlFiltering.htmlSanitizerDryRun', 'false', 'default');
         createSite(siteKey);
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,

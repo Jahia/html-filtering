@@ -1,4 +1,4 @@
-package org.foo.modules.richtextconfiguration.rules
+package org.foo.modules.htmlfiltering.rules
 
 // list any import classes here.
 import org.jahia.services.content.rules.*

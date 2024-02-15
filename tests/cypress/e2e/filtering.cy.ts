@@ -85,7 +85,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('does not override filtering config for other site', () => {
-        installConfig('configs/org.jahia.modules.richtext.config-noSite.yml');
+        installConfig('configs/org.jahia.modules.htmlfiltering.config-noSite.yml');
         modifyContent(path, '<strong>This text is important!</strong>');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('strong');
@@ -93,7 +93,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('can override filtering config for specified site', () => {
-        installConfig('configs/org.jahia.modules.richtext.config-filteringSite.yml');
+        installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         modifyContent(path, '<p>This text<strong>is important!</strong> but not this one</p>');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('<p>');
@@ -114,7 +114,7 @@ describe('HTML rich text filtering', () => {
 
     it('does not override filtering config for specified site when filtering is disabled', () => {
         disableHtmlFiltering(siteKey);
-        installConfig('configs/org.jahia.modules.richtext.config-filteringSite.yml');
+        installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         modifyContent(path, '<p>This text<strong>is important!</strong> but not this one</p>');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('strong');

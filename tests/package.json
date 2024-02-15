@@ -1,5 +1,5 @@
 {
-  "name": "@jahia/richtext-config-cypress",
+  "name": "@jahia/html-filtering-cypress",
   "version": "1.0.0",
   "description": "cypress",
   "devDependencies": {

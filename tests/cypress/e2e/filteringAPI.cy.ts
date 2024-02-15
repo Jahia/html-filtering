@@ -52,7 +52,7 @@ describe('HTML rich text filtering API', () => {
                 elements: [],
                 isGlobal: true,
                 pattern: null,
-                __typename: 'GqlRichTextConfigAttribute'
+                __typename: 'GqlHTMLFilteringConfigAttribute'
             });
             expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({
                 attribute: 'autoplay',
@@ -62,7 +62,7 @@ describe('HTML rich text filtering API', () => {
                 ],
                 isGlobal: false,
                 pattern: null,
-                __typename: 'GqlRichTextConfigAttribute'
+                __typename: 'GqlHTMLFilteringConfigAttribute'
             });
             expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.elements).length(71);
             expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.protocols).length(3);

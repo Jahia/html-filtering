@@ -88,9 +88,9 @@ public class GqlHtmlFilteringQuery {
     }
 
     @GraphQLField
-    @GraphQLName("richtextConfiguration")
+    @GraphQLName("configuration")
     @GraphQLDescription("RichText filtering configuration for a given site")
-    public GqlHTMLFilteringConfig getRichtextConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
+    public GqlHTMLFilteringConfig getConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
         HTMLFilteringInterface filteringConfig = BundleUtils.getOsgiService(HTMLFilteringInterface.class, null);
 
         if (filteringConfig == null || !filteringConfig.configExists(siteKey)) {

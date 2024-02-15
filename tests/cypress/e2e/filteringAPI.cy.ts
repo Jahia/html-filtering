@@ -46,15 +46,15 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.attributes).length(40);
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes).length(40);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
                 attribute: 'class',
                 elements: [],
                 isGlobal: true,
                 pattern: null,
                 __typename: 'GqlHTMLFilteringConfigAttribute'
             });
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({
                 attribute: 'autoplay',
                 elements: [
                     'audio',
@@ -64,10 +64,10 @@ describe('HTML rich text filtering API', () => {
                 pattern: null,
                 __typename: 'GqlHTMLFilteringConfigAttribute'
             });
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.elements).length(71);
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.protocols).length(3);
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).length(1);
-            expect(response.data.htmlFilteringConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).contain('strong');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.elements).length(71);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.protocols).length(3);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.disallow.elements).length(1);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.disallow.elements).contain('strong');
         });
     });
 });

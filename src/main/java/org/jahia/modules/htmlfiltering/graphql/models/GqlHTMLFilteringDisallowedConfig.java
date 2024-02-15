@@ -24,13 +24,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@GraphQLDescription("Model for HTML Filtering")
-public class GqlRichTextConfig implements RichTextConfigInterface {
+@GraphQLDescription("Model for disallowed HTML Filtering")
+public class GqlHTMLFilteringDisallowedConfig implements HTMLFilteringConfigInterface {
 
     private Set<String> protocols = new HashSet<>();
     private Set<String> elements = new HashSet<>();
-    private List<GqlRichTextConfigAttribute> attributes = new ArrayList<>();
-    private GqlRichTextDisallowedConfig disallow = new GqlRichTextDisallowedConfig();
+    private List<GqlHTMLFilteringConfigAttribute> attributes = new ArrayList<>();
 
     @GraphQLField
     @GraphQLName("protocols")
@@ -49,14 +48,7 @@ public class GqlRichTextConfig implements RichTextConfigInterface {
     @GraphQLField
     @GraphQLName("attributes")
     @GraphQLDescription("HTML attributes")
-    public List<GqlRichTextConfigAttribute> getAttributes() {
+    public List<GqlHTMLFilteringConfigAttribute> getAttributes() {
         return attributes;
-    }
-
-    @GraphQLField
-    @GraphQLName("disallow")
-    @GraphQLDescription("Disallowed html elements and attributes")
-    public GqlRichTextDisallowedConfig getDisallow() {
-        return disallow;
     }
 }

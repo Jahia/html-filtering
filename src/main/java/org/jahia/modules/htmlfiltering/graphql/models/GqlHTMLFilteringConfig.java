@@ -19,49 +19,44 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@GraphQLDescription("Model for HTML Filtering attribute")
-public class GqlRichTextConfigAttribute {
+@GraphQLDescription("Model for HTML Filtering")
+public class GqlHTMLFilteringConfig implements HTMLFilteringConfigInterface {
 
-    private String attribute;
+    private Set<String> protocols = new HashSet<>();
     private Set<String> elements = new HashSet<>();
-    private String pattern;
+    private List<GqlHTMLFilteringConfigAttribute> attributes = new ArrayList<>();
+    private GqlHTMLFilteringDisallowedConfig disallow = new GqlHTMLFilteringDisallowedConfig();
 
     @GraphQLField
-    @GraphQLName("attribute")
-    @GraphQLDescription("Html attribute")
-    public String getAttribute() {
-        return attribute;
+    @GraphQLName("protocols")
+    @GraphQLDescription("Protocols")
+    public Set<String> getProtocols() {
+        return protocols;
     }
 
     @GraphQLField
     @GraphQLName("elements")
-    @GraphQLDescription("Elements for which attribute is applied")
+    @GraphQLDescription("HTML elements")
     public Set<String> getElements() {
         return elements;
     }
 
     @GraphQLField
-    @GraphQLName("pattern")
-    @GraphQLDescription("Pattern used to validate attribute value")
-    public String getPattern() {
-        return pattern;
+    @GraphQLName("attributes")
+    @GraphQLDescription("HTML attributes")
+    public List<GqlHTMLFilteringConfigAttribute> getAttributes() {
+        return attributes;
     }
 
     @GraphQLField
-    @GraphQLName("isGlobal")
-    @GraphQLDescription("Indicates if attribute is configured globally or for specific elements")
-    public Boolean isGlobal() {
-        return elements.isEmpty();
-    }
-
-    public void setAttribute(String attribute) {
-        this.attribute = attribute;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
+    @GraphQLName("disallow")
+    @GraphQLDescription("Disallowed html elements and attributes")
+    public GqlHTMLFilteringDisallowedConfig getDisallow() {
+        return disallow;
     }
 }

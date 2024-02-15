@@ -18,9 +18,9 @@ package org.jahia.modules.htmlfiltering.graphql.models;
 import java.util.List;
 import java.util.Set;
 
-public interface RichTextConfigInterface {
+public interface HTMLFilteringConfigInterface {
 
     public Set<String> getProtocols();
     public Set<String> getElements();
-    public List<GqlRichTextConfigAttribute> getAttributes();
+    public List<GqlHTMLFilteringConfigAttribute> getAttributes();
 }

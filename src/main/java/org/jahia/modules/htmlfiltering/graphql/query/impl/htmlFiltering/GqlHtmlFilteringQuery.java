@@ -90,7 +90,7 @@ public class GqlHtmlFilteringQuery {
     @GraphQLField
     @GraphQLName("richtextConfiguration")
     @GraphQLDescription("RichText filtering configuration for a given site")
-    public GqlRichTextConfig getRichtextConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
+    public GqlHTMLFilteringConfig getRichtextConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
         HTMLFilteringInterface filteringConfig = BundleUtils.getOsgiService(HTMLFilteringInterface.class, null);
 
         if (filteringConfig == null || !filteringConfig.configExists(siteKey)) {
@@ -100,13 +100,13 @@ public class GqlHtmlFilteringQuery {
         JSONObject config = filteringConfig.getMergedJSONPolicy(HTMLFilteringInterface.DEFAULT_POLICY_KEY, siteKey);
         config = config.getJSONObject("htmlFiltering");
 
-        GqlRichTextConfig gqlRichTextConfig = new GqlRichTextConfig();
+        GqlHTMLFilteringConfig gqlRichTextConfig = new GqlHTMLFilteringConfig();
         getProtocols(config, gqlRichTextConfig);
         getElements(config, gqlRichTextConfig);
         getAttributes(config, gqlRichTextConfig);
 
         if (config.has("disallow")) {
-            RichTextConfigInterface disallow = gqlRichTextConfig.getDisallow();
+            HTMLFilteringConfigInterface disallow = gqlRichTextConfig.getDisallow();
             config = config.getJSONObject("disallow");
             getProtocols(config, disallow);
             getElements(config, disallow);
@@ -116,14 +116,14 @@ public class GqlHtmlFilteringQuery {
         return gqlRichTextConfig;
     }
 
-    private void getProtocols(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
+    private void getProtocols(JSONObject config, HTMLFilteringConfigInterface gqlRichTextConfig) {
         if (config.has("protocols")) {
             JSONArray protocols = config.getJSONArray("protocols");
             protocols.forEach(p -> gqlRichTextConfig.getProtocols().add((String) p));
         }
     }
 
-    private void getElements(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
+    private void getElements(JSONObject config, HTMLFilteringConfigInterface gqlRichTextConfig) {
         if (config.has("elements")) {
             JSONArray elements = config.getJSONArray("elements");
             elements.forEach(e -> {
@@ -136,10 +136,10 @@ public class GqlHtmlFilteringQuery {
         }
     }
 
-    private void getAttributes(JSONObject config, RichTextConfigInterface gqlRichTextConfig) {
+    private void getAttributes(JSONObject config, HTMLFilteringConfigInterface gqlRichTextConfig) {
         if (config.has("attributes")) {
             JSONArray attributes = config.getJSONArray("attributes");
-            List<GqlRichTextConfigAttribute> a = gqlRichTextConfig.getAttributes();
+            List<GqlHTMLFilteringConfigAttribute> a = gqlRichTextConfig.getAttributes();
 
             attributes.forEach(attr -> {
                 List<String> toHandle = new ArrayList<>();
@@ -151,7 +151,7 @@ public class GqlHtmlFilteringQuery {
                 }
 
                 for (String s : toHandle) {
-                    GqlRichTextConfigAttribute at = findOrCreateAttributesByAttribute(a, s);
+                    GqlHTMLFilteringConfigAttribute at = findOrCreateAttributesByAttribute(a, s);
 
                     if (((JSONObject) attr).has("pattern")) {
                         at.setPattern(((JSONObject) attr).getString("pattern"));
@@ -169,14 +169,14 @@ public class GqlHtmlFilteringQuery {
         }
     }
 
-    private GqlRichTextConfigAttribute findOrCreateAttributesByAttribute(List<GqlRichTextConfigAttribute> attr, String attribute) {
-        Optional<GqlRichTextConfigAttribute> opt = attr.stream().filter(a -> attribute.equals(a.getAttribute())).findFirst();
+    private GqlHTMLFilteringConfigAttribute findOrCreateAttributesByAttribute(List<GqlHTMLFilteringConfigAttribute> attr, String attribute) {
+        Optional<GqlHTMLFilteringConfigAttribute> opt = attr.stream().filter(a -> attribute.equals(a.getAttribute())).findFirst();
 
         if (opt.isPresent()) {
             return opt.get();
         }
 
-        GqlRichTextConfigAttribute gqlRichTextConfigAttribute = new GqlRichTextConfigAttribute();
+        GqlHTMLFilteringConfigAttribute gqlRichTextConfigAttribute = new GqlHTMLFilteringConfigAttribute();
         gqlRichTextConfigAttribute.setAttribute(attribute);
         attr.add(gqlRichTextConfigAttribute);
         return gqlRichTextConfigAttribute;

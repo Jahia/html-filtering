@@ -19,36 +19,49 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@GraphQLDescription("Model for disallowed HTML Filtering")
-public class GqlRichTextDisallowedConfig implements RichTextConfigInterface {
+@GraphQLDescription("Model for HTML Filtering attribute")
+public class GqlHTMLFilteringConfigAttribute {
 
-    private Set<String> protocols = new HashSet<>();
+    private String attribute;
     private Set<String> elements = new HashSet<>();
-    private List<GqlRichTextConfigAttribute> attributes = new ArrayList<>();
+    private String pattern;
 
     @GraphQLField
-    @GraphQLName("protocols")
-    @GraphQLDescription("Protocols")
-    public Set<String> getProtocols() {
-        return protocols;
+    @GraphQLName("attribute")
+    @GraphQLDescription("Html attribute")
+    public String getAttribute() {
+        return attribute;
     }
 
     @GraphQLField
     @GraphQLName("elements")
-    @GraphQLDescription("HTML elements")
+    @GraphQLDescription("Elements for which attribute is applied")
     public Set<String> getElements() {
         return elements;
     }
 
     @GraphQLField
-    @GraphQLName("attributes")
-    @GraphQLDescription("HTML attributes")
-    public List<GqlRichTextConfigAttribute> getAttributes() {
-        return attributes;
+    @GraphQLName("pattern")
+    @GraphQLDescription("Pattern used to validate attribute value")
+    public String getPattern() {
+        return pattern;
+    }
+
+    @GraphQLField
+    @GraphQLName("isGlobal")
+    @GraphQLDescription("Indicates if attribute is configured globally or for specific elements")
+    public Boolean isGlobal() {
+        return elements.isEmpty();
+    }
+
+    public void setAttribute(String attribute) {
+        this.attribute = attribute;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
     }
 }

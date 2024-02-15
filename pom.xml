@@ -42,7 +42,7 @@
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
-        <jahia-module-signature>MC0CFHH5gM/Zpl8kOBTjCGqH1xA5pqdaAhUAlUgJeofDw/DfOp6piIOe9St+y+U=</jahia-module-signature>
+        <jahia-module-signature>MCwCFHLc4lBKHlnKHJV8yK5T0fZciqnsAhRID3FAAwHm88yKSuHH+86BoFN4tQ==</jahia-module-signature>
         <export-package>
             org.jahia.modules.htmlfiltering
         </export-package>

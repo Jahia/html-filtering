@@ -10,7 +10,7 @@ describe('HTML rich text filtering API', () => {
 
     before(() => {
         createSite(siteKey);
-        installConfig('configs/org.jahia.modules.richtext.config-filteringSite.yml');
+        installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         enableHtmlFiltering(siteKey);
         previewMutation = require('graphql-tag/loader!../fixtures/filteringAPI/preview.graphql');
         configQuery = require('graphql-tag/loader!../fixtures/filteringAPI/config.graphql');
@@ -28,14 +28,14 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.removedAttributes).length(1);
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.removedAttributes[0].attributes[0]).to.equal('removed-attribute');
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.removedAttributes[0].element).to.equal('div');
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.removedElements).length(1);
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.removedElements).contain('strong');
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.html).contain('role="myRole"');
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.html).contain('id="myId"');
-            expect(response.data.richtextConfiguration.htmlFiltering.testFiltering.html).contain('<p>Testing</p>');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.removedAttributes).length(1);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.removedAttributes[0].attributes[0]).to.equal('removed-attribute');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.removedAttributes[0].element).to.equal('div');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.removedElements).length(1);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.removedElements).contain('strong');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.html).contain('role="myRole"');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.html).contain('id="myId"');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.testFiltering.html).contain('<p>Testing</p>');
         });
     });
 
@@ -46,15 +46,15 @@ describe('HTML rich text filtering API', () => {
                 siteKey: siteKey
             }
         }).then(response => {
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes).length(40);
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes).length(40);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes.find(a => a.attribute === 'class')).to.deep.equal({
                 attribute: 'class',
                 elements: [],
                 isGlobal: true,
                 pattern: null,
-                __typename: 'GqlRichTextConfigAttribute'
+                __typename: 'GqlHTMLFilteringConfigAttribute'
             });
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.attributes.find(a => a.attribute === 'autoplay')).to.deep.equal({
                 attribute: 'autoplay',
                 elements: [
                     'audio',
@@ -62,12 +62,12 @@ describe('HTML rich text filtering API', () => {
                 ],
                 isGlobal: false,
                 pattern: null,
-                __typename: 'GqlRichTextConfigAttribute'
+                __typename: 'GqlHTMLFilteringConfigAttribute'
             });
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.elements).length(71);
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.protocols).length(3);
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).length(1);
-            expect(response.data.richtextConfiguration.htmlFiltering.richtextConfiguration.disallow.elements).contain('strong');
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.elements).length(71);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.protocols).length(3);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.disallow.elements).length(1);
+            expect(response.data.htmlFilteringConfiguration.htmlFiltering.configuration.disallow.elements).contain('strong');
         });
     });
 });

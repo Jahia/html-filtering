@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           git remote -v
-          git remote set-url origin git@github.com:Jahia/richtext-configuration.git
+          git remote set-url origin git@github.com:Jahia/html-filtering.git
           git remote -v
 
       # Setting up the SSH agent to be able to commit back to the repository
@@ -45,7 +45,7 @@ jobs:
         env:
           NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/
         with:
-          github_slug: Jahia/richtext-configuration
+          github_slug: Jahia/html-filtering
           primary_release_branch: main
           release_id: ${{ github.event.release.id }}
           release_version: ${{ github.event.release.tag_name }}
@@ -67,7 +67,7 @@ jobs:
       - uses: jahia/jahia-modules-action/release-publication@v2
         name: Publish Module
         with:
-          module_id: richtext-configuration
+          module_id: html-filtering
           release_version: ${{ github.event.release.tag_name }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}

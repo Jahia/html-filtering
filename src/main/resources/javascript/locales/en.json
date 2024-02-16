@@ -1,13 +1,13 @@
 {
   "label": {
     "settings": {
-      "title": "richtext-configuration setting"
+      "title": "html-filtering setting"
     },
     "action": {
-      "title": "richtext-configuration - How to extend the ui ?"
+      "title": "html-filtering - How to extend the ui ?"
     },
     "appsAccordion": {
-      "title": "richtext-configuration"
+      "title": "html-filtering"
     }
   }
 }

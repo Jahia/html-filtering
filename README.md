@@ -1,4 +1,4 @@
-# HTML Filtering
+# HTML Filtering Configuration
 
 ## How it works
 

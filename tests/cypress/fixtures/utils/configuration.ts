@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-const pid = 'org.jahia.modules.richtext.config';
+const pid = 'org.jahia.modules.htmlfiltering.config';
 
 export const installConfig = configFilePath => {
     return cy.runProvisioningScript(

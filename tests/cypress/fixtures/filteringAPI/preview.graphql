@@ -1,5 +1,5 @@
 mutation PreviewFiltering($text: String!, $siteKey: String!) {
-  richtextConfiguration {
+  htmlFilteringConfiguration {
     htmlFiltering {
       testFiltering(
         siteKey: $siteKey

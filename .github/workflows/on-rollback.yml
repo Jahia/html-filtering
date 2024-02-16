@@ -24,7 +24,7 @@ jobs:
       - uses: jahia/jahia-modules-action/release-rollback@TECH-1008
         name: Rollback Module
         with:
-          github_slug: Jahia/richtext-configuration
+          github_slug: Jahia/html-filtering
           release_id: ${{ github.event.release.id }}
           release_version: ${{ github.event.release.tag_name }}
           mvn_settings_filepath: '.github/maven.settings.xml'

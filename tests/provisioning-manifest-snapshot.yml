@@ -1,5 +1,5 @@
 - installBundle:
-    - 'mvn:org.jahia.modules/richtext-configuration'
+    - 'mvn:org.jahia.modules/html-filtering'
   autoStart: true
   uninstallPreviousVersion: true
 - karafCommand: "bundle:list"

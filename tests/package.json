@@ -1,5 +1,5 @@
 {
-  "name": "@jahia/richtext-config-cypress",
+  "name": "@jahia/html-filtering-cypress",
   "version": "1.0.0",
   "description": "cypress",
   "devDependencies": {
@@ -48,12 +48,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jahia/richtext-configuration.git"
+    "url": "git+https://github.com/Jahia/html-filtering.git"
   },
   "author": "",
   "license": "SEE LICENSE IN LICENSE.txt",
   "bugs": {
-    "url": "https://github.com/Jahia/richtext-configuration/issues"
+    "url": "https://github.com/Jahia/html-filtering/issues"
   },
-  "homepage": "https://github.com/Jahia/richtext-configuration#readme"
+  "homepage": "https://github.com/Jahia/html-filtering#readme"
 }

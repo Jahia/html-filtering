@@ -16,8 +16,8 @@
 package org.jahia.modules.htmlfiltering.configuration;
 
 import org.apache.commons.lang.StringUtils;
-import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
+import org.jahia.modules.htmlfiltering.configuration.metatype.HTMLFilteringMetatype;
 import org.jahia.modules.htmlfiltering.configuration.parse.Parser;
 import org.jahia.modules.htmlfiltering.configuration.parse.PropsToJsonParser;
 import org.json.JSONArray;
@@ -27,6 +27,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.metatype.annotations.Designate;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
         "service.description=HTML Filtering service",
         "service.vendor=Jahia Solutions Group SA"
 }, immediate = true)
+@Designate(ocd = HTMLFilteringMetatype.class, factory = true)
 public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(HTMLFiltering.class);

@@ -152,7 +152,6 @@ public abstract class Parser {
         }
     }
 
-    @NotNull
     private static Object convertToJSONArray(Object name) {
         if (!(name instanceof JSONArray)) {
             name = new JSONArray(new String[]{(String) name});

@@ -50,7 +50,7 @@ public abstract class Parser {
         PATTERNS.put("NAME", Pattern.compile("[a-zA-Z0-9\\-_\\$]+"));
         PATTERNS.put("ALIGN", Pattern.compile("(?i)center|left|right|justify|char"));
         PATTERNS.put("VALIGN", Pattern.compile("(?i)baseline|bottom|middle|top"));
-        PATTERNS.put("PARAGRAPH", Pattern.compile("(?:[\\p{L}\\p{N},'\\.\\s\\-_\\(\\)]|&\\d{2};)*"));
+        PATTERNS.put("PARAGRAPH", Pattern.compile("(?:[\\p{L}\\p{N},'\\.\\s\\-_\\(\\)]|&\\d{2};)*+"));
     }
 
     public abstract String parseToJsonString(JSONObject json);

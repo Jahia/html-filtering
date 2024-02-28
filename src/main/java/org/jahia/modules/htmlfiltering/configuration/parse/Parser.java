@@ -15,7 +15,6 @@
  */
 package org.jahia.modules.htmlfiltering.configuration.parse;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.owasp.html.HtmlPolicyBuilder;

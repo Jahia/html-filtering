@@ -21,17 +21,17 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
 import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
-import org.jahia.modules.htmlfiltering.graphql.models.*;
+import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFiltering;
+import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringConfig;
+import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringConfigAttribute;
+import org.jahia.modules.htmlfiltering.graphql.models.HTMLFilteringConfigInterface;
 import org.jahia.osgi.BundleUtils;
-import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.sites.JahiaSitesService;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;

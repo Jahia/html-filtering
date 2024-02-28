@@ -36,7 +36,6 @@ import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import java.util.Collections;
-import java.util.Objects;
 
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {

@@ -18,7 +18,7 @@ package org.jahia.modules.htmlfiltering.graphql.mutation.impl;
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
-import org.jahia.modules.htmlfiltering.graphql.mutation.impl.htmlFiltering.GqlHtmlFilteringMutation;
+import org.jahia.modules.htmlfiltering.graphql.mutation.impl.html_filtering.GqlHtmlFilteringMutation;
 
 @GraphQLName("HTMLFilteringMutation")
 @GraphQLDescription("HTML Filtering mutations entry point")

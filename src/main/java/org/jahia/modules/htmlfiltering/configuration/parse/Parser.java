@@ -26,28 +26,30 @@ import java.util.regex.Pattern;
 
 public abstract class Parser {
 
+    public static final String ELEMENTS = "elements";
+
     private enum PolicyType {
-        ALLOW, DISALLOW;
+        ALLOW, DISALLOW
     }
 
-    private static Map<String, Pattern> PATTERNS;
+    private static final Map<String, Pattern> PATTERNS;
 
     static {
         PATTERNS = new HashMap<>();
         String onsiteUrl = "(?:[\\p{L}\\p{N}\\\\\\.\\#@\\$%\\+&;\\-_~,\\?=/!{}:]+|\\#(\\w)+)";
         String offsiteUrl = "(\\s*(?:(?:ht|f)tps?://|mailto:)[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{Zs}\\.\\#@\\$%\\+&;:\\-_~,\\?=/!\\(\\)"
                 + "]*+\\s*)";
-        PATTERNS.put("NUMBER_OR_PERCENT", Pattern.compile("[0-9]+%?"));
+        PATTERNS.put("NUMBER_OR_PERCENT", Pattern.compile("\\d+%?"));
         PATTERNS.put("ONSITE_URL", Pattern.compile(onsiteUrl));
         PATTERNS.put("OFFSITE_URL", Pattern.compile(onsiteUrl));
         PATTERNS.put("LINKS_URL", Pattern.compile(String.format("(?:%s|%s)", onsiteUrl, offsiteUrl)));
         PATTERNS.put("HTML_ID", Pattern.compile("[a-zA-Z0-9\\:\\-_\\.]+"));
         PATTERNS.put("HTML_CLASS", Pattern.compile("[a-zA-Z0-9\\s,\\-_]+"));
-        PATTERNS.put("NUMBER", Pattern.compile("[+-]?(?:(?:[0-9]+(?:\\.[0-9]*)?)|\\.[0-9]+)"));
+        PATTERNS.put("NUMBER", Pattern.compile("[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)"));
         PATTERNS.put("NAME", Pattern.compile("[a-zA-Z0-9\\-_\\$]+"));
         PATTERNS.put("ALIGN", Pattern.compile("(?i)center|left|right|justify|char"));
         PATTERNS.put("VALIGN", Pattern.compile("(?i)baseline|bottom|middle|top"));
-        PATTERNS.put("PARAGRAPH", Pattern.compile("(?:[\\p{L}\\p{N},'\\.\\s\\-_\\(\\)]|&[0-9]{2};)*"));
+        PATTERNS.put("PARAGRAPH", Pattern.compile("(?:[\\p{L}\\p{N},'\\.\\s\\-_\\(\\)]|&\\d{2};)*+"));
     }
 
     public abstract String parseToJsonString(JSONObject json);
@@ -81,9 +83,7 @@ public abstract class Parser {
         if (filtering.has("protocols")) {
             Object p = filtering.get("protocols");
 
-            if (!(p instanceof JSONArray)) {
-                p = new JSONArray(new String[]{(String) p});
-            }
+            p = convertToJSONArray(p);
 
             if (policyType == PolicyType.ALLOW) {
                 builder.allowUrlProtocols(jsonArrayToArray((JSONArray) p));
@@ -94,15 +94,13 @@ public abstract class Parser {
     }
 
     private static void handleElements(JSONObject filtering, HtmlPolicyBuilder builder, PolicyType policyType) {
-        if (filtering.has("elements")) {
-            JSONArray elems = filtering.getJSONArray("elements");
+        if (filtering.has(ELEMENTS)) {
+            JSONArray elems = filtering.getJSONArray(ELEMENTS);
 
             elems.forEach(jsonObject -> {
                 Object name = ((JSONObject)jsonObject).get("name");
 
-                if (!(name instanceof JSONArray)) {
-                    name = new JSONArray(new String[]{(String) name});
-                }
+                name = convertToJSONArray(name);
 
                 if (policyType == PolicyType.ALLOW) {
                     builder.allowElements(jsonArrayToArray((JSONArray) name));
@@ -118,12 +116,10 @@ public abstract class Parser {
             JSONArray attr = filtering.getJSONArray("attributes");
 
             attr.forEach(jsonObject -> {
-                boolean isGlobal = !((JSONObject)jsonObject).has("elements");
+                boolean isGlobal = !((JSONObject)jsonObject).has(ELEMENTS);
                 Object name = ((JSONObject)jsonObject).get("name");
 
-                if (!(name instanceof JSONArray)) {
-                    name = new JSONArray(new String[]{(String) name});
-                }
+                name = convertToJSONArray(name);
 
                 HtmlPolicyBuilder.AttributeBuilder attrBuilder;
 
@@ -139,19 +135,28 @@ public abstract class Parser {
                     attrBuilder.matching(p);
                 }
 
-                if (isGlobal) {
-                    attrBuilder.globally();
-                } else {
-                    Object elems = ((JSONObject)jsonObject).get("elements");
-
-                    if (!(elems instanceof JSONArray)) {
-                        elems = new JSONArray(new String[]{(String) elems});
-                    }
-
-                    attrBuilder.onElements(jsonArrayToArray((JSONArray) elems));
-                }
+                handleGlobal((JSONObject) jsonObject, isGlobal, attrBuilder);
             });
         }
+    }
+
+    private static void handleGlobal(JSONObject jsonObject, boolean isGlobal, HtmlPolicyBuilder.AttributeBuilder attrBuilder) {
+        if (isGlobal) {
+            attrBuilder.globally();
+        } else {
+            Object elems = jsonObject.get(ELEMENTS);
+
+            elems = convertToJSONArray(elems);
+
+            attrBuilder.onElements(jsonArrayToArray((JSONArray) elems));
+        }
+    }
+
+    private static Object convertToJSONArray(Object name) {
+        if (!(name instanceof JSONArray)) {
+            name = new JSONArray(new String[]{(String) name});
+        }
+        return name;
     }
 
     private static String[] jsonArrayToArray(JSONArray array) {

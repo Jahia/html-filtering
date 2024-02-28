@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.mutation.impl.htmlFiltering;
+package org.jahia.modules.htmlfiltering.graphql.mutation.impl.html_filtering;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
@@ -46,15 +46,12 @@ public class GqlHtmlFilteringMutation {
     public Boolean getEnableFiltering(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
 
         try {
-            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-                @Override
-                public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
-                    siteNode.setProperty("j:doTagFiltering", true);
-                    session.save();
+            return JCRTemplate.getInstance().doExecuteWithSystemSession(session -> {
+                JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
+                siteNode.setProperty("j:doTagFiltering", true);
+                session.save();
 
-                    return true;
-                }
+                return true;
             });
         } catch (RepositoryException e) {
             throw new DataFetchingException(e);
@@ -67,15 +64,12 @@ public class GqlHtmlFilteringMutation {
     public Boolean getDisableFiltering(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
 
         try {
-            return JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-                @Override
-                public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
-                    siteNode.setProperty("j:doTagFiltering", false);
-                    session.save();
+            return JCRTemplate.getInstance().doExecuteWithSystemSession(session -> {
+                JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
+                siteNode.setProperty("j:doTagFiltering", false);
+                session.save();
 
-                    return true;
-                }
+                return true;
             });
         } catch (RepositoryException e) {
             throw new DataFetchingException(e);

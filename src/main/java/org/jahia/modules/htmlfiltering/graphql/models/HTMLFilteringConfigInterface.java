@@ -20,7 +20,9 @@ import java.util.Set;
 
 public interface HTMLFilteringConfigInterface {
 
-    public Set<String> getProtocols();
-    public Set<String> getElements();
-    public List<GqlHTMLFilteringConfigAttribute> getAttributes();
+    Set<String> getProtocols();
+
+    Set<String> getElements();
+
+    List<GqlHTMLFilteringConfigAttribute> getAttributes();
 }

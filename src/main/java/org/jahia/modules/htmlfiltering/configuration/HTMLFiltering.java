@@ -16,7 +16,6 @@
 package org.jahia.modules.htmlfiltering.configuration;
 
 import org.apache.commons.lang.StringUtils;
-import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
 import org.jahia.modules.htmlfiltering.configuration.parse.Parser;
 import org.jahia.modules.htmlfiltering.configuration.parse.PropsToJsonParser;
@@ -69,9 +68,9 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         if (!dictCopy.isEmpty()) {
             configs.put(pid, new PropsToJsonParser().parse(dictCopy));
             siteKeyToPid.put(siteKey, pid);
-            logger.info(String.format("Setting htmlFiltering config for site %s: %s", siteKey, configs.get(pid).toString()));
+            logger.info("Setting htmlFiltering config for site {}: {}", siteKey, configs.get(pid));
         } else {
-            logger.warn(String.format("Could not find htmlFiltering object for site: %s", siteKey));
+            logger.warn("Could not find htmlFiltering object for site: {}", siteKey);
         }
     }
 
@@ -121,7 +120,7 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
 
         for (String key : siteKeys) {
             if (configExists(key)) {
-                mergeJsonObject(mergedPolicy, configs.get(siteKeyToPid.get(key)));
+                mergeJSONObject(mergedPolicy, configs.get(siteKeyToPid.get(key)));
             }
         }
 
@@ -150,27 +149,35 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         return f.has("htmlSanitizerDryRun") && f.getBoolean("htmlSanitizerDryRun");
     }
 
-    private void mergeJsonObject(JSONObject target, JSONObject source) {
+    private void mergeJSONObject(JSONObject target, JSONObject source) {
         for (String key : source.keySet()) {
             if (source.get(key) instanceof JSONObject) {
-                if (target.has(key) && target.get(key) instanceof JSONObject) {
-                    mergeJsonObject(target.getJSONObject(key), source.getJSONObject(key));
-                } else {
-                    target.put(key, new JSONObject(source.getJSONObject(key).toString()));
-                }
+                mergeSubJSONObject(target, source, key);
             } else if (source.get(key) instanceof JSONArray) {
-                if (target.has(key) && target.get(key) instanceof JSONArray) {
-                    JSONArray targetArray = target.getJSONArray(key);
-                    JSONArray sourceArray = source.getJSONArray(key);
-                    for (int i = 0; i < sourceArray.length(); i++) {
-                        targetArray.put(sourceArray.get(i));
-                    }
-                } else {
-                    target.put(key, new JSONArray(source.getJSONArray(key).toString()));
-                }
+                mergeJSONArray(target, source, key);
             } else {
                 target.put(key, source.get(key));
             }
+        }
+    }
+
+    private static void mergeJSONArray(JSONObject target, JSONObject source, String key) {
+        if (target.has(key) && target.get(key) instanceof JSONArray) {
+            JSONArray targetArray = target.getJSONArray(key);
+            JSONArray sourceArray = source.getJSONArray(key);
+            for (int i = 0; i < sourceArray.length(); i++) {
+                targetArray.put(sourceArray.get(i));
+            }
+        } else {
+            target.put(key, new JSONArray(source.getJSONArray(key).toString()));
+        }
+    }
+
+    private void mergeSubJSONObject(JSONObject target, JSONObject source, String key) {
+        if (target.has(key) && target.get(key) instanceof JSONObject) {
+            mergeJSONObject(target.getJSONObject(key), source.getJSONObject(key));
+        } else {
+            target.put(key, new JSONObject(source.getJSONObject(key).toString()));
         }
     }
 }

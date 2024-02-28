@@ -22,7 +22,6 @@ import java.util.Map;
 
 /**
  * Given a flat map of this kind:
- *
  *         Map<String, Object> flatMap = new HashMap<>();
  *         flatMap.put("name", "John Doe");
  *         flatMap.put("age", 30);
@@ -39,7 +38,6 @@ import java.util.Map;
  *         flatMap.put("contacts[2].sub[0].value", "123-456-7890");
  *         flatMap.put("jcrestapi.grants[0].node.withPermission", "my-access");
  *         flatMap.put("jcrestapi.grants[1].node.withPermission", "api-access");
- *
  * it produces a json object.
  */
 public class PropsToJsonParser {

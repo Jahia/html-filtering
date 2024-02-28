@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.query.impl.htmlFiltering;
+package org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
@@ -42,22 +42,21 @@ import java.util.Optional;
 @GraphQLDescription("Query for html filtering settings")
 public class GqlHtmlFilteringQuery {
 
+    public static final String TAG_FILTERING = "j:doTagFiltering";
+    public static final String ELEMENTS = "elements";
+
     @GraphQLField
     @GraphQLName("filteringSettings")
     @GraphQLDescription("HTML filtering settings for a site")
     public GqlHTMLFiltering getFilteringSettings(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
-        GqlHTMLFiltering filtering = null;
+        GqlHTMLFiltering filtering;
 
         try {
-            filtering = JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<GqlHTMLFiltering>() {
+            filtering = JCRTemplate.getInstance().doExecuteWithSystemSession(session -> {
+                JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
+                boolean enabled = siteNode.hasProperty(TAG_FILTERING) && siteNode.getProperty(TAG_FILTERING).getBoolean();
 
-                @Override
-                public GqlHTMLFiltering doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    JCRNodeWrapper siteNode = session.getNode("/sites/" + siteKey);
-                    boolean enabled = siteNode.hasProperty("j:doTagFiltering") && siteNode.getProperty("j:doTagFiltering").getBoolean();
-
-                    return new GqlHTMLFiltering(siteKey, enabled);
-                }
+                return new GqlHTMLFiltering(siteKey, enabled);
             });
         } catch (RepositoryException e) {
             throw new DataFetchingException(e);
@@ -76,7 +75,7 @@ public class GqlHtmlFilteringQuery {
             List<JCRSiteNode> siteNodes = JahiaSitesService.getInstance().getSitesNodeList();
 
             for (JCRSiteNode siteNode : siteNodes) {
-                if (siteNode.hasProperty("j:doTagFiltering") && siteNode.getProperty("j:doTagFiltering").getBoolean()) {
+                if (siteNode.hasProperty(TAG_FILTERING) && siteNode.getProperty(TAG_FILTERING).getBoolean()) {
                     enabled.add(siteNode.getSiteKey());
                 }
             }
@@ -124,8 +123,8 @@ public class GqlHtmlFilteringQuery {
     }
 
     private void getElements(JSONObject config, HTMLFilteringConfigInterface gqlHTMLFilteringConfig) {
-        if (config.has("elements")) {
-            JSONArray elements = config.getJSONArray("elements");
+        if (config.has(ELEMENTS)) {
+            JSONArray elements = config.getJSONArray(ELEMENTS);
             elements.forEach(e -> {
                 if (((JSONObject)e).get("name") instanceof JSONArray) {
                     ((JSONObject)e).getJSONArray("name").forEach(el -> gqlHTMLFilteringConfig.getElements().add((String) el));
@@ -150,22 +149,26 @@ public class GqlHtmlFilteringQuery {
                     toHandle.add(((JSONObject) attr).getString("name"));
                 }
 
-                for (String s : toHandle) {
-                    GqlHTMLFilteringConfigAttribute at = findOrCreateAttributesByAttribute(a, s);
-
-                    if (((JSONObject) attr).has("pattern")) {
-                        at.setPattern(((JSONObject) attr).getString("pattern"));
-                    }
-
-                    if (((JSONObject) attr).has("elements")) {
-                        if (((JSONObject) attr).get("elements") instanceof JSONArray) {
-                            ((JSONObject) attr).getJSONArray("elements").forEach(e -> at.getElements().add((String) e));
-                        } else {
-                            at.getElements().add(((JSONObject) attr).getString("elements"));
-                        }
-                    }
-                }
+                handleAttributes((JSONObject) attr, toHandle, a);
             });
+        }
+    }
+
+    private void handleAttributes(JSONObject attr, List<String> toHandle, List<GqlHTMLFilteringConfigAttribute> a) {
+        for (String s : toHandle) {
+            GqlHTMLFilteringConfigAttribute at = findOrCreateAttributesByAttribute(a, s);
+
+            if (attr.has("pattern")) {
+                at.setPattern(attr.getString("pattern"));
+            }
+
+            if (attr.has(ELEMENTS)) {
+                if (attr.get(ELEMENTS) instanceof JSONArray) {
+                    attr.getJSONArray(ELEMENTS).forEach(e -> at.getElements().add((String) e));
+                } else {
+                    at.getElements().add(attr.getString(ELEMENTS));
+                }
+            }
         }
     }
 

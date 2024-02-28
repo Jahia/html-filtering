@@ -18,7 +18,7 @@ package org.jahia.modules.htmlfiltering.graphql.query.impl;
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
-import org.jahia.modules.htmlfiltering.graphql.query.impl.htmlFiltering.GqlHtmlFilteringQuery;
+import org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering.GqlHtmlFilteringQuery;
 
 @GraphQLName("HTMLFilteringConfigurationQuery")
 @GraphQLDescription("Entry point for site HTML Filtering queries")

@@ -22,6 +22,7 @@ import org.jahia.services.content.JCRStoreService;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.interceptor.BaseInterceptor;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+import org.jetbrains.annotations.NotNull;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -34,11 +35,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.version.VersionException;
 import java.util.Collections;
+import java.util.Objects;
 
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {
@@ -66,26 +64,14 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
 
     @Override
     public Value beforeSetValue(JCRNodeWrapper node, String name,
-            ExtendedPropertyDefinition definition, Value originalValue)
-            throws ValueFormatException, VersionException, LockException,
-            ConstraintViolationException, RepositoryException {
+                                ExtendedPropertyDefinition definition, Value originalValue)
+            throws RepositoryException {
 
-        String content = originalValue.getString();
-        if (StringUtils.isEmpty(content) || !content.contains("<")) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("The value does not contain any HTML tags. Skip filtering.");
-            }
-            return originalValue;
-        }
+        if (valueIsEmpty(originalValue)) return originalValue;
 
         JCRSiteNode resolveSite = node.getResolveSite();
-        if (!resolveSite.isHtmlMarkupFilteringEnabled()) {
-            return originalValue;
-        }
-
         HTMLFilteringInterface filteringConfig = BundleUtils.getOsgiService(HTMLFilteringInterface.class, null);
-
-        if (filteringConfig == null) {
+        if (!resolveSite.isHtmlMarkupFilteringEnabled() || filteringConfig == null) {
             return originalValue;
         }
 
@@ -95,19 +81,62 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             return originalValue;
         }
 
-        Value modifiedValue = originalValue;
-
         if (logger.isDebugEnabled()) {
-            logger.debug("Performing HTML tag filtering for " + node.getPath() + "/" + name);
+            logger.debug("Performing HTML tag filtering for {}/{}", node.getPath(), name);
             if (logger.isTraceEnabled()) {
-                logger.trace("Original value: " + content);
+                logger.trace("Original value: {}", originalValue.getString());
             }
         }
-
+        String content = originalValue.getString();
         String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
 
+        if (dryRun(filteringConfig, resolveSite, propInfo, policyFactory, content)) return originalValue;
+
+        String result = policyFactory.sanitize(content);
+
+        logger.warn("Sanitized [{}]", propInfo);
+
+        return getModifiedValue(node, preservePlaceholders(result), content, originalValue);
+    }
+
+    @NotNull
+    private static String preservePlaceholders(String result) {
+        // Preserve URL context placeholders that might've been encoded by the sanitizer
+        result = result.replace("%7bmode%7d", "{mode}");
+        result = result.replace("%7blang%7d", "{lang}");
+        result = result.replace("%7bworkspace%7d", "{workspace}");
+        return result;
+    }
+
+    private static Value getModifiedValue(JCRNodeWrapper node, String result, String content, Value originalValue) throws RepositoryException {
+        if (!result.equals(content)) {
+            Value modifiedValue = node.getSession().getValueFactory().createValue(result);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Done filtering of \"unwanted\" HTML tags.");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Modified value: {}", result);
+                }
+            }
+            return modifiedValue;
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
+        }
+        return originalValue;
+    }
+
+    private static boolean valueIsEmpty(Value originalValue) throws RepositoryException {
+        if (StringUtils.isEmpty(originalValue.getString()) || !originalValue.getString().contains("<")) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("The value does not contain any HTML tags. Skip filtering.");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean dryRun(HTMLFilteringInterface filteringConfig, JCRSiteNode resolveSite, String propInfo, PolicyFactory policyFactory, String content) {
         if (filteringConfig.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
-            logger.info(String.format("Dry run: Skipping Sanitization of [%s]", propInfo));
+            logger.info("Dry run: Skipping Sanitization of [{}]", propInfo);
 
             policyFactory.sanitize(content, new HtmlChangeListener<Object>() {
                 @Override
@@ -121,40 +150,15 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
                 }
             }, null);
 
-            return originalValue;
+            return true;
         }
-
-        String result = policyFactory.sanitize(content);
-
-        logger.warn(String.format("Sanitized [%s]", propInfo));
-
-        // Preserve URL context placeholders that might've been encoded by the sanitizer
-        result = result.replace("%7bmode%7d", "{mode}");
-        result = result.replace("%7blang%7d", "{lang}");
-        result = result.replace("%7bworkspace%7d", "{workspace}");
-
-        if (result != content && !result.equals(content)) {
-            modifiedValue = node.getSession().getValueFactory().createValue(result);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Done filtering of \"unwanted\" HTML tags.");
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Modified value: " + result);
-                }
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
-            }
-        }
-
-        return modifiedValue;
+        return false;
     }
 
     @Override
     public Value[] beforeSetValues(JCRNodeWrapper node, String name,
-            ExtendedPropertyDefinition definition, Value[] originalValues)
-            throws ValueFormatException, VersionException, LockException,
-            ConstraintViolationException, RepositoryException {
+                                   ExtendedPropertyDefinition definition, Value[] originalValues)
+            throws RepositoryException {
         Value[] res = new Value[originalValues.length];
 
         for (int i = 0; i < originalValues.length; i++) {

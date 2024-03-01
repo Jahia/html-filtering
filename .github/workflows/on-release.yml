@@ -40,7 +40,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY_JAHIACI }}
 
-      - uses: jahia/jahia-modules-action/release@release-bump-test-module
+      - uses: jahia/jahia-modules-action/release@v2
         name: Release Module
         env:
           NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/

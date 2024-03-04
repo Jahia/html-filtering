@@ -46,16 +46,6 @@
         <export-package>
             org.jahia.modules.htmlfiltering
         </export-package>
-        <import-package>
-            graphql.annotations.annotationTypes;version="[6.5,99)",
-            javax.jcr;version="[2.0,3)",
-            org.jahia.modules.graphql.provider.dxm;version="[2.7,4)",
-            org.jahia.osgi,
-            org.jahia.services.content,
-            org.osgi.framework;version="[1.8,2)",
-            org.slf4j;version="[1.7,2)",
-            org.jahia.services
-        </import-package>
     </properties>
 
     <repositories>
@@ -107,6 +97,18 @@
                 <configuration>
                     <instructions>
                         <_dsannotations>*</_dsannotations>
+                        <Import-Package>
+                            ${jahia.plugin.projectPackageImport},
+                            graphql.annotations.annotationTypes;version="[6.5,99)",
+                            javax.jcr;version="[2.0,3)",
+                            org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
+                            org.jahia.osgi,
+                            org.jahia.services.content,
+                            org.osgi.framework;version="[1.8,2)",
+                            org.slf4j;version="[1.7,2)",
+                            org.jahia.services,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

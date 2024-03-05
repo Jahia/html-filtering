@@ -108,7 +108,46 @@
                 <configuration>
                     <instructions>
                         <_dsannotations>*</_dsannotations>
+                        <Import-Package>
+                            ${jahia.plugin.projectPackageImport},
+                            graphql.annotations.annotationTypes;version="[6.5,99)",
+                            javax.jcr;version="[2.0,3)",
+                            org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
+                            org.jahia.osgi,
+                            org.jahia.services.content,
+                            org.osgi.framework;version="[1.8,2)",
+                            org.slf4j;version="[1.7,2)",
+                            org.jahia.services,
+                            *
+                        </Import-Package>
                     </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>2.7.11</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectType>library</projectType>
+                    <schemaVersion>1.4</schemaVersion>
+                    <includeBomSerialNumber>true</includeBomSerialNumber>
+                    <includeCompileScope>true</includeCompileScope>
+                    <includeProvidedScope>false</includeProvidedScope>
+                    <includeRuntimeScope>true</includeRuntimeScope>
+                    <includeSystemScope>false</includeSystemScope>
+                    <includeTestScope>false</includeTestScope>
+                    <includeLicenseText>false</includeLicenseText>
+                    <outputReactorProjects>true</outputReactorProjects>
+                    <outputFormat>json</outputFormat>
+                    <outputName>java-bom.cdx</outputName>
                 </configuration>
             </plugin>
         </plugins>

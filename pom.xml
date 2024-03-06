@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>jahia-modules</artifactId>
@@ -26,7 +26,7 @@
 
     <artifactId>html-filtering</artifactId>
     <name>Jahia HTML Filtering</name>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This modules provides configuration for HTML filtering.</description>
 
@@ -34,7 +34,7 @@
         <connection>scm:git:git@github.com:Jahia/html-filtering.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/html-filtering.git</developerConnection>
         <url>https://github.com/Jahia/html-filtering</url>
-        <tag>1_0_0</tag>        
+        <tag>HEAD</tag>        
     </scm>
 
     <properties>

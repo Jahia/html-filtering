@@ -40,23 +40,12 @@
     </scm>
 
     <properties>
-        <jahia.plugin.version>6.8</jahia.plugin.version>
+        <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFHLc4lBKHlnKHJV8yK5T0fZciqnsAhRID3FAAwHm88yKSuHH+86BoFN4tQ==</jahia-module-signature>
         <export-package>
             org.jahia.modules.htmlfiltering
         </export-package>
-        <import-package>
-            com.google.guava;version="[31.0,33)",
-            graphql.annotations.annotationTypes;version="[6.5,99)",
-            javax.jcr;version="[2.0,3)",
-            org.jahia.modules.graphql.provider.dxm;version="[2.7,4)",
-            org.jahia.osgi,
-            org.jahia.services.content,
-            org.osgi.framework;version="[1.8,2)",
-            org.slf4j;version="[1.7,2)",
-            org.jahia.services
-        </import-package>
     </properties>
 
     <repositories>

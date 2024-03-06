@@ -15,7 +15,7 @@ jobs:
     # downloading the entire world when building.
     # More on https://github.com/Jahia/cimg-mvn-cache
     container:
-      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_11.0.20-node
+      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_8.0.312-node
       credentials:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -27,16 +27,9 @@ jobs:
         with:
           ssh-key: ${{ secrets.GH_SSH_PRIVATE_KEY_JAHIACI }}
 
-      - name: Update git url
-        shell: bash
-        run: |
-          git remote -v
-          git remote set-url origin git@github.com:Jahia/html-filtering.git
-          git remote -v
-
       # Setting up the SSH agent to be able to commit back to the repository
       # https://github.com/webfactory/ssh-agent
-      - uses: webfactory/ssh-agent@v0.5.4
+      - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY_JAHIACI }}
 
@@ -53,8 +46,6 @@ jobs:
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           mvn_settings_filepath: '.github/maven.settings.xml'
-          ssh-private-key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
-          ssh-gh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY_JAHIACI }}
           slack-webhook-qa: ${{ secrets.SLACK_WEBHOOK_URL_RC_FOR_QA }}
 
       - uses: jahia/jahia-modules-action/update-signature@v2
@@ -63,14 +54,6 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           nexus_enterprise_releases_url: ${{ secrets.NEXUS_ENTERPRISE_RELEASES_URL }}
           force_signature: true
-
-      - uses: jahia/jahia-modules-action/release-publication@v2
-        name: Publish Module
-        with:
-          module_id: html-filtering
-          release_version: ${{ github.event.release.tag_name }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
 
       # Tmate only starts if any of the previous steps fails.a
       # Be careful since it also means that if a step fails the workflow will

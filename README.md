@@ -42,3 +42,4 @@ htmlFiltering:
 ## Todo
 
 1. List default patterns
+

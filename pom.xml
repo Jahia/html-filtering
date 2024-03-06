@@ -34,9 +34,10 @@
     <description>This modules provides configuration for HTML filtering.</description>
 
     <scm>
-        <connection>scm:git@github.com:Jahia/html-filtering.git</connection>
-        <developerConnection>scm:git@github.com:Jahia/html-filtering.git</developerConnection>
+        <connection>scm:git:git@github.com:Jahia/html-filtering.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/html-filtering.git</developerConnection>
         <url>https://github.com/Jahia/html-filtering</url>
+        <tag>HEAD</tag>        
     </scm>
 
     <properties>

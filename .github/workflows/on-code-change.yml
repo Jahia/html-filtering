@@ -34,7 +34,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jahia/jahia-modules-action/build@v2
         with:
-          module_id: html-filtering
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
 

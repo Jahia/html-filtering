@@ -1,16 +1,24 @@
+# DO NOT EDIT
+# This file is managed globally at https://github.com/Jahia/.github
+
+# Default types => labels are defined here: https://github.com/commitizen/conventional-commit-types/blob/master/index.json
+# feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 changelog:
   exclude:
     labels:
       - ignore-for-release
   categories:
-    - title: Exciting New Features 🎉
+    - title: Breaking Changes
       labels:
-        - v1.11
-        - enhancement
-    - title: Bug fixes 🛠
+        - breaking-change
+    - title: New Features
       labels:
-        - v1.11
+        - feat
+        - feature
+    - title: Bug fixes
+      labels:
         - bugfix
+        - fix
     - title: Other Changes
       labels:
         - "*"

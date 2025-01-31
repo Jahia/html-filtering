@@ -20,6 +20,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLTypeExtension;
 import org.jahia.modules.graphql.provider.dxm.DXGraphQLProvider;
+import org.jahia.modules.graphql.provider.dxm.security.GraphQLRequiresPermission;
 import org.jahia.modules.htmlfiltering.graphql.mutation.impl.GqlHTMLFilterConfigurationingMutation;
 
 @GraphQLTypeExtension(DXGraphQLProvider.Mutation.class)
@@ -28,6 +29,7 @@ public class HTMLFilteringMutationExtension {
     @GraphQLField
     @GraphQLName("htmlFilteringConfiguration")
     @GraphQLDescription("Entry point for HTML Filtering mutations")
+    @GraphQLRequiresPermission(value = "siteAdminHtmlSettings")
     public static GqlHTMLFilterConfigurationingMutation getHTMLFiltering() {
         return new GqlHTMLFilterConfigurationingMutation();
     }

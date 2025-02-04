@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "cypress",
   "devDependencies": {
-    "@jahia/cypress": "^3.17.7",
+    "@jahia/cypress": "^4.1.0",
     "@jahia/eslint-config": "^2.1.2",
     "@jahia/jahia-reporter": "^1.2.0",
     "@types/node": "^20.10.8",

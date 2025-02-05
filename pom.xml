@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>graphql-dxm-provider</artifactId>
-            <version>3.2.0</version>
+            <version>2.19.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -100,6 +100,7 @@
                             graphql.annotations.annotationTypes;version="[6.5,99)",
                             javax.jcr;version="[2.0,3)",
                             org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
+                            org.jahia.modules.graphql.provider.dxm.security;version="[2.19,4)",
                             org.jahia.osgi,
                             org.jahia.services.content,
                             org.osgi.framework;version="[1.8,2)",

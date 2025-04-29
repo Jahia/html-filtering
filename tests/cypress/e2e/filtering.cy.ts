@@ -5,7 +5,7 @@ import {
     enableHtmlFiltering,
     getContent,
     installConfig,
-    modifyContent
+    modifyContent, removeConfig
 } from '../fixtures/utils';
 
 describe('HTML rich text filtering', () => {
@@ -13,9 +13,8 @@ describe('HTML rich text filtering', () => {
     const textName = 'myText';
     const path = `/sites/${siteKey}/contents/${textName}`;
 
-    // TODO Need to clean up configuration manually (delete in file system) for local re-runs
-
     before(() => {
+        deleteSite(siteKey);
         createSite(siteKey);
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
@@ -25,7 +24,17 @@ describe('HTML rich text filtering', () => {
         });
     });
 
+    beforeEach(() => {
+        // Clean up any config
+        removeConfig(siteKey);
+        removeConfig('noSite');
+        disableHtmlFiltering(siteKey);
+    });
+
     after(() => {
+        // Clean up any config
+        removeConfig(siteKey);
+        removeConfig('noSite');
         deleteSite(siteKey);
     });
 
@@ -34,15 +43,6 @@ describe('HTML rich text filtering', () => {
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('iframe');
             expect(result.data.jcr.nodeByPath.property.value).to.contain('<script>');
-        });
-    });
-
-    it('does not apply html filtering to attribute when disabled (default)', () => {
-        modifyContent(path, '<img src="stub.jpg" loading="lazy">');
-        getContent(path).then(result => {
-            expect(result.data.jcr.nodeByPath.property.value).to.contain('<img');
-            expect(result.data.jcr.nodeByPath.property.value).to.contain('src');
-            expect(result.data.jcr.nodeByPath.property.value).to.contain('loading');
         });
     });
 
@@ -64,7 +64,17 @@ describe('HTML rich text filtering', () => {
         });
     });
 
+    it('does not apply html filtering to attribute when disabled (default)', () => {
+        modifyContent(path, '<img src="stub.jpg" loading="lazy">');
+        getContent(path).then(result => {
+            expect(result.data.jcr.nodeByPath.property.value).to.contain('<img');
+            expect(result.data.jcr.nodeByPath.property.value).to.contain('src');
+            expect(result.data.jcr.nodeByPath.property.value).to.contain('loading');
+        });
+    });
+
     it('applies default filtering to html element when enabled', () => {
+        enableHtmlFiltering(siteKey);
         modifyContent(path, '<iframe title="My iframe"></iframe><p>This is a <u>nested</u>tag</p>');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.not.contain('<iframe>');
@@ -74,6 +84,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('applies default filtering to html attributes when enabled', () => {
+        enableHtmlFiltering(siteKey);
         modifyContent(path, '<img src="stub.jpg" loading="lazy"><a href="https://localhost:8080">');
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.contain('a');
@@ -85,6 +96,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('does not override filtering config for other site', () => {
+        enableHtmlFiltering(siteKey);
         installConfig('configs/org.jahia.modules.htmlfiltering.config-noSite.yml');
         modifyContent(path, '<strong>This text is important!</strong>');
         getContent(path).then(result => {
@@ -93,6 +105,7 @@ describe('HTML rich text filtering', () => {
     });
 
     it('can override filtering config for specified site', () => {
+        enableHtmlFiltering(siteKey);
         installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         modifyContent(path, '<p>This text<strong>is important!</strong> but not this one</p>');
         getContent(path).then(result => {
@@ -103,6 +116,8 @@ describe('HTML rich text filtering', () => {
     });
 
     it('can update config and filter using updated rules', () => {
+        enableHtmlFiltering(siteKey);
+        installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         editConfig('htmlFiltering.disallow.elements[1].name', 'i', 'filteringSite');
         modifyContent(path, '<p>This text<i>is important!</i> but not this one</p>');
         getContent(path).then(result => {
@@ -113,7 +128,6 @@ describe('HTML rich text filtering', () => {
     });
 
     it('does not override filtering config for specified site when filtering is disabled', () => {
-        disableHtmlFiltering(siteKey);
         installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
         modifyContent(path, '<p>This text<strong>is important!</strong> but not this one</p>');
         getContent(path).then(result => {

@@ -15,14 +15,13 @@
  */
 package org.jahia.modules.htmlfiltering;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.interceptor.BaseInterceptor;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
-import org.jetbrains.annotations.NotNull;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 @Component(immediate = true)

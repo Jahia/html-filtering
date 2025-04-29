@@ -15,7 +15,7 @@
  */
 package org.jahia.modules.htmlfiltering.configuration;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
 import org.jahia.modules.htmlfiltering.configuration.parse.Parser;
 import org.jahia.modules.htmlfiltering.configuration.parse.PropsToJsonParser;

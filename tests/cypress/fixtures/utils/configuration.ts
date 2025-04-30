@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import {executeGroovy} from '@jahia/cypress';
 
 const pid = 'org.jahia.modules.htmlfiltering.config';
 
@@ -25,6 +26,10 @@ export const getConfig = siteKey => {
         query: getConfigGql,
         variables: {pid, siteKey}
     });
+};
+
+export const removeConfig = siteKey => {
+    executeGroovy('groovy/removeConfig.groovy', {PID: pid, IDENTIFIER: siteKey});
 };
 
 export const editConfig = (key, value, siteKey = 'default') => {

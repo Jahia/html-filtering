@@ -13,9 +13,9 @@ jobs:
       fail-fast: false
       matrix:
           env:
-            - jahia-image: jahia/jahia-ee-dev:8-SNAPSHOT
+            - jahia-image: jahia-ee-dev:8-SNAPSHOT
               provisioning: provisioning-manifest-snapshot.yml
-            - jahia-image: jahia/jahia-ee:8.1.5.0
+            - jahia-image: jahia-ee:8.1.5.0
               provisioning: provisioning-manifest-snapshot-jahia-8.1.5.0.yml
 
     timeout-minutes: 120
@@ -31,15 +31,15 @@ jobs:
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: jcontent
-          jahia_image: ${{ matrix.env.jahia-image }}
+          jahia_image: jahia/${{ matrix.env.jahia-image }}
           testrail_project: HTML Filtering Module
           tests_manifest:  ${{ matrix.env.provisioning }}
           should_use_build_artifacts: false
           should_skip_artifacts: true
           should_skip_notifications: false
           should_skip_testrail: false
-          github_artifact_name: html-filtering-nightly-${{ matrix.config_file }}-${{ github.run_number }}
-          jahia_artifact_name: html-filtering-nightly-${{ matrix.config_file }}-${{ github.run_number }}
+          github_artifact_name: html-filtering-nightly-${{ matrix.env.jahia-image }}-${{ github.run_number }}
+          jahia_artifact_name: html-filtering-nightly-${{ matrix.env.jahia-image }}-${{ github.run_number }}
           bastion_ssh_private_key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
           jahia_license: ${{ secrets.JAHIA_LICENSE_8X_FULL }}
           docker_username: ${{ secrets.DOCKERHUB_USERNAME }}

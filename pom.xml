@@ -43,9 +43,6 @@
         <jahia-depends>graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFCAUE3oPfB1El8bmWye5hunwCCkaAhQIj6T8Ph1mZ4YY0yU9IDPzg3hNTw==
         </jahia-module-signature>
-        <export-package>
-            org.jahia.modules.htmlfiltering
-        </export-package>
     </properties>
 
     <repositories>
@@ -140,7 +137,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -20,7 +20,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
-import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
+import org.jahia.modules.htmlfiltering.configuration.HTMLFilteringService;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringRemovedAttributes;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringTest;
 import org.jahia.osgi.BundleUtils;
@@ -79,15 +79,15 @@ public class GqlHtmlFilteringMutation {
     @GraphQLDescription("Allows to test filtering on a given site")
     public GqlHTMLFilteringTest getTestFiltering(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey,
                                        @GraphQLNonNull @GraphQLName("html") @GraphQLDescription("HTML to be sanitized/filtered") String html ) {
-        HTMLFilteringInterface filteringConfig = BundleUtils.getOsgiService(HTMLFilteringInterface.class, null);
+        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
         GqlHTMLFilteringTest gqlHTMLFilteringTest = new GqlHTMLFilteringTest();
 
-        if (filteringConfig == null) {
+        if (filteringService == null) {
             gqlHTMLFilteringTest.setHtml(html);
             return gqlHTMLFilteringTest;
         }
 
-        PolicyFactory policyFactory = filteringConfig.getMergedOwaspPolicyFactory(HTMLFilteringInterface.DEFAULT_POLICY_KEY, siteKey);
+        PolicyFactory policyFactory = filteringService.getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, siteKey);
 
         String h =  policyFactory.sanitize(html, new HtmlChangeListener<Object>() {
             @Override

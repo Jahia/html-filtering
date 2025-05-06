@@ -41,7 +41,7 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         }
         HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
         String toValidate = node.getPropertyAsString("text");
-        if (filteringService == null || toValidate == null) {
+        if (resolveSite == null || !resolveSite.isHtmlMarkupFilteringEnabled() || filteringService == null || toValidate == null) {
             return true;
         }
 

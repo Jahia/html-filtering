@@ -20,7 +20,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
-import org.jahia.modules.htmlfiltering.configuration.HTMLFilteringService;
+import org.jahia.modules.htmlfiltering.HTMLFilteringService;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringRemovedAttributes;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringTest;
 import org.jahia.osgi.BundleUtils;
@@ -78,7 +78,7 @@ public class GqlHtmlFilteringMutation {
     @GraphQLName("testFiltering")
     @GraphQLDescription("Allows to test filtering on a given site")
     public GqlHTMLFilteringTest getTestFiltering(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey,
-                                       @GraphQLNonNull @GraphQLName("html") @GraphQLDescription("HTML to be sanitized/filtered") String html ) {
+                                                 @GraphQLNonNull @GraphQLName("html") @GraphQLDescription("HTML to be sanitized/filtered") String html ) {
         HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
         GqlHTMLFilteringTest gqlHTMLFilteringTest = new GqlHTMLFilteringTest();
 

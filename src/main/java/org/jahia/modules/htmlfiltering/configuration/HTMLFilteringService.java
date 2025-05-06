@@ -16,7 +16,6 @@
 package org.jahia.modules.htmlfiltering.configuration;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.modules.htmlfiltering.HTMLFilteringInterface;
 import org.jahia.modules.htmlfiltering.configuration.parse.Parser;
 import org.jahia.modules.htmlfiltering.configuration.parse.PropsToJsonParser;
 import org.json.JSONArray;
@@ -34,14 +33,16 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component(service = {HTMLFilteringInterface.class, ManagedServiceFactory.class}, property = {
+@Component(service = {HTMLFilteringService.class, ManagedServiceFactory.class}, property = {
         "service.pid=org.jahia.modules.htmlfiltering.config",
         "service.description=HTML Filtering service",
         "service.vendor=Jahia Solutions Group SA"
 }, immediate = true)
-public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFactory {
+public class HTMLFilteringService implements ManagedServiceFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTMLFiltering.class);
+    public static final String DEFAULT_POLICY_KEY = "default";
+
+    private static final Logger logger = LoggerFactory.getLogger(HTMLFilteringService.class);
     private static final String CONFIG_FILE_NAME_BASE = "org.jahia.modules.htmlfiltering.config-";
     private Map<String, JSONObject> configs = new HashMap<>();
     private Map<String, String> siteKeyToPid = new HashMap<>();
@@ -79,31 +80,6 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         configs.remove(pid);
     }
 
-    @Override
-    public String getCKEditor5Config(String siteKey) {
-        return null;
-    }
-
-    @Override
-    public String getCKEditor4Config(String siteKey) {
-        return null;
-    }
-
-    @Override
-    public PolicyFactory getOwaspPolicyFactory(String siteKey) {
-        if (configExists(siteKey)) {
-            JSONObject config = configs.get(siteKeyToPid.get(siteKey));
-            return Parser.parseToPolicy(config);
-        }
-        return null;
-    }
-
-    @Override
-    public PolicyFactory getDefaultOwaspPolicyFactory() {
-        return getOwaspPolicyFactory(DEFAULT_POLICY_KEY);
-    }
-
-    @Override
     public PolicyFactory getMergedOwaspPolicyFactory(String... siteKeys) {
         JSONObject mergedPolicy = getMergedJSONPolicy(siteKeys);
 
@@ -114,7 +90,6 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         return null;
     }
 
-    @Override
     public JSONObject getMergedJSONPolicy(String... siteKeys) {
         JSONObject mergedPolicy = new JSONObject();
 
@@ -127,7 +102,6 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         return mergedPolicy;
     }
 
-    @Override
     public boolean configExists(String siteKey) {
         if (siteKeyToPid.containsKey(siteKey)) {
             String pid = siteKeyToPid.get(siteKey);
@@ -136,7 +110,6 @@ public class HTMLFiltering implements HTMLFilteringInterface, ManagedServiceFact
         return false;
     }
 
-    @Override
     public boolean htmlSanitizerDryRun(String siteKey) {
         JSONObject f = new JSONObject();
 

@@ -16,6 +16,7 @@
 package org.jahia.modules.htmlfiltering;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jahia.modules.htmlfiltering.configuration.HTMLFilteringService;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
@@ -69,12 +70,12 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         if (valueIsEmpty(originalValue)) return originalValue;
 
         JCRSiteNode resolveSite = node.getResolveSite();
-        HTMLFilteringInterface filteringConfig = BundleUtils.getOsgiService(HTMLFilteringInterface.class, null);
-        if (!resolveSite.isHtmlMarkupFilteringEnabled() || filteringConfig == null) {
+        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
+        if (!resolveSite.isHtmlMarkupFilteringEnabled() || filteringService == null) {
             return originalValue;
         }
 
-        PolicyFactory policyFactory = filteringConfig.getMergedOwaspPolicyFactory(HTMLFilteringInterface.DEFAULT_POLICY_KEY, resolveSite.getSiteKey());
+        PolicyFactory policyFactory = filteringService.getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, resolveSite.getSiteKey());
 
         if (policyFactory == null) {
             return originalValue;
@@ -89,7 +90,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         String content = originalValue.getString();
         String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
 
-        if (dryRun(filteringConfig, resolveSite, propInfo, policyFactory, content)) return originalValue;
+        if (dryRun(filteringService, resolveSite, propInfo, policyFactory, content)) return originalValue;
 
         String result = policyFactory.sanitize(content);
 
@@ -133,8 +134,8 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         return false;
     }
 
-    private static boolean dryRun(HTMLFilteringInterface filteringConfig, JCRSiteNode resolveSite, String propInfo, PolicyFactory policyFactory, String content) {
-        if (filteringConfig.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
+    private static boolean dryRun(HTMLFilteringService filteringService, JCRSiteNode resolveSite, String propInfo, PolicyFactory policyFactory, String content) {
+        if (filteringService.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
             logger.info("Dry run: Skipping Sanitization of [{}]", propInfo);
 
             policyFactory.sanitize(content, new HtmlChangeListener<Object>() {

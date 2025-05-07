@@ -18,7 +18,7 @@ public class HtmlFilteringValidatorDefinition extends JCRNodeValidatorDefinition
 
     @Override
     public Map<String, Class> getValidators() {
-        logger.info("Regisering HTML filtering validators");
+        logger.info("Registering HTML filtering validators");
         return Collections.singletonMap("nt:base", HtmlFilteringValidator.class);
     }
 }

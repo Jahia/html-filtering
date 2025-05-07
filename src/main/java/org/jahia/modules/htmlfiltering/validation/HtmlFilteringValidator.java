@@ -5,8 +5,6 @@ import org.jahia.services.content.decorator.validation.JCRNodeValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.RepositoryException;
-
 /**
  * Html filtering Bean to be validated
  */

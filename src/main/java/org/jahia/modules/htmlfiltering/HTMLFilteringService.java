@@ -18,15 +18,20 @@ package org.jahia.modules.htmlfiltering;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.configuration.parse.Parser;
 import org.jahia.modules.htmlfiltering.configuration.parse.PropsToJsonParser;
+import org.jahia.services.content.JCRNodeWrapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.component.annotations.Component;
+import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,6 +49,7 @@ public class HTMLFilteringService implements ManagedServiceFactory {
     private static final String CONFIG_FILE_NAME_BASE = "org.jahia.modules.htmlfiltering.config-";
     private final Map<String, JSONObject> configs = new HashMap<>();
     private final Map<String, String> siteKeyToPid = new HashMap<>();
+    private boolean validate = false;
 
     @Override
     public String getName() {
@@ -66,6 +72,9 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         } else {
             logger.warn("Could not find htmlFiltering object for site: {}", siteKey);
         }
+
+        // Simple handling of sanitize / validate
+        validate = Boolean.parseBoolean((String) dictionary.get("validate"));
     }
 
     @Override
@@ -73,14 +82,60 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         configs.remove(pid);
     }
 
-    public PolicyFactory getMergedOwaspPolicyFactory(String... siteKeys) {
-        JSONObject mergedPolicy = getMergedJSONPolicy(siteKeys);
-
-        if (!mergedPolicy.isEmpty()) {
-            return Parser.parseToPolicy(mergedPolicy);
+    public Map<String, SanitizedContent> sanitizeNode(JCRNodeWrapper node) {
+        Map<String, SanitizedContent> results = new HashMap<>();
+        logger.info("Validating node {}", node.getPath());
+        final String siteKey;
+        try {
+            siteKey = node.getResolveSite().getSiteKey();
+        } catch (RepositoryException e) {
+            logger.warn("Unable to resolve site because {}, node can't be sanitized", e.getMessage());
+            return results;
         }
 
-        return null;
+        // Resolve properties to parse
+        try {
+            node.getPropertiesAsString().forEach((name, value) -> {
+                try {
+                    if (node.getProperty(name).getDefinition().getRequiredType() == PropertyType.STRING) {
+                        SanitizedContent sanitizedContent = validate(value, siteKey);
+                        if (sanitizedContent.getRemovedTags().isEmpty() && sanitizedContent.getRemovedAttributes().isEmpty()) {
+                            return;
+                        }
+                        results.put(name, sanitizedContent);
+                    }
+                } catch (RepositoryException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RepositoryException e) {
+            throw new RuntimeException(e);
+        }
+
+        return results;
+    }
+
+    // Todo: Add nodetypes handling
+    public SanitizedContent validate(String content, String siteKey) {
+
+        PolicyFactory policyFactory = getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, siteKey);
+
+        if (policyFactory == null) {
+            return null;
+        }
+        SanitizedContent result = new SanitizedContent();
+        result.setSanitizedContent(policyFactory.sanitize(content, new HtmlChangeListener<SanitizedContent>() {
+            @Override
+            public void discardedTag(@Nullable SanitizedContent o, String tag) {
+                o.getRemovedTags().add(tag);
+            }
+
+            @Override
+            public void discardedAttributes(@Nullable SanitizedContent o, String tag, String... attrs) {
+                o.getRemovedAttributes().computeIfAbsent(tag, k -> new HashSet<>()).addAll(Arrays.asList(attrs));
+            }
+        }, result));
+        return result;
     }
 
     public JSONObject getMergedJSONPolicy(String... siteKeys) {
@@ -103,16 +158,14 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         return false;
     }
 
-    public boolean htmlSanitizerDryRun(String siteKey) {
-        JSONObject f = new JSONObject();
+    private PolicyFactory getMergedOwaspPolicyFactory(String... siteKeys) {
+        JSONObject mergedPolicy = getMergedJSONPolicy(siteKeys);
 
-        if (configExists(siteKey)) {
-            f = configs.get(siteKeyToPid.get(siteKey)).getJSONObject("htmlFiltering");
-        } else if ((configExists(DEFAULT_POLICY_KEY))) {
-            f = configs.get(siteKeyToPid.get(DEFAULT_POLICY_KEY)).getJSONObject("htmlFiltering");
+        if (!mergedPolicy.isEmpty()) {
+            return Parser.parseToPolicy(mergedPolicy);
         }
 
-        return f.has("htmlSanitizerDryRun") && f.getBoolean("htmlSanitizerDryRun");
+        return null;
     }
 
     private void mergeJSONObject(JSONObject target, JSONObject source) {
@@ -145,5 +198,9 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         } else {
             target.put(key, new JSONObject(source.getJSONObject(key).toString()));
         }
+    }
+
+    public boolean validate() {
+        return validate;
     }
 }

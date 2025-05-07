@@ -1,21 +1,16 @@
 package org.jahia.modules.htmlfiltering.validation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.HTMLFilteringService;
+import org.jahia.modules.htmlfiltering.SanitizedContent;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.decorator.JCRSiteNode;
-import org.owasp.html.HtmlChangeListener;
-import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.jcr.RepositoryException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,44 +27,30 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
 
     @Override
     public boolean isValid(JCRNodeWrapper node, ConstraintValidatorContext context) {
-        logger.info("Validating node {}", node.getPath());
-        JCRSiteNode resolveSite = null;
-        try {
-            resolveSite = node.getResolveSite();
-        } catch (RepositoryException e) {
-            logger.warn("Unable to resolve site", e);
-        }
         HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
-        String toValidate = node.getPropertyAsString("text");
-        if (resolveSite == null || !resolveSite.isHtmlMarkupFilteringEnabled() || filteringService == null || toValidate == null) {
+        if (!filteringService.validate()) {
+            // No validation to do
             return true;
         }
-
-        PolicyFactory policyFactory = filteringService.getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, resolveSite.getSiteKey());
-
-        if (policyFactory == null) {
+        Map<String, SanitizedContent> results = filteringService.sanitizeNode(node);
+        if (results == null || results.isEmpty()) {
             return true;
         }
-        Set<String> removedTags = new HashSet<>();
-        Set<String> removedElements = new HashSet<>();
-
-        String h = policyFactory.sanitize(toValidate, new HtmlChangeListener<Object>() {
-            @Override
-            public void discardedTag(@Nullable Object o, String tag) {
-                removedTags.add(tag);
-            }
-
-            @Override
-            public void discardedAttributes(@Nullable Object o, String tag, String... attrs) {
-                removedElements.addAll(Arrays.stream(attrs).map(attr -> tag + "." + attr).collect(Collectors.toList()));
-            }
-        }, null);
-        String errors = removedTags.isEmpty() ? "" : "Not allowed tags: " + String.join(", ", removedTags);
-        errors += removedElements.isEmpty() ? "" : " Not allowed attributes:"+ String.join(", ", removedElements);
-        if (removedTags.size() + removedElements.size() > 0) {
-            context.buildConstraintViolationWithTemplate(errors).addConstraintViolation();
+        // build error message
+        final StringBuilder errors = new StringBuilder();
+        results.forEach((key, content) -> {
+            // Todo provide nicer error messages
+            logger.debug("Sanitized property {}", key);
+            errors.append(content.getRemovedTags().isEmpty() ? "" : " [" + key + "] Not allowed tags: " + String.join(", ", content.getRemovedTags()));
+            String removedAttributesString = content.getRemovedAttributes().entrySet().stream()
+                    .map(entry -> entry.getKey() + ": " + String.join(", ", entry.getValue()))
+                    .collect(Collectors.joining("; "));
+            errors.append(content.getRemovedAttributes().isEmpty() ? "" : " [" + key + "] Not allowed attributes:" + String.join(", ", removedAttributesString));
+        });
+        if (StringUtils.isNotEmpty(errors)) {
+            context.buildConstraintViolationWithTemplate(errors.toString()).addConstraintViolation();
             return false;
         }
-        return  true;
+        return true;
     }
 }

@@ -21,18 +21,17 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
 import org.jahia.modules.htmlfiltering.HTMLFilteringService;
+import org.jahia.modules.htmlfiltering.SanitizedContent;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringRemovedAttributes;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringTest;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRTemplate;
-import org.owasp.html.HtmlChangeListener;
-import org.owasp.html.PolicyFactory;
 
-import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @GraphQLName("HtmlFilteringMutation")
 @GraphQLDescription("Mutation to manipulate html filtering settings on a site")
@@ -87,34 +86,19 @@ public class GqlHtmlFilteringMutation {
             return gqlHTMLFilteringTest;
         }
 
-        PolicyFactory policyFactory = filteringService.getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, siteKey);
+        SanitizedContent sanitizedContent = filteringService.validate(html, siteKey);
+        gqlHTMLFilteringTest.setHtml(sanitizedContent.getSanitizedContent());
+        gqlHTMLFilteringTest.setRemoveElements(sanitizedContent.getRemovedTags());
+        List<GqlHTMLFilteringRemovedAttributes> gqlRemovedAttributes = sanitizedContent.getRemovedAttributes().entrySet().stream()
+                .map(entry -> {
+                    GqlHTMLFilteringRemovedAttributes gqlAttr = new GqlHTMLFilteringRemovedAttributes();
+                    gqlAttr.setElement(entry.getKey());
+                    gqlAttr.setAttributes(entry.getValue());
+                    return gqlAttr;
+                })
+                .collect(Collectors.toList());
+        gqlHTMLFilteringTest.setRemoveAttributes(gqlRemovedAttributes);
 
-        String h =  policyFactory.sanitize(html, new HtmlChangeListener<Object>() {
-            @Override
-            public void discardedTag(@Nullable Object o, String tag) {
-                gqlHTMLFilteringTest.getRemovedElements().add(tag);
-            }
-
-            @Override
-            public void discardedAttributes(@Nullable Object o, String tag, String... attrs) {
-                findOrCreateRemovedAttributesByTag(gqlHTMLFilteringTest, tag).getAttributes().addAll(Arrays.asList(attrs));
-            }
-        }, null);
-
-        gqlHTMLFilteringTest.setHtml(h);
         return gqlHTMLFilteringTest;
-    }
-
-    private GqlHTMLFilteringRemovedAttributes findOrCreateRemovedAttributesByTag(GqlHTMLFilteringTest gqlHTMLFilteringTest, String tag) {
-        Optional<GqlHTMLFilteringRemovedAttributes> opt = gqlHTMLFilteringTest.getRemovedAttributes().stream().filter(t -> tag.equals(t.getElement())).findFirst();
-
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-
-        GqlHTMLFilteringRemovedAttributes gqlHTMLFilteringRemovedAttributes = new GqlHTMLFilteringRemovedAttributes();
-        gqlHTMLFilteringRemovedAttributes.setElement(tag);
-        gqlHTMLFilteringTest.getRemovedAttributes().add(gqlHTMLFilteringRemovedAttributes);
-        return gqlHTMLFilteringRemovedAttributes;
     }
 }

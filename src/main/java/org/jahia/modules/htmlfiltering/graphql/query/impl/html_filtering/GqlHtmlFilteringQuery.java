@@ -20,7 +20,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
-import org.jahia.modules.htmlfiltering.configuration.HTMLFilteringService;
+import org.jahia.modules.htmlfiltering.HTMLFilteringService;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFiltering;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringConfig;
 import org.jahia.modules.htmlfiltering.graphql.models.GqlHTMLFilteringConfigAttribute;
@@ -90,13 +90,13 @@ public class GqlHtmlFilteringQuery {
     @GraphQLName("configuration")
     @GraphQLDescription("HTML filtering configuration for a given site")
     public GqlHTMLFilteringConfig getConfiguration(@GraphQLNonNull @GraphQLName("siteKey") @GraphQLDescription("Site key for the affected site") String siteKey) {
-        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
+        HTMLFilteringService htmlFilteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
 
-        if (filteringService == null || !filteringService.configExists(siteKey)) {
+        if (htmlFilteringService == null || !htmlFilteringService.configExists(siteKey)) {
             return null;
         }
 
-        JSONObject config = filteringService.getMergedJSONPolicy(HTMLFilteringService.DEFAULT_POLICY_KEY, siteKey);
+        JSONObject config = htmlFilteringService.getMergedJSONPolicy(HTMLFilteringService.DEFAULT_POLICY_KEY, siteKey);
         config = config.getJSONObject("htmlFiltering");
 
         GqlHTMLFilteringConfig gqlHTMLFilteringConfig = new GqlHTMLFilteringConfig();

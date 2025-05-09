@@ -1,7 +1,5 @@
 import {addNode, deleteNode} from '@jahia/cypress';
 import {
-    disableHtmlFiltering,
-    enableHtmlFiltering,
     getContent,
     modifyContent
 } from '../fixtures/utils';
@@ -21,11 +19,9 @@ describe('Default HTML filtering', () => {
             name: textName,
             properties: [{name: 'text', value: '<p>hello there</p>', language: 'en'}]
         });
-        enableHtmlFiltering(siteKey);
     });
 
     after(() => {
-        disableHtmlFiltering(siteKey);
         deleteNode(path);
     });
 

@@ -15,8 +15,8 @@ jobs:
         env:
           - jahia-image: jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
-          - jahia-image: jahia-ee:8.1.5.0
-            provisioning: provisioning-manifest-snapshot-jahia-8.1.5.0.yml
+          - jahia-image: jahia-ee:8.1.7.0
+            provisioning: provisioning-manifest-snapshot-jahia-8.1.7.0.yml
 
     timeout-minutes: 120
     steps:

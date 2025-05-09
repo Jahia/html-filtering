@@ -1,9 +1,5 @@
 import gql from 'graphql-tag';
 
-export const enableHtmlFiltering = siteKey => {
-    toggleHtmlFiltering(siteKey, true);
-};
-
 export const disableHtmlFiltering = siteKey => {
     toggleHtmlFiltering(siteKey, false);
 };

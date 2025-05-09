@@ -1,6 +1,5 @@
 # default configuration
 htmlFiltering:
-  htmlSanitizerDryRun: false
   protocols:
     - http
     - https

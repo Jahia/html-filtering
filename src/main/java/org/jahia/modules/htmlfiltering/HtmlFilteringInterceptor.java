@@ -37,7 +37,7 @@ import java.util.Collections;
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
+    private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
 
@@ -89,23 +89,23 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private static Value getModifiedValue(JCRNodeWrapper node, String result, String content, Value originalValue) throws RepositoryException {
         if (!result.equals(content)) {
             Value modifiedValue = node.getSession().getValueFactory().createValue(result);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Done filtering of \"unwanted\" HTML tags.");
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Modified value: {}", result);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Done filtering of \"unwanted\" HTML tags.");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Modified value: {}", result);
                 }
             }
             return modifiedValue;
-        } else if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
         }
         return originalValue;
     }
 
     private static boolean valueIsEmpty(Value originalValue) throws RepositoryException {
         if (StringUtils.isEmpty(originalValue.getString()) || !originalValue.getString().contains("<")) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("The value does not contain any HTML tags. Skip filtering.");
+            if (logger.isDebugEnabled()) {
+                logger.debug("The value does not contain any HTML tags. Skip filtering.");
             }
             return true;
         }

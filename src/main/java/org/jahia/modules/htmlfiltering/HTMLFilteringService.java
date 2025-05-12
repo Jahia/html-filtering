@@ -45,7 +45,7 @@ public class HTMLFilteringService implements ManagedServiceFactory {
 
     public static final String DEFAULT_POLICY_KEY = "default";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HTMLFilteringService.class);
+    private static final Logger logger = LoggerFactory.getLogger(HTMLFilteringService.class);
     private static final String CONFIG_FILE_NAME_BASE = "org.jahia.modules.htmlfiltering.config-";
     private final Map<String, JSONObject> configs = new HashMap<>();
     private final Map<String, String> siteKeyToPid = new HashMap<>();
@@ -68,9 +68,9 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         if (!dictCopy.isEmpty()) {
             configs.put(pid, new PropsToJsonParser().parse(dictCopy));
             siteKeyToPid.put(siteKey, pid);
-            LOGGER.info("Setting htmlFiltering config for site {}: {}", siteKey, configs.get(pid));
+            logger.info("Setting htmlFiltering config for site {}: {}", siteKey, configs.get(pid));
         } else {
-            LOGGER.warn("Could not find htmlFiltering object for site: {}", siteKey);
+            logger.warn("Could not find htmlFiltering object for site: {}", siteKey);
         }
 
         // Simple handling of sanitize / validate
@@ -88,7 +88,7 @@ public class HTMLFilteringService implements ManagedServiceFactory {
         try {
             siteKey = node.getResolveSite().getSiteKey();
         } catch (RepositoryException e) {
-            LOGGER.warn("Unable to resolve site because {}, node can't be sanitized", e.getMessage());
+            logger.warn("Unable to resolve site because {}, node can't be sanitized", e.getMessage());
             return results;
         }
 

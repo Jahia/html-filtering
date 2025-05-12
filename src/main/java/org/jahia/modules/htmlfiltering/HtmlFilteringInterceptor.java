@@ -66,8 +66,12 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         String siteKey = node.getResolveSite().getSiteKey();
         String workspaceName = node.getSession().getWorkspace().getName();
         Policy policy = registryService.getPolicy(siteKey, workspaceName);
-        if (policy == null || policy.isValidationEnabled()) {
-            logger.debug("No policy found for siteKey: {}, workspace: {}", siteKey, workspaceName);
+        if (policy == null) {
+            logger.debug("No policy found for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
+            return originalValue;
+        }
+        if (policy.isValidationEnabled()) {
+            logger.debug("HTML validation is enabled for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
             return originalValue;
         }
         String content = originalValue.getString();

@@ -26,8 +26,26 @@ import org.jahia.services.content.JCRNodeWrapper;
 
 import javax.jcr.RepositoryException;
 
+/**
+ * Defines the HTML filtering policy for a given site and workspace.
+ * The policies can be retrieved using {@link RegistryService#getPolicy(String, String)}.
+ */
 public interface Policy {
     boolean isValidationEnabled();
+
+    /**
+     * Sanitize the given HTML text as per the HTML filtering policy.
+     *
+     * @param htmlText the HTML text to sanitize
+     * @return the sanitized HTML text
+     */
     String sanitize(String htmlText);
+
+    /**
+     * Validate the given JCR node as per the HTML filtering policy.
+     * @param node the JCR node to validate. The node must be a node of type "jnt:htmlPage" or "jnt:htmlTemplate".
+     * @return
+     * @throws RepositoryException
+     */
     ValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
 }

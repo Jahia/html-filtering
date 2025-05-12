@@ -18,7 +18,6 @@ package org.jahia.modules.htmlfiltering.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.ValidationResult;
-import org.jahia.modules.htmlfiltering.ValidationResult.PropertyValidationResult;
 import org.jahia.modules.htmlfiltering.ValidationResult.ValidationResultBuilder;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
@@ -31,8 +30,6 @@ import org.owasp.html.PolicyFactory;
 import javax.annotation.Nullable;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -127,9 +124,7 @@ final class PolicyImpl implements Policy {
 
     private void validateProperty(JCRNodeWrapper node, String name, String value, ValidationResultBuilder validationResultBuilder) throws RepositoryException {
         if (node.getProperty(name).getDefinition().getRequiredType() == PropertyType.STRING) {
-            PropertyValidationResult propertyValidationResult = new PropertyValidationResult();
-            policyFactory.sanitize(value, new Listener(), propertyValidationResult);
-            validationResultBuilder.addPropertyValidationResult(name, propertyValidationResult);
+            policyFactory.sanitize(value, new Listener(name), validationResultBuilder);
         }
     }
 
@@ -143,16 +138,26 @@ final class PolicyImpl implements Policy {
         void handle(HtmlPolicyBuilder builder, String[] items);
     }
 
-    private static class Listener implements HtmlChangeListener<PropertyValidationResult> {
+    private static class Listener implements HtmlChangeListener<ValidationResultBuilder> {
 
-        @Override
-        public void discardedTag(@Nullable PropertyValidationResult context, String elementName) {
-            context.addRejectedTag(elementName);
+        private final String propertyName;
+
+        public Listener(String name) {
+            propertyName = name;
         }
 
         @Override
-        public void discardedAttributes(@Nullable PropertyValidationResult context, String tagName, String... attributeNames) {
-            context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
+        public void discardedTag(@Nullable ValidationResultBuilder context, String elementName) {
+            if (context != null) {
+                context.rejectTag(propertyName, elementName);
+            }
+        }
+
+        @Override
+        public void discardedAttributes(@Nullable ValidationResultBuilder context, String tagName, String... attributeNames) {
+            if (context != null) {
+                context.rejectAttributes(propertyName, tagName, attributeNames);
+            }
         }
     }
 }

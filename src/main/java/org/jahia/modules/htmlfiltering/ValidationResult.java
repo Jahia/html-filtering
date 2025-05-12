@@ -19,9 +19,11 @@ package org.jahia.modules.htmlfiltering;
 import java.util.*;
 
 /**
- * Defines the result of a validation performed on a JCR node.
+ * Represents the result of a validation process, encapsulating information about validation of properties,
+ * rejected tags, and rejected attributes.
  *
- * @see Policy#validate(org.jahia.services.content.JCRNodeWrapper)
+ * This class is immutable and contains the outcomes of validations performed on properties and their associated
+ * tags or attributes.
  */
 public final class ValidationResult {
 
@@ -48,7 +50,7 @@ public final class ValidationResult {
         private final Set<String> rejectedTags = new HashSet<>();
         private final Map<String, Set<String>> rejectedAttributesByTag = new HashMap<>();
 
-        public void addRejectedTag(String tag) {
+        private void addRejectedTag(String tag) {
             rejectedTags.add(tag);
         }
 
@@ -56,7 +58,7 @@ public final class ValidationResult {
             return Collections.unmodifiableSet(rejectedTags);
         }
 
-        public void addRejectedAttributeByTag(String tag, Set<String> attributes) {
+        private void addRejectedAttributeByTag(String tag, Set<String> attributes) {
             // TODO should we overwrite? how does it work when using multiple times the same tag with different attributes that are rejected?
             rejectedAttributesByTag.putIfAbsent(tag, attributes);
         }
@@ -64,21 +66,18 @@ public final class ValidationResult {
         public Set<Map.Entry<String, Set<String>>> getRejectedAttributesByTagEntrySet() {
             return rejectedAttributesByTag.entrySet();
         }
-
-        public boolean isValid() {
-            return rejectedTags.isEmpty() && rejectedAttributesByTag.isEmpty();
-        }
     }
 
     public static class ValidationResultBuilder {
 
         private final Map<String, PropertyValidationResult> propertyValidationResults = new HashMap<>();
 
-        public void addPropertyValidationResult(String propertyName, PropertyValidationResult propertyValidationResult) {
-            if (!propertyValidationResult.isValid()) {
-                propertyValidationResults.put(propertyName, propertyValidationResult);
+        public void rejectTag(String propertyName, String tag) {
+            propertyValidationResults.getOrDefault(propertyName, new PropertyValidationResult()).addRejectedTag(tag);
+        }
 
-            }
+        public void rejectAttributes(String propertyName, String tag, String[] attributeNames) {
+            propertyValidationResults.getOrDefault(propertyName, new PropertyValidationResult()).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
         }
 
         public ValidationResult build() {

@@ -27,7 +27,7 @@
 
     <artifactId>html-filtering</artifactId>
     <name>Jahia HTML Filtering</name>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This modules provides configuration for HTML filtering.</description>
 
@@ -41,8 +41,7 @@
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
-        <jahia-module-signature>MCwCFCAUE3oPfB1El8bmWye5hunwCCkaAhQIj6T8Ph1mZ4YY0yU9IDPzg3hNTw==
-        </jahia-module-signature>
+        <jahia-module-signature>MCwCFEvlCD6n9ezEqx/OZeCuTE7abVbiAhRpalNBQ1hT1Z4MjHgHbhHEMB88hQ==</jahia-module-signature>
     </properties>
 
     <repositories>
@@ -60,6 +59,15 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.jahia.server</groupId>
@@ -73,6 +81,13 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <!-- TODO update import package -->
+            <groupId>org.jahia.server</groupId>
+            <artifactId>jahia-api</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -132,6 +147,39 @@
             <artifactId>json</artifactId>
             <version>20231013</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <!-- TODO should the dep be embedded or referenced? -->
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-properties</artifactId>
+            <version>${jackson.core.version}</version> <!-- TODO what to use? -->
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.14.0</version>
+            <scope>provided</scope>
+            <!-- TODO review import package -->
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2-jahia</version>
+            <scope>provided</scope>
+            <!-- TODO review import package -->
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -145,6 +193,7 @@
                         <_dsannotations>*</_dsannotations>
                         <Import-Package>
                             ${jahia.plugin.projectPackageImport},
+                            com.fasterxml.jackson.databind.cfg;version="[2.14,3)",
                             graphql.annotations.annotationTypes;version="[6.5,99)",
                             javax.jcr;version="[2.0,3)",
                             org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",

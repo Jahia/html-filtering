@@ -16,10 +16,8 @@
 package org.jahia.modules.htmlfiltering;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
-import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.interceptor.BaseInterceptor;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.osgi.service.component.annotations.Activate;
@@ -40,6 +38,8 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
+    @Reference
+    RegistryService registryService;
 
     @Activate
     public void start() {
@@ -63,22 +63,22 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
                                 ExtendedPropertyDefinition definition, Value originalValue)
             throws RepositoryException {
 
-        if (valueIsEmpty(originalValue)) return originalValue;
-        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
-
-        JCRSiteNode resolveSite = node.getResolveSite();
-        if (filteringService == null || filteringService.validate()) {
+        String siteKey = node.getResolveSite().getSiteKey();
+        String workspaceName = node.getSession().getWorkspace().getName();
+        Policy policy = registryService.getPolicy(siteKey, workspaceName);
+        if (policy == null || policy.isValidationEnabled()) {
+            logger.debug("No policy found for siteKey: {}, workspace: {}", siteKey, workspaceName);
             return originalValue;
         }
         String content = originalValue.getString();
+        String resultText = policy.sanitize(content);
+        return getModifiedValue(node, preservePlaceholders(resultText), content, originalValue);
 
-        SanitizedContent result = filteringService.validate(content, resolveSite.getSiteKey());
-
-        return getModifiedValue(node, preservePlaceholders(result.getSanitizedContent()), content, originalValue);
     }
 
     @NotNull
     private static String preservePlaceholders(String result) {
+        // TODO can this be configured in the lib?
         // Preserve URL context placeholders that might've been encoded by the sanitizer
         result = result.replace("%7bmode%7d", "{mode}");
         result = result.replace("%7blang%7d", "{lang}");

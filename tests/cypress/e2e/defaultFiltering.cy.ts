@@ -12,7 +12,7 @@ describe('Default HTML filtering', () => {
     const textName = 'myText';
     const path = `/sites/${siteKey}/contents/${textName}`;
 
-    before(() => {
+    beforeEach(() => {
         addNode({
             parentPathOrId: `/sites/${siteKey}/contents`,
             primaryNodeType: 'jnt:bigText',
@@ -21,7 +21,7 @@ describe('Default HTML filtering', () => {
         });
     });
 
-    after(() => {
+    afterEach(() => {
         deleteNode(path);
     });
 

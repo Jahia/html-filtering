@@ -16,6 +16,7 @@
 package org.jahia.modules.htmlfiltering.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import org.apache.commons.io.FilenameUtils;
@@ -47,7 +48,7 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
 
     private final JavaPropsMapper javaPropsMapper = JavaPropsMapper.builder()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
-            // TODO ignore fields that do not exist in the POJO
+            .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
             .build();
 
     /**
@@ -66,6 +67,7 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
      * a {@code HashMap}.
      */
     private final Map<String, SitePolicy> policyByPid = Collections.synchronizedMap(new HashMap<>());
+
     /**
      * A map that associates a site key with its corresponding PID (persistent identity).
      * This is used for managing and referencing the configurations associated with each site in the system.

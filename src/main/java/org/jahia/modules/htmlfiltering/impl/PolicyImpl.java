@@ -29,6 +29,7 @@ import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.modules.htmlfiltering.ValidationResult.PropertyValidationResult;
 import org.jahia.modules.htmlfiltering.ValidationResult.ValidationResultBuilder;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
+import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.owasp.html.HtmlChangeListener;
@@ -51,64 +52,57 @@ final class PolicyImpl implements Policy {
 
         this.workspace = workspace;
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
-        // TODO refactor
         if (workspace != null) {
-            if (workspace.getAllowedRuleSet() != null) {
-                for (ElementCfg element : workspace.getAllowedRuleSet().getElements()) {
-                    HtmlPolicyBuilder.AttributeBuilder attributeBuilder;
+            processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
+                    HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
 
-                    // TODO review conditions
-                    if (CollectionUtils.isNotEmpty(element.getTags()) && CollectionUtils.isEmpty(element.getAttributes())) {
-                        // contains only tags
-                        builder.allowElements(element.getTags().toArray(new String[0]));
-                    } else {
-                        attributeBuilder = builder.allowAttributes(element.getAttributes().toArray(new String[0]));
-                        if (element.getFormat() != null) {
-                            Pattern formatPattern = formatPatterns.get(element.getFormat());
-                            if (formatPattern == null) {
-                                throw new IllegalArgumentException("Format " + element.getFormat() + " not defined, check your configuration");
-                            }
-                            attributeBuilder.matching(formatPattern);
-                        }
-                        if (CollectionUtils.isEmpty(element.getTags())) {
-                            // the attributes are for all tags
-                            attributeBuilder.globally();
-                        } else {
-                            attributeBuilder.onElements(element.getTags().toArray(new String[0]));
-                        }
-                    }
-                }
-                if (workspace.getAllowedRuleSet().getProtocols() != null) {
-                    builder.allowUrlProtocols(workspace.getAllowedRuleSet().getProtocols().toArray(new String[0]));
-                }
-            }
-
-            if (workspace.getDisallowedRuleSet() != null) {
-
-                for (ElementCfg element : workspace.getDisallowedRuleSet().getElements()) {
-                    HtmlPolicyBuilder.AttributeBuilder attributeBuilder;
-
-                    // TODO review conditions
-                    if (CollectionUtils.isNotEmpty(element.getTags()) && CollectionUtils.isEmpty(element.getAttributes())) {
-                        // contains only tags
-                        builder.disallowElements(element.getTags().toArray(new String[0]));
-                    } else {
-                        attributeBuilder = builder.disallowAttributes(element.getAttributes().toArray(new String[0]));
-                        // TODO handle format
-                        if (CollectionUtils.isEmpty(element.getTags())) {
-                            // the attributes are for all tags
-                            attributeBuilder.globally();
-                        } else {
-                            attributeBuilder.onElements(element.getTags().toArray(new String[0]));
-                        }
-                    }
-                }
-                if (workspace.getDisallowedRuleSet().getProtocols() != null) {
-                    builder.disallowUrlProtocols(workspace.getAllowedRuleSet().getProtocols().toArray(new String[0]));
-                }
-            }
+            processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
+                    HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
         }
         this.policyFactory = builder.toFactory();
+    }
+
+    private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetCfg ruleSet,
+                                       Map<String, Pattern> formatPatterns,
+                                       AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagStuffFunction, BuilderHandlerFunction protocolStuffFunction) {
+        if (ruleSet != null) {
+            // Apply element rules
+            for (ElementCfg element : ruleSet.getElements()) {
+                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagStuffFunction, element);
+            }
+
+            // Apply protocol rules
+            if (ruleSet.getProtocols() != null) {
+                protocolStuffFunction.handle(builder, ruleSet.getProtocols().toArray(new String[0]));
+            }
+        }
+    }
+
+    private static void processElement(HtmlPolicyBuilder builder, Map<String, Pattern> formatPatterns, AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagStuffFunction, ElementCfg element) {
+        if (CollectionUtils.isNotEmpty(element.getTags()) && CollectionUtils.isEmpty(element.getAttributes())) {
+            // Contains only tags
+            tagStuffFunction.handle(builder, element.getTags().toArray(new String[0]));
+        } else {
+            HtmlPolicyBuilder.AttributeBuilder attributeBuilder =
+                    attributeBuilderHandlerFunction.handle(builder, element.getAttributes().toArray(new String[0]));
+
+            // Handle format pattern for allowed attributes only
+            if (element.getFormat() != null) {
+                Pattern formatPattern = formatPatterns.get(element.getFormat());
+                if (formatPattern == null) {
+                    throw new IllegalArgumentException("Format " + element.getFormat() +
+                            " not defined, check your configuration");
+                }
+                attributeBuilder.matching(formatPattern);
+            }
+
+            if (CollectionUtils.isEmpty(element.getTags())) {
+                // The attributes are for all tags
+                attributeBuilder.globally();
+            } else {
+                attributeBuilder.onElements(element.getTags().toArray(new String[0]));
+            }
+        }
     }
 
     @Override
@@ -138,6 +132,16 @@ final class PolicyImpl implements Policy {
             policyFactory.sanitize(value, new Listener(), propertyValidationResult);
             validationResultBuilder.addPropertyValidationResult(name, propertyValidationResult);
         }
+    }
+
+    @FunctionalInterface
+    private interface AttributeBuilderHandlerFunction {
+        HtmlPolicyBuilder.AttributeBuilder handle(HtmlPolicyBuilder builder, String[] attributes);
+    }
+
+    @FunctionalInterface
+    private interface BuilderHandlerFunction {
+        void handle(HtmlPolicyBuilder builder, String[] items);
     }
 
     private static class Listener implements HtmlChangeListener<PropertyValidationResult> {

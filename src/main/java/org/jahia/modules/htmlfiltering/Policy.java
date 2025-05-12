@@ -42,10 +42,11 @@ public interface Policy {
     String sanitize(String htmlText);
 
     /**
-     * Validate the given JCR node as per the HTML filtering policy.
+     * Validate the properties of a given JCR node as per the HTML filtering policy.
+     *
      * @param node the JCR node to validate. The node must be a node of type "jnt:htmlPage" or "jnt:htmlTemplate".
-     * @return
-     * @throws RepositoryException
+     * @return a {@link ValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.
+     * @throws RepositoryException if an error occurs while retrieving the node properties
      */
     ValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
 }

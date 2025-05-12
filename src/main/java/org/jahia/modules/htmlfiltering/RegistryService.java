@@ -22,8 +22,6 @@ package org.jahia.modules.htmlfiltering;/*
  * ==========================================================================================
  */
 
-import org.jahia.services.content.JCRNodeWrapper;
-
 public interface RegistryService {
     /**
      * Get the policy for the given site and workspace.

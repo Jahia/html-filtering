@@ -26,14 +26,24 @@ package org.jahia.modules.htmlfiltering;
 
 import java.util.*;
 
-public class ValidationResult {
+/**
+ * Defines the result of a validation performed on a JCR node.
+ *
+ * @see Policy#validate(org.jahia.services.content.JCRNodeWrapper)
+ */
+public final class ValidationResult {
 
     private final Map<String, PropertyValidationResult> propertyValidationResults;
 
-    public ValidationResult(ValidationResultBuilder validationResultBuilder) {
+    private ValidationResult(ValidationResultBuilder validationResultBuilder) {
         propertyValidationResults = validationResultBuilder.propertyValidationResults;
     }
 
+    /**
+     * Returns <code>true</code> if the validation result is valid, i.e. no rejected tags or attributes were found.
+     *
+     * @return <code>true</code> if the validation result is valid, i.e. no rejected tags or attributes were found.
+     */
     public boolean isValid() {
         return propertyValidationResults.isEmpty();
     }

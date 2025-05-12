@@ -74,7 +74,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <!-- TODO update import package -->
             <groupId>org.jahia.server</groupId>
             <artifactId>jahia-api</artifactId>
             <version>${project.parent.version}</version>
@@ -147,28 +146,26 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.osgi.version}</version>
+            <version>${jackson.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <!-- TODO should the dep be embedded or referenced? -->
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-properties</artifactId>
-            <version>${jackson.core.version}</version> <!-- TODO what to use? -->
+            <!-- use the same version as the Jackson core one -->
+            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.14.0</version>
+            <version>2.11.0</version> <!-- matches the version declared in https://github.com/Jahia/jahia-private/blob/JAHIA_8_1_7_0/core/pom.xml#L141 -->
             <scope>provided</scope>
-            <!-- TODO review import package -->
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2.2-jahia</version>
+            <version>3.2.2</version>  <!-- matches the version declared in https://github.com/Jahia/jahia-private/blob/JAHIA_8_1_7_0/core/pom.xml#L101 -->
             <scope>provided</scope>
-            <!-- TODO review import package -->
         </dependency>
     </dependencies>
 
@@ -183,9 +180,13 @@
                         <_dsannotations>*</_dsannotations>
                         <Import-Package>
                             ${jahia.plugin.projectPackageImport},
+                            com.fasterxml.jackson.core;version="[2.14,3)",
                             com.fasterxml.jackson.databind.cfg;version="[2.14,3)",
                             graphql.annotations.annotationTypes;version="[6.5,99)",
                             javax.jcr;version="[2.0,3)",
+                            org.apache.commons.io;version="[2.11,3)",
+                            org.apache.commons.collections;version="[3.2,4)",
+                            org.jahia.api,
                             org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
                             org.jahia.modules.graphql.provider.dxm.security;version="[2.19,4)",
                             org.jahia.osgi,

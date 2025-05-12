@@ -53,4 +53,13 @@ public class ElementCfg {
     public void setFormat(String format) {
         this.format = format;
     }
+
+    @Override
+    public String toString() {
+        return "ElementCfg{" +
+                "tags=" + tags +
+                ", attributes=" + attributes +
+                ", format='" + format + '\'' +
+                '}';
+    }
 }

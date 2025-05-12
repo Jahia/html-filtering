@@ -44,6 +44,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * Implementation of the {@link Policy} interface for defining HTML filtering policies
+ * within a specific workspace configuration. This class processes allowed and disallowed
+ * rules for HTML elements, attributes, and protocols as specified in the workspace configuration.
+ * It uses {@link HtmlPolicyBuilder} (OWASP Java HTML Sanitizer) to construct the filtering rules and applies them for sanitization
+ * and validation operations.
+ */
 final class PolicyImpl implements Policy {
     private final WorkspaceCfg workspace; // keep a reference to the workspace configuration
     private final PolicyFactory policyFactory;

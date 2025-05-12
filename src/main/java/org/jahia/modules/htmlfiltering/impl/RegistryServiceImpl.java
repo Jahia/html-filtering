@@ -38,16 +38,15 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component(immediate = true, service = {RegistryService.class, ManagedServiceFactory.class},
         property = {
                 "service.pid=org.jahia.modules.htmlfiltering",
-                "service.description=TODO", // TODO
+                "service.description=HTML filtering registry service to retrieve the policy to use for a given workspace of a given site",
                 "service.vendor=Jahia Solutions Group SA"
         })
 public final class RegistryServiceImpl implements RegistryService, ManagedServiceFactory {
@@ -56,35 +55,73 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
 
     private final JavaPropsMapper javaPropsMapper = JavaPropsMapper.builder()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
+            // TODO ignore fields that do not exist in the POJO
             .build();
 
-    private final Map<String, SitePolicy> policiesBySite = Collections.synchronizedMap(new HashMap<>());
-    private final Map<String, SitePolicy> policiesByPid = Collections.synchronizedMap(new HashMap<>());
+    /**
+     * Configuration PID for the default site policy
+     */
+    private final AtomicReference<String> defaultPid = new AtomicReference<>();
+
+    /**
+     * A thread-safe map that associates persistent identities (PIDs) with {@link SitePolicy} instances.
+     * <p>
+     * This map is used to store and manage the configuration policies for specific site configurations
+     * in a synchronized manner. Each PID corresponds to a unique site configuration whose edit and live
+     * workspace policies are encapsulated by the {@link SitePolicy} class.
+     * <p>
+     * The map ensures thread-safe access and modifications by using a synchronized wrapper around
+     * a {@code HashMap}.
+     */
+    private final Map<String, SitePolicy> policyByPid = Collections.synchronizedMap(new HashMap<>());
+    /**
+     * A map that associates a site key with its corresponding PID (persistent identity).
+     * This is used for managing and referencing the configurations associated with each site in the system.
+     */
+    private final Map<String, String> pidBySite = new HashMap<>();
 
     @Override
     public String getName() {
-        // ${TODO} Auto-generated method stub
-        return "";
+        return "HTML Filtering Registry Service";
     }
 
     @Override
     public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
-        // TODO get rid of "default" in the default config name
-        logger.info("Updating configuration for pid {}", pid);
+        logger.debug("Updating configuration for pid {}", pid);
 
         // extracting the site key from the configuration filename
         Object configurationPath = properties.get("felix.fileinstall.filename");
         if (configurationPath == null) {
             throw new ConfigurationException("felix.fileinstall.filename", "Missing configuration filename");
         }
-        Path configurationFilename = Paths.get(configurationPath.toString()).getFileName();
+        logger.info("Updating configuration file: {} (pid: {})", configurationPath, pid);
         String configurationName = FilenameUtils.getBaseName(configurationPath.toString());
         String siteKey = StringUtils.substringAfter(configurationName, "-");
-        if (siteKey == null) {
-            throw new ConfigurationException("siteKey", "Missing siteKey in configuration filename: " + configurationFilename);
+
+        SitePolicy sitePolicy = createSitePolicy(properties, configurationPath);
+
+        policyByPid.put(pid, sitePolicy);
+        if (StringUtils.isEmpty(siteKey)) {
+            defaultPid.set(pid);
+            logger.debug("Default site policy updated.");
+        } else {
+            pidBySite.put(siteKey, pid);
+            logger.debug("Site policy for '{}' updated.", siteKey);
         }
+    }
 
+    @Override
+    public void deleted(String pid) {
+        logger.debug("Deleting configuration for pid {}", pid);
+        policyByPid.remove(pid);
+        if (defaultPid.compareAndSet(pid, null)) {
+            logger.debug("Default site policy deleted.");
+        } else {
+            logger.debug("Deleting site policy for site '{}'", pidBySite.remove(pid));
+        }
+    }
 
+    private SitePolicy createSitePolicy(Dictionary<String, ?> properties, Object configurationPath) throws ConfigurationException {
         // convert the dictionary to a map and keep only the props starting with "htmlFiltering."
         List<String> keys = Collections.list(properties.keys());
         Map<String, Object> propertiesMap = keys.stream()
@@ -99,30 +136,25 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
         } catch (JsonProcessingException e) {
             throw new ConfigurationException(null, "Unable to read the configuration file: " + configurationPath, e);
         }
+        logger.debug("Site configuration loaded: {}", siteConfiguration);
 
-        policiesBySite.put(siteKey, new SitePolicy(siteConfiguration));
-    }
-
-    @Override
-    public void deleted(String pid) {
-        // ${TODO} Auto-generated method stub
-
+        return new SitePolicy(siteConfiguration);
     }
 
     @Override
     public Policy getPolicy(String siteKey, String workspaceName) {
-        SitePolicy sitePolicy = policiesBySite.get(siteKey);
-        if (sitePolicy != null) {
-            return sitePolicy.getPolicy(workspaceName);
+        String pid = pidBySite.get(siteKey);
+        if (pid == null) {
+            logger.debug("No pid found for siteKey: {}, using default policy", siteKey);
+            pid = defaultPid.get();
         }
-
-        // get the default policy if defined
-        SitePolicy defaultSitePolicy = policiesBySite.get("default");
-        if (defaultSitePolicy != null) {
-            return defaultSitePolicy.getPolicy(workspaceName);
+        logger.debug("pid for site {}: {}", siteKey, pid);
+        SitePolicy policy = policyByPid.get(pid);
+        if (policy == null) {
+            logger.debug("No policy available for siteKey: {}", siteKey);
+            return null;
         }
-        logger.debug("No policy defined for siteKey: {}", siteKey);
-        return null;
+        return policy.getPolicy(workspaceName);
     }
 
     private static final class SitePolicy {

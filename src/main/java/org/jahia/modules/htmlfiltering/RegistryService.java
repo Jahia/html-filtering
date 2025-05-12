@@ -25,7 +25,7 @@ package org.jahia.modules.htmlfiltering;/*
 public interface RegistryService {
     /**
      * Get the policy for the given site and workspace.
-     * If the workspace does not exist for the given site, the default workspace "live" is used.
+     * If the workspace does not exist for the given site, the default "live" workspace is used.
      *
      * @param siteKey       the site key
      * @param workspaceName the workspace name

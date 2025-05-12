@@ -38,6 +38,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
+
     @Reference
     RegistryService registryService;
 

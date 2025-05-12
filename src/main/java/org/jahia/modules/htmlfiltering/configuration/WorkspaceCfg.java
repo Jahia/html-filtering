@@ -56,4 +56,13 @@ public class WorkspaceCfg {
         REJECT,
         SANITIZE
     }
+
+    @Override
+    public String toString() {
+        return "WorkspaceCfg{" +
+                "allowedRuleSet=" + allowedRuleSet +
+                ", disallowedRuleSet=" + disallowedRuleSet +
+                ", strategy=" + strategy +
+                '}';
+    }
 }

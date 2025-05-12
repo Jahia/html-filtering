@@ -44,4 +44,12 @@ public class RuleSetCfg {
     public void setElements(List<ElementCfg> elements) {
         this.elements = elements;
     }
+
+    @Override
+    public String toString() {
+        return "RuleSetCfg{" +
+                "protocols=" + protocols +
+                ", elements=" + elements +
+                '}';
+    }
 }

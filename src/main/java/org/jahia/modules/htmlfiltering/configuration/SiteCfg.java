@@ -53,4 +53,13 @@ public class SiteCfg {
     public void setFormatDefinitions(Map<String, String> formatDefinitions) {
         this.formatDefinitions = formatDefinitions;
     }
+
+    @Override
+    public String toString() {
+        return "SiteCfg{" +
+                "editWorkspace=" + editWorkspace +
+                ", liveWorkspace=" + liveWorkspace +
+                ", formatDefinitions=" + formatDefinitions +
+                '}';
+    }
 }

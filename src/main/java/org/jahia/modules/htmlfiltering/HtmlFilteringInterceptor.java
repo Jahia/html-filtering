@@ -16,7 +16,6 @@
 package org.jahia.modules.htmlfiltering;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.modules.htmlfiltering.configuration.HTMLFilteringService;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
@@ -27,12 +26,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.owasp.html.HtmlChangeListener;
-import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.validation.constraints.NotNull;
@@ -41,7 +37,7 @@ import java.util.Collections;
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {
 
-    private static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
+    private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
 
@@ -68,35 +64,17 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             throws RepositoryException {
 
         if (valueIsEmpty(originalValue)) return originalValue;
+        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
 
         JCRSiteNode resolveSite = node.getResolveSite();
-        HTMLFilteringService filteringService = BundleUtils.getOsgiService(HTMLFilteringService.class, null);
-        if (!resolveSite.isHtmlMarkupFilteringEnabled() || filteringService == null) {
+        if (filteringService == null || filteringService.validate()) {
             return originalValue;
-        }
-
-        PolicyFactory policyFactory = filteringService.getMergedOwaspPolicyFactory(HTMLFilteringService.DEFAULT_POLICY_KEY, resolveSite.getSiteKey());
-
-        if (policyFactory == null) {
-            return originalValue;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Performing HTML tag filtering for {}/{}", node.getPath(), name);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Original value: {}", originalValue.getString());
-            }
         }
         String content = originalValue.getString();
-        String propInfo = node.hasProperty(definition.getName()) ? node.getProperty(definition.getName()).getRealProperty().getPath() : node.getPath();
 
-        if (dryRun(filteringService, resolveSite, propInfo, policyFactory, content)) return originalValue;
+        SanitizedContent result = filteringService.validate(content, resolveSite.getSiteKey());
 
-        String result = policyFactory.sanitize(content);
-
-        logger.warn("Sanitized [{}]", propInfo);
-
-        return getModifiedValue(node, preservePlaceholders(result), content, originalValue);
+        return getModifiedValue(node, preservePlaceholders(result.getSanitizedContent()), content, originalValue);
     }
 
     @NotNull
@@ -129,27 +107,6 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             if (logger.isDebugEnabled()) {
                 logger.debug("The value does not contain any HTML tags. Skip filtering.");
             }
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean dryRun(HTMLFilteringService filteringService, JCRSiteNode resolveSite, String propInfo, PolicyFactory policyFactory, String content) {
-        if (filteringService.htmlSanitizerDryRun(resolveSite.getSiteKey())) {
-            logger.info("Dry run: Skipping Sanitization of [{}]", propInfo);
-
-            policyFactory.sanitize(content, new HtmlChangeListener<Object>() {
-                @Override
-                public void discardedTag(@Nullable Object o, String tag) {
-                    logger.info(String.format("Removed tag: %s", tag));
-                }
-
-                @Override
-                public void discardedAttributes(@Nullable Object o, String tag, String... strings) {
-                    logger.info(String.format("Removed attributes %s for tag %s", String.join(", ", strings), tag));
-                }
-            }, null);
-
             return true;
         }
         return false;

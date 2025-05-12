@@ -1,6 +1,6 @@
 import {createSite, deleteSite} from '@jahia/cypress';
 import {DocumentNode} from 'graphql';
-import {enableHtmlFiltering, installConfig} from '../fixtures/utils';
+import {installConfig} from '../fixtures/utils';
 
 describe('HTML rich text filtering API', () => {
     const siteKey = 'filteringSite';
@@ -11,7 +11,6 @@ describe('HTML rich text filtering API', () => {
     before(() => {
         createSite(siteKey);
         installConfig('configs/org.jahia.modules.htmlfiltering.config-filteringSite.yml');
-        enableHtmlFiltering(siteKey);
         previewMutation = require('graphql-tag/loader!../fixtures/filteringAPI/preview.graphql');
         configQuery = require('graphql-tag/loader!../fixtures/filteringAPI/config.graphql');
     });

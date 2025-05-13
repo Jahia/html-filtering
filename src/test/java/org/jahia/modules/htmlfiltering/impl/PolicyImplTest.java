@@ -60,10 +60,9 @@ public class PolicyImplTest {
         expectedRejectedTags.add("p");
         assertEquals(expectedRejectedTags, rejectionResult.getRejectedTags());
         assertTrue(rejectionResult.getRejectedAttributesByTagEntrySet().isEmpty());
+        assertEquals(1,validationResult.getSanitizedProperties().size());
+        assertEquals("Hello World",validationResult.getSanitizedProperties().get("myProp"));
 
-//        validationResult.propertyValidationResultSet()
-//        assertEquals(validationResult.pr);
-        // TODO to complete
     }
 
     @Test

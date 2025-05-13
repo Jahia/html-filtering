@@ -24,9 +24,11 @@ import java.util.*;
 final class ValidationResultImpl implements ValidationResult {
 
     private final Map<String, PropertyRejectionResult> rejectionResultsByProperty;
+    private final Map<String, String> sanitizedProperties;
 
     ValidationResultImpl(ValidationResultBuilderImpl validationResultBuilder) {
         rejectionResultsByProperty = validationResultBuilder.rejectionResultsByProperty;
+        sanitizedProperties = validationResultBuilder.sanitizedProperties;
     }
 
     @Override
@@ -47,6 +49,11 @@ final class ValidationResultImpl implements ValidationResult {
     @Override
     public PropertyRejectionResult getRejectionResult(String property) {
         return rejectionResultsByProperty.get(property);
+    }
+
+    @Override
+    public Map<String, String> getSanitizedProperties() {
+        return sanitizedProperties;
     }
 
     static class PropertyRejectionResultImpl implements PropertyRejectionResult {

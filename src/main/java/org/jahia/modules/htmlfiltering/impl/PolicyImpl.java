@@ -135,7 +135,8 @@ final class PolicyImpl implements Policy {
     }
 
     void validate(String name, String value, ValidationResultBuilderImpl validationResultBuilder) {
-        policyFactory.sanitize(value, new Listener(name), validationResultBuilder);
+        String sanitized = policyFactory.sanitize(value, new Listener(name), validationResultBuilder);
+        validationResultBuilder.addSanitizedProperty(name, sanitized);
     }
 
     @FunctionalInterface

@@ -26,6 +26,7 @@ import java.util.Map;
 class ValidationResultBuilderImpl implements ValidationResultBuilder {
 
     final Map<String, ValidationResult.PropertyRejectionResult> rejectionResultsByProperty = new HashMap<>();
+    final Map<String, String> sanitizedProperties = new HashMap<>();
 
     @Override
     public void rejectTag(String propertyName, String tag) {
@@ -37,6 +38,11 @@ class ValidationResultBuilderImpl implements ValidationResultBuilder {
     public void rejectAttributes(String propertyName, String tag, String[] attributeNames) {
         ValidationResult.PropertyRejectionResult result = rejectionResultsByProperty.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyRejectionResultImpl());
         ((ValidationResultImpl.PropertyRejectionResultImpl) result).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
+    }
+
+    @Override
+    public void addSanitizedProperty(String propertyName, String sanitizedValue) {
+        sanitizedProperties.put(propertyName, sanitizedValue);
     }
 
     @Override

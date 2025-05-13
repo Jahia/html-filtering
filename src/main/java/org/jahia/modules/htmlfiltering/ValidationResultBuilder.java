@@ -20,5 +20,13 @@ public interface ValidationResultBuilder {
 
     void rejectAttributes(String propertyName, String tag, String[] attributeNames);
 
+    /**
+     * Stores the sanitized value for a specific property.
+     *
+     * @param propertyName   the name of the property being sanitized
+     * @param sanitizedValue the cleaned content after sanitization
+     */
+    void addSanitizedProperty(String propertyName, String sanitizedValue);
+
     ValidationResult build();
 }

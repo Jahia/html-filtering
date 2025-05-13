@@ -55,6 +55,13 @@ public interface ValidationResult {
      */
     PropertyRejectionResult getRejectionResult(String property);
 
+    /**
+     * Retrieves a map of sanitized properties where the keys represent property names
+     * and the values represent the sanitized content of those properties.
+     *
+     * @return a map containing sanitized properties with property names as keys and their sanitized values as values
+     */
+    Map<String, String> getSanitizedProperties();
 
     /**
      * Contains information about elements that failed validation for a specific property.

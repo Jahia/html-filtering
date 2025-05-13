@@ -71,12 +71,6 @@
                 <artifactId>JUnitParams</artifactId>
                 <version>1.1.1</version>
             </dependency>
-            <dependency>
-                <groupId>org.jahia.test</groupId>
-                <artifactId>module-test-framework</artifactId>
-                <version>${parent.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -197,11 +191,6 @@
         <dependency>
             <groupId>pl.pragmatists</groupId>
             <artifactId>JUnitParams</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jahia.test</groupId>
-            <artifactId>module-test-framework</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * Represents the result of a validation process, encapsulating information about validation of properties,
  * rejected tags, and rejected attributes.
- *
+ * <p>
  * This class is immutable and contains the outcomes of validations performed on properties and their associated
  * tags or attributes.
  */

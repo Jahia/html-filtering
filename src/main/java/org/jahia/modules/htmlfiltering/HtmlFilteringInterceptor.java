@@ -15,7 +15,6 @@
  */
 package org.jahia.modules.htmlfiltering;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
 import org.jahia.services.content.interceptor.BaseInterceptor;
@@ -105,16 +104,6 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             logger.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
         }
         return originalValue;
-    }
-
-    private static boolean valueIsEmpty(Value originalValue) throws RepositoryException {
-        if (StringUtils.isEmpty(originalValue.getString()) || !originalValue.getString().contains("<")) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("The value does not contain any HTML tags. Skip filtering.");
-            }
-            return true;
-        }
-        return false;
     }
 
     @Override

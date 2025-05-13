@@ -15,10 +15,15 @@
  */
 package org.jahia.modules.htmlfiltering.configuration;
 
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+
+import javax.jcr.Value;
+
 public class WorkspaceCfg {
     private RuleSetCfg allowedRuleSet;
     private RuleSetCfg disallowedRuleSet;
-    private StrategyCfg strategy;
+    private StrategyCfg strategy = StrategyCfg.SANITIZE;
 
     public RuleSetCfg getAllowedRuleSet() {
         return allowedRuleSet;
@@ -44,8 +49,26 @@ public class WorkspaceCfg {
         this.strategy = strategy;
     }
 
+    /**
+     * Defines the strategy for handling HTML content that does not adhere
+     * to the allowed rule set.
+     */
     public enum StrategyCfg {
+        /**
+         * Strategy to reject HTML content that does not adhere to the allowed rule set.
+         * Any content that violates the defined rules will be deemed invalid and not accepted.
+         *
+         * @see org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)
+         */
         REJECT,
+        /**
+         * Strategy to sanitize the HTML content by removing all tags and attributes that
+         * are not part of the allowed rule set.
+         * This cleanup is performed automatically before storing the value of a node property in the JCR, in  {@link org.jahia.modules.htmlfiltering.HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)}.
+         * When this strategy is used, the validation in ({@link org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)}) is disabled.
+         *
+         * @see org.jahia.modules.htmlfiltering.HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
+         */
         SANITIZE
     }
 

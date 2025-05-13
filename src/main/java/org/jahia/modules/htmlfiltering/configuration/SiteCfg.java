@@ -17,6 +17,10 @@ package org.jahia.modules.htmlfiltering.configuration;
 
 import java.util.Map;
 
+/**
+ * Represents the HTML filtering configuration for a given site.
+ * A configuration can be defined for a given site by creating a file named <code>org.jahia.modules.htmlfiltering-&lt;siteKey&gt;.yml</code> in the <code>META-INF/configurations/</code> folder of a bundle.
+ */
 public class SiteCfg {
     private WorkspaceCfg editWorkspace;
     private WorkspaceCfg liveWorkspace;

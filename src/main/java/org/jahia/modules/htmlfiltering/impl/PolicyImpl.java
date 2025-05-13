@@ -60,24 +60,31 @@ final class PolicyImpl implements Policy {
 
     private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetCfg ruleSet,
                                        Map<String, Pattern> formatPatterns,
-                                       AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagStuffFunction, BuilderHandlerFunction protocolStuffFunction) {
+                                       AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagHandler, BuilderHandlerFunction protocolHandler) {
         if (ruleSet != null) {
             // Apply element rules
-            for (ElementCfg element : ruleSet.getElements()) {
-                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagStuffFunction, element);
+            if (ruleSet.getElements() != null) {
+                for (ElementCfg element : ruleSet.getElements()) {
+                    processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, element);
+                }
             }
 
             // Apply protocol rules
             if (ruleSet.getProtocols() != null) {
-                protocolStuffFunction.handle(builder, ruleSet.getProtocols().toArray(new String[0]));
+                protocolHandler.handle(builder, ruleSet.getProtocols().toArray(new String[0]));
             }
         }
     }
 
-    private static void processElement(HtmlPolicyBuilder builder, Map<String, Pattern> formatPatterns, AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagStuffFunction, ElementCfg element) {
-        if (CollectionUtils.isNotEmpty(element.getTags()) && CollectionUtils.isEmpty(element.getAttributes())) {
-            // Contains only tags
-            tagStuffFunction.handle(builder, element.getTags().toArray(new String[0]));
+    private static void processElement(HtmlPolicyBuilder builder, Map<String, Pattern> formatPatterns, AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagHandler, ElementCfg element) {
+        boolean noTags = CollectionUtils.isEmpty(element.getTags());
+        boolean noAttributes = CollectionUtils.isEmpty(element.getAttributes());
+        if (noTags && noAttributes) {
+            throw new IllegalArgumentException("Each item in the 'elements' of an 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element);
+        }
+        if (noAttributes) {
+            // Contains tags without attributes
+            tagHandler.handle(builder, element.getTags().toArray(new String[0]));
         } else {
             HtmlPolicyBuilder.AttributeBuilder attributeBuilder =
                     attributeBuilderHandlerFunction.handle(builder, element.getAttributes().toArray(new String[0]));
@@ -92,7 +99,7 @@ final class PolicyImpl implements Policy {
                 attributeBuilder.matching(formatPattern);
             }
 
-            if (CollectionUtils.isEmpty(element.getTags())) {
+            if (noTags) {
                 // The attributes are for all tags
                 attributeBuilder.globally();
             } else {

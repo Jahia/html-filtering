@@ -153,8 +153,8 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
 
     private static final class SitePolicy {
 
-        Policy editWorkspacePolicy;
-        Policy liveWorkspacePolicy;
+        private final Policy editWorkspacePolicy;
+        private final Policy liveWorkspacePolicy;
 
         private SitePolicy(SiteCfg siteConfiguration) {
             // compile the regex patterns for the allowed and disallowed rule sets (shared for both workspaces)

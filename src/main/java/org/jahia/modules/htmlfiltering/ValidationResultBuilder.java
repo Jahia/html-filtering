@@ -22,17 +22,10 @@ package org.jahia.modules.htmlfiltering;/*
  * ==========================================================================================
  */
 
-import java.util.Map;
-import java.util.Set;
+public interface ValidationResultBuilder {
+    void rejectTag(String propertyName, String tag);
 
-public interface ValidationResult {
-    boolean isValid();
+    void rejectAttributes(String propertyName, String tag, String[] attributeNames);
 
-    Set<Map.Entry<String, ValidationResult.PropertyValidationResult>> propertyValidationResultSet();
-
-    interface PropertyValidationResult {
-        Set<String> getRejectedTags();
-
-        Set<Map.Entry<String, Set<String>>> getRejectedAttributesByTagEntrySet();
-    }
+    ValidationResult build();
 }

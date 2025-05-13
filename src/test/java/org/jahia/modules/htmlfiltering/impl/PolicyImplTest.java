@@ -55,7 +55,7 @@ public class PolicyImplTest {
             // all attributes of <h1> are removed:
             "<h1 class=\"test\" invalid=\"unknown\">title</h1>, <h1>title</h1>"
     })
-    public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String sanitizedHtml) {
+    public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
@@ -66,7 +66,7 @@ public class PolicyImplTest {
 
         String sanitized = policy.sanitize(html);
 
-        assertEquals(sanitizedHtml, sanitized);
+        assertEquals(expectedHtml, sanitized);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class PolicyImplTest {
             "<pre id=\"abc\">text</pre>, <pre>text</pre>",
             // valid format for <p> used on <textarea> (no format defined), the attribute is kept:
             "<textarea id=\"abc\">text</textarea>, <textarea id=\"abc\">text</textarea>",
-            // mixing multiple formats on the same <p> tag, the attributes are kept:
+            // using multiple formats on the same <p> tag, the attributes are kept:
             "<p id=\"abc\" class=\"123\">text</p>, <p id=\"abc\" class=\"123\">text</p>",
 
     })

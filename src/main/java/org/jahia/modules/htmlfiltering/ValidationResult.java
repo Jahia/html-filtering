@@ -73,11 +73,13 @@ public final class ValidationResult {
         private final Map<String, PropertyValidationResult> propertyValidationResults = new HashMap<>();
 
         public void rejectTag(String propertyName, String tag) {
-            propertyValidationResults.getOrDefault(propertyName, new PropertyValidationResult()).addRejectedTag(tag);
+            PropertyValidationResult result = propertyValidationResults.computeIfAbsent(propertyName, k -> new PropertyValidationResult());
+            result.addRejectedTag(tag);
         }
 
         public void rejectAttributes(String propertyName, String tag, String[] attributeNames) {
-            propertyValidationResults.getOrDefault(propertyName, new PropertyValidationResult()).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
+            PropertyValidationResult result = propertyValidationResults.computeIfAbsent(propertyName, k -> new PropertyValidationResult());
+            result.addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
         }
 
         public ValidationResult build() {

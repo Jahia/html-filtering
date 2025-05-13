@@ -46,17 +46,17 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         }
         // build error message
         final StringBuilder errors = new StringBuilder();
-        for (Map.Entry<String, ValidationResult.PropertyValidationResult> entry : validationResult.propertyValidationResultSet()) {
+        for (Map.Entry<String, ValidationResult.PropertyRejectionResult> entry : validationResult.rejectionResultsEntrySet()) {
             // Todo provide nicer error messages
             String propertyName = entry.getKey();
-            ValidationResult.PropertyValidationResult propertyValidationResult = entry.getValue();
+            ValidationResult.PropertyRejectionResult propertyRejectionResult = entry.getValue();
             logger.debug("Sanitized property {}", propertyName);
-            errors.append(propertyValidationResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " + String.join(", ", propertyValidationResult.getRejectedTags()));
+            errors.append(propertyRejectionResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " + String.join(", ", propertyRejectionResult.getRejectedTags()));
 
-            String rejectedAttributesSummary = propertyValidationResult.getRejectedAttributesByTagEntrySet().stream()
+            String rejectedAttributesSummary = propertyRejectionResult.getRejectedAttributesByTagEntrySet().stream()
                     .map(entryRA -> entryRA.getKey() + ": " + String.join(", ", entryRA.getValue()))
                     .collect(Collectors.joining("; "));
-            errors.append(propertyValidationResult.getRejectedAttributesByTagEntrySet().isEmpty() ? "" : " [" + propertyName + "] Not allowed attributes:" + String.join(", ", rejectedAttributesSummary));
+            errors.append(propertyRejectionResult.getRejectedAttributesByTagEntrySet().isEmpty() ? "" : " [" + propertyName + "] Not allowed attributes:" + String.join(", ", rejectedAttributesSummary));
         }
         if (StringUtils.isNotEmpty(errors)) {
             context.buildConstraintViolationWithTemplate(errors.toString()).addConstraintViolation();

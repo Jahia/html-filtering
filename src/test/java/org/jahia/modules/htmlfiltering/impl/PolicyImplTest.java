@@ -2,6 +2,7 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
@@ -11,8 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 @RunWith(JUnitParamsRunner.class)
 public class PolicyImplTest {
@@ -40,6 +40,30 @@ public class PolicyImplTest {
         String sanitized = policy.sanitize(html);
 
         assertEquals("Hello World", sanitized);
+    }
+
+    @Test
+    public void GIVEN_empty_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() {
+        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
+        String html = "<p>Hello World</p><script>alert('Javascript')</script>";
+        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
+
+        policy.validate("myProp", html, validationResultBuilder);
+        ValidationResult validationResult = validationResultBuilder.build();
+
+        assertFalse(validationResult.isValid());
+        assertEquals(1, validationResult.rejectedProperties().size());
+        assertTrue(validationResult.rejectedProperties().contains("myProp"));
+        ValidationResult.PropertyRejectionResult rejectionResult = validationResult.getRejectionResult("myProp");
+        HashSet<String> expectedRejectedTags = new HashSet<>();
+        expectedRejectedTags.add("script");
+        expectedRejectedTags.add("p");
+        assertEquals(expectedRejectedTags, rejectionResult.getRejectedTags());
+        assertTrue(rejectionResult.getRejectedAttributesByTagEntrySet().isEmpty());
+
+//        validationResult.propertyValidationResultSet()
+//        assertEquals(validationResult.pr);
+        // TODO to complete
     }
 
     @Test

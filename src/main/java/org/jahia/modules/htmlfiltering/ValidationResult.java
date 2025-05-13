@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represents the result of a validation process, encapsulating information about validation of properties, rejected tags, and rejected attributes.
+ * Represents the result of a validation process, encapsulating information about the properties being rejected (with their rejected tags and/or rejected attributes).
  * <p>
  * Implementations of this interface should be immutable.
  */
@@ -32,17 +32,41 @@ public interface ValidationResult {
     boolean isValid();
 
     /**
-     * Retrieves a set of property validation results, where each entry consists of a property name as the key and its corresponding validation result as the value.
+     * Retrieves a set of property rejection results, where each entry consists of a property name as the key and its corresponding validation result as the value.
      *
-     * @return a set of map entries representing property validation results, with each entry associating a property name (key)
-     * with its corresponding {@link ValidationResult.PropertyValidationResult} object (value)
+     * @return a set of map entries representing property rejection results, with each entry associating a property name (key)
+     * with its corresponding {@link PropertyRejectionResult} object (value)
      */
-    Set<Map.Entry<String, ValidationResult.PropertyValidationResult>> propertyValidationResultSet();
+    Set<Map.Entry<String, PropertyRejectionResult>> rejectionResultsEntrySet();
 
     /**
-     * Represents the result of the validation process for a single property.
+     * Retrieves the set of property names that have been rejected during the validation process.
+     *
+     * @return a set of strings representing the names of the rejected properties.
      */
-    interface PropertyValidationResult {
+    Set<String> rejectedProperties();
+
+    /**
+     * Retrieves the rejection result for a specific property, if available.
+     *
+     * @param property the name of the property for which the rejection result is to be retrieved
+     * @return the {@link PropertyRejectionResult} containing details about rejected tags and attributes for the given property,
+     * or <code>null</code> if no rejection result exists for the specified property
+     */
+    PropertyRejectionResult getRejectionResult(String property);
+
+
+    /**
+     * Contains information about elements that failed validation for a specific property.
+     * This interface tracks two types of rejected elements:
+     * <ul>
+     *   <li>Rejected HTML tags not allowed in the content ({@link #getRejectedTags()})</li>
+     *   <li>Rejected attributes ({@link #getRejectedAttributesByTagEntrySet()})</li>
+     * </ul>
+     * The interface provides methods to access details about these rejected elements to help identify
+     * validation failures.
+     */
+    interface PropertyRejectionResult {
         /**
          * Retrieves the set of tags that were rejected during the validation process.
          *

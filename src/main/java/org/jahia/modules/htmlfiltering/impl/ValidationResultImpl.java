@@ -23,23 +23,33 @@ import java.util.*;
 
 final class ValidationResultImpl implements ValidationResult {
 
-    private final Map<String, PropertyValidationResult> propertyValidationResults;
+    private final Map<String, PropertyRejectionResult> rejectionResultsByProperty;
 
     ValidationResultImpl(ValidationResultBuilderImpl validationResultBuilder) {
-        propertyValidationResults = validationResultBuilder.propertyValidationResults;
+        rejectionResultsByProperty = validationResultBuilder.rejectionResultsByProperty;
     }
 
     @Override
     public boolean isValid() {
-        return propertyValidationResults.isEmpty();
+        return rejectionResultsByProperty.isEmpty();
     }
 
     @Override
-    public Set<Map.Entry<String, PropertyValidationResult>> propertyValidationResultSet() {
-        return propertyValidationResults.entrySet();
+    public Set<Map.Entry<String, PropertyRejectionResult>> rejectionResultsEntrySet() {
+        return rejectionResultsByProperty.entrySet();
     }
 
-    static class PropertyValidationResultImpl implements PropertyValidationResult {
+    @Override
+    public Set<String> rejectedProperties() {
+        return rejectionResultsByProperty.keySet();
+    }
+
+    @Override
+    public PropertyRejectionResult getRejectionResult(String property) {
+        return rejectionResultsByProperty.get(property);
+    }
+
+    static class PropertyRejectionResultImpl implements PropertyRejectionResult {
         private final Set<String> rejectedTags = new HashSet<>();
         private final Map<String, Set<String>> rejectedAttributesByTag = new HashMap<>();
 

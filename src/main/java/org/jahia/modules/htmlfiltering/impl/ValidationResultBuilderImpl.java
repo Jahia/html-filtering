@@ -25,18 +25,18 @@ import java.util.Map;
 
 class ValidationResultBuilderImpl implements ValidationResultBuilder {
 
-    final Map<String, ValidationResult.PropertyValidationResult> propertyValidationResults = new HashMap<>();
+    final Map<String, ValidationResult.PropertyRejectionResult> rejectionResultsByProperty = new HashMap<>();
 
     @Override
     public void rejectTag(String propertyName, String tag) {
-        ValidationResult.PropertyValidationResult result = propertyValidationResults.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyValidationResultImpl());
-        ((ValidationResultImpl.PropertyValidationResultImpl) result).addRejectedTag(tag);
+        ValidationResult.PropertyRejectionResult result = rejectionResultsByProperty.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyRejectionResultImpl());
+        ((ValidationResultImpl.PropertyRejectionResultImpl) result).addRejectedTag(tag);
     }
 
     @Override
     public void rejectAttributes(String propertyName, String tag, String[] attributeNames) {
-        ValidationResult.PropertyValidationResult result = propertyValidationResults.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyValidationResultImpl());
-        ((ValidationResultImpl.PropertyValidationResultImpl) result).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
+        ValidationResult.PropertyRejectionResult result = rejectionResultsByProperty.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyRejectionResultImpl());
+        ((ValidationResultImpl.PropertyRejectionResultImpl) result).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
     }
 
     @Override

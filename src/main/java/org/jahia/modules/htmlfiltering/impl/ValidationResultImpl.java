@@ -20,13 +20,7 @@ import org.jahia.modules.htmlfiltering.ValidationResult;
 
 import java.util.*;
 
-/**
- * Represents the result of a validation process, encapsulating information about validation of properties,
- * rejected tags, and rejected attributes.
- * <p>
- * This class is immutable and contains the outcomes of validations performed on properties and their associated
- * tags or attributes.
- */
+
 final class ValidationResultImpl implements ValidationResult {
 
     private final Map<String, PropertyValidationResult> propertyValidationResults;
@@ -35,11 +29,6 @@ final class ValidationResultImpl implements ValidationResult {
         propertyValidationResults = validationResultBuilder.propertyValidationResults;
     }
 
-    /**
-     * Returns <code>true</code> if the validation result is valid, i.e., no rejected tags or attributes were found.
-     *
-     * @return <code>true</code> if the validation result is valid, <code>false</code> otherwise.
-     */
     @Override
     public boolean isValid() {
         return propertyValidationResults.isEmpty();

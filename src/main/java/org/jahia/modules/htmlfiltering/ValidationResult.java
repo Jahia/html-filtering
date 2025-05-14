@@ -73,7 +73,7 @@ public interface ValidationResult {
          * Retrieves a mapping of HTML tags to their corresponding sets of rejected attributes.
          * Each entry in the map represents an HTML tag as the key and a set of attribute names
          * that were rejected during validation for that tag as the value.
-         * <p><b>Note:</b> if the same tag name has been rejected multiple times, the attributes will be merged</p>
+         * <p><strong>Note:</strong> if the same tag name has been rejected multiple times, the attributes will be merged</p>
          *
          * @return a map where the keys are the names of HTML tags (as strings) and the values
          * are sets of strings representing the rejected attribute names for each tag.

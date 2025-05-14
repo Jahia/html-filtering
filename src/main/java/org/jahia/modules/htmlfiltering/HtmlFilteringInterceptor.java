@@ -70,8 +70,8 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             logger.debug("No policy found for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
             return originalValue;
         }
-        if (policy.isValidationEnabled()) {
-            logger.debug("HTML validation is enabled for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
+        if (Strategy.REJECT.equals(policy.getStrategy())) {
+            logger.debug("The policy strategy is set to REJECT for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
             return originalValue;
         }
         String content = originalValue.getString();

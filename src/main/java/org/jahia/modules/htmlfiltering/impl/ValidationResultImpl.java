@@ -23,13 +23,8 @@ import java.util.*;
 
 final class ValidationResultImpl implements ValidationResult {
 
-    private final Map<String, PropertyRejectionResult> rejectionResultsByProperty;
-    private final Map<String, String> sanitizedProperties;
-
-    ValidationResultImpl(ValidationResultBuilderImpl validationResultBuilder) {
-        rejectionResultsByProperty = validationResultBuilder.rejectionResultsByProperty;
-        sanitizedProperties = validationResultBuilder.sanitizedProperties;
-    }
+    private final Map<String, PropertyRejectionResult> rejectionResultsByProperty = new HashMap<>();
+    private final Map<String, String> sanitizedProperties = new HashMap<>();
 
     @Override
     public boolean isValid() {
@@ -37,23 +32,27 @@ final class ValidationResultImpl implements ValidationResult {
     }
 
     @Override
-    public Set<Map.Entry<String, PropertyRejectionResult>> rejectionResultsEntrySet() {
-        return rejectionResultsByProperty.entrySet();
-    }
-
-    @Override
-    public Set<String> rejectedProperties() {
-        return rejectionResultsByProperty.keySet();
-    }
-
-    @Override
-    public PropertyRejectionResult getRejectionResult(String property) {
-        return rejectionResultsByProperty.get(property);
+    public Map<String, PropertyRejectionResult> getRejectionResultsByProperty() {
+        return rejectionResultsByProperty;
     }
 
     @Override
     public Map<String, String> getSanitizedProperties() {
         return sanitizedProperties;
+    }
+
+    void rejectTag(String propertyName, String tag) {
+        ValidationResult.PropertyRejectionResult result = rejectionResultsByProperty.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyRejectionResultImpl());
+        ((ValidationResultImpl.PropertyRejectionResultImpl) result).addRejectedTag(tag);
+    }
+
+    void rejectAttributes(String propertyName, String tag, String[] attributeNames) {
+        ValidationResult.PropertyRejectionResult result = rejectionResultsByProperty.computeIfAbsent(propertyName, k -> new ValidationResultImpl.PropertyRejectionResultImpl());
+        ((ValidationResultImpl.PropertyRejectionResultImpl) result).addRejectedAttributeByTag(tag, new HashSet<>(Arrays.asList(attributeNames)));
+    }
+
+    void addSanitizedProperty(String propertyName, String sanitizedValue) {
+        sanitizedProperties.put(propertyName, sanitizedValue);
     }
 
     static class PropertyRejectionResultImpl implements PropertyRejectionResult {
@@ -66,17 +65,24 @@ final class ValidationResultImpl implements ValidationResult {
 
         @Override
         public Set<String> getRejectedTags() {
-            return Collections.unmodifiableSet(rejectedTags);
+            return rejectedTags;
         }
 
         void addRejectedAttributeByTag(String tag, Set<String> attributes) {
-            // TODO should we overwrite? how does it work when using multiple times the same tag with different attributes that are rejected?
-            rejectedAttributesByTag.putIfAbsent(tag, attributes);
+            // merge the attributes with the existing ones for that tag (if any)
+            rejectedAttributesByTag.compute(tag, (k, existingAttributes) -> {
+                if (existingAttributes == null) {
+                    return attributes;
+                } else {
+                    existingAttributes.addAll(attributes);
+                    return existingAttributes;
+                }
+            });
         }
 
         @Override
-        public Set<Map.Entry<String, Set<String>>> getRejectedAttributesByTagEntrySet() {
-            return rejectedAttributesByTag.entrySet();
+        public Map<String, Set<String>> getRejectedAttributesByTag() {
+            return rejectedAttributesByTag;
         }
     }
 

@@ -3,6 +3,7 @@ package org.jahia.modules.htmlfiltering.validation;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -36,7 +37,11 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
             String workspaceName = node.getSession().getWorkspace().getName();
             Policy policy = registryService.getPolicy(siteKey, workspaceName);
             if (policy == null) {
-                // no policy configured for this site, validation is skipped
+                logger.debug("No policy available for siteKey: {}, workspace: {}. Validation skipped.", siteKey, workspaceName);
+                return true;
+            }
+            if (!Strategy.REJECT.equals(policy.getStrategy())) {
+                logger.debug("The validation is only performed when the strategy is set to REJECT, current one is: {}. Validation skipped.", policy.getStrategy());
                 return true;
             }
             validationResult = policy.validate(node);
@@ -46,17 +51,17 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         }
         // build error message
         final StringBuilder errors = new StringBuilder();
-        for (Map.Entry<String, ValidationResult.PropertyRejectionResult> entry : validationResult.rejectionResultsEntrySet()) {
+        for (Map.Entry<String, ValidationResult.PropertyRejectionResult> entry : validationResult.getRejectionResultsByProperty().entrySet()) {
             // Todo provide nicer error messages
             String propertyName = entry.getKey();
             ValidationResult.PropertyRejectionResult propertyRejectionResult = entry.getValue();
             logger.debug("Sanitized property {}", propertyName);
             errors.append(propertyRejectionResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " + String.join(", ", propertyRejectionResult.getRejectedTags()));
 
-            String rejectedAttributesSummary = propertyRejectionResult.getRejectedAttributesByTagEntrySet().stream()
+            String rejectedAttributesSummary = propertyRejectionResult.getRejectedAttributesByTag().entrySet().stream()
                     .map(entryRA -> entryRA.getKey() + ": " + String.join(", ", entryRA.getValue()))
                     .collect(Collectors.joining("; "));
-            errors.append(propertyRejectionResult.getRejectedAttributesByTagEntrySet().isEmpty() ? "" : " [" + propertyName + "] Not allowed attributes:" + String.join(", ", rejectedAttributesSummary));
+            errors.append(propertyRejectionResult.getRejectedAttributesByTag().isEmpty() ? "" : " [" + propertyName + "] Not allowed attributes:" + String.join(", ", rejectedAttributesSummary));
         }
         if (StringUtils.isNotEmpty(errors)) {
             context.buildConstraintViolationWithTemplate(errors.toString()).addConstraintViolation();

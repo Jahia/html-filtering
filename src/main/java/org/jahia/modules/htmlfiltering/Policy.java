@@ -25,7 +25,14 @@ import javax.jcr.RepositoryException;
  * The policies can be retrieved using {@link RegistryService#getPolicy(String, String)}.
  */
 public interface Policy {
-    boolean isValidationEnabled();
+
+    /**
+     * Retrieves the strategy defined in the policy for handling HTML content.
+     * If not defined, the default strategy is {@link Strategy#SANITIZE}.
+     *
+     * @return the strategy
+     */
+    Strategy getStrategy();
 
     /**
      * Sanitize the given HTML text as per the HTML filtering policy.

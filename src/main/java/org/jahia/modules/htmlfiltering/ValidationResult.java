@@ -21,8 +21,6 @@ import java.util.Set;
 /**
  * Represents the result of a validation process, encapsulating information about the properties being rejected (with their rejected tags and/or rejected attributes).
  * It also contains a map of sanitized properties, exposed via the {@link #getSanitizedProperties()} method, where the keys represent property names.
- * <p>
- * Implementations of this interface should be immutable.
  */
 public interface ValidationResult {
     /**
@@ -33,29 +31,15 @@ public interface ValidationResult {
     boolean isValid();
 
     /**
-     * Retrieves a set of property rejection results, where each entry consists of a property name as the key and its corresponding property rejection result as the value.
-     * If the validation result is valid, the set is empty.
+     * Retrieves a map containing information about validation errors for specific properties.
+     * The map keys represent property names, and the values are instances of
+     * {@link PropertyRejectionResult}, providing details about rejected tags and attributes
+     * for the specific properties.
      *
-     * @return a set of map entries representing property rejection results, with each entry associating a property name (key)
-     * with its corresponding {@link PropertyRejectionResult} object (value)
+     * @return a map where the keys are property names and the values are {@link PropertyRejectionResult}
+     * objects containing validation rejection details for the respective properties
      */
-    Set<Map.Entry<String, PropertyRejectionResult>> rejectionResultsEntrySet();
-
-    /**
-     * Retrieves the set of property names that have been rejected during the validation process.
-     *
-     * @return a set of strings representing the names of the rejected properties.
-     */
-    Set<String> rejectedProperties();
-
-    /**
-     * Retrieves the rejection result for a specific property, if available.
-     *
-     * @param property the name of the property for which the rejection result is to be retrieved
-     * @return the {@link PropertyRejectionResult} containing details about rejected tags and attributes for the given property,
-     * or <code>null</code> if no rejection result exists for the specified property
-     */
-    PropertyRejectionResult getRejectionResult(String property);
+    Map<String, PropertyRejectionResult> getRejectionResultsByProperty();
 
     /**
      * Retrieves a map of sanitized properties where the keys represent property names
@@ -71,7 +55,7 @@ public interface ValidationResult {
      * This interface tracks two types of rejected elements:
      * <ul>
      *   <li>Rejected HTML tags not allowed in the content ({@link #getRejectedTags()})</li>
-     *   <li>Rejected attributes ({@link #getRejectedAttributesByTagEntrySet()})</li>
+     *   <li>Rejected attributes ({@link #getRejectedAttributesByTag()})</li>
      * </ul>
      * The interface provides methods to access details about these rejected elements to help identify
      * validation failures.
@@ -84,12 +68,16 @@ public interface ValidationResult {
          */
         Set<String> getRejectedTags();
 
+
         /**
-         * Retrieves a set of entries representing rejected attributes grouped by their respective tags.
-         * Each entry in the set consists of a tag name as the key and a set of attributes rejected for that tag as the value.
+         * Retrieves a mapping of HTML tags to their corresponding sets of rejected attributes.
+         * Each entry in the map represents an HTML tag as the key and a set of attribute names
+         * that were rejected during validation for that tag as the value.
+         * <p><b>Note:</b> if the same tag name has been rejected multiple times, the attributes will be merged</p>
          *
-         * @return a set of map entries where each entry associates a tag name (key) with a set of rejected attributes (value)
+         * @return a map where the keys are the names of HTML tags (as strings) and the values
+         * are sets of strings representing the rejected attribute names for each tag.
          */
-        Set<Map.Entry<String, Set<String>>> getRejectedAttributesByTagEntrySet();
+        Map<String, Set<String>> getRejectedAttributesByTag();
     }
 }

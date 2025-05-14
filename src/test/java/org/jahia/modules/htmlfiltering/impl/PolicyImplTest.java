@@ -56,19 +56,18 @@ public class PolicyImplTest {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
-        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
-        policy.validate("myProp", html, validationResultBuilder);
-        ValidationResult validationResult = validationResultBuilder.build();
+        ValidationResultImpl validationResult = new ValidationResultImpl();
+        policy.validate("myProp", html, validationResult);
 
         assertFalse(validationResult.isValid());
-        assertEquals(1, validationResult.rejectedProperties().size());
-        assertTrue(validationResult.rejectedProperties().contains("myProp"));
-        ValidationResult.PropertyRejectionResult rejectionResult = validationResult.getRejectionResult("myProp");
+        assertEquals(1, validationResult.getRejectionResultsByProperty().size());
+        assertTrue(validationResult.getRejectionResultsByProperty().containsKey("myProp"));
+        ValidationResult.PropertyRejectionResult rejectionResult = validationResult.getRejectionResultsByProperty().get("myProp");
         HashSet<String> expectedRejectedTags = new HashSet<>();
         expectedRejectedTags.add("script");
         expectedRejectedTags.add("p");
         assertEquals(expectedRejectedTags, rejectionResult.getRejectedTags());
-        assertTrue(rejectionResult.getRejectedAttributesByTagEntrySet().isEmpty());
+        assertTrue(rejectionResult.getRejectedAttributesByTag().isEmpty());
         assertEquals(1, validationResult.getSanitizedProperties().size());
         assertEquals("Hello World", validationResult.getSanitizedProperties().get("myProp"));
 

@@ -17,6 +17,7 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jahia.modules.htmlfiltering.Policy;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
@@ -40,14 +41,16 @@ import java.util.regex.Pattern;
  * and validation operations.
  */
 final class PolicyImpl implements Policy {
-    private final WorkspaceCfg workspace; // keep a reference to the workspace configuration
+    private final Strategy strategy;
     private final PolicyFactory policyFactory;
 
     public PolicyImpl(Map<String, Pattern> formatPatterns, WorkspaceCfg workspace) {
 
-        this.workspace = workspace;
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
-        if (workspace != null) {
+        if (workspace == null) {
+            this.strategy = Strategy.SANITIZE;
+        } else {
+            this.strategy = WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy()) ? Strategy.REJECT : Strategy.SANITIZE;
             processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
                     HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
 
@@ -111,8 +114,8 @@ final class PolicyImpl implements Policy {
     }
 
     @Override
-    public boolean isValidationEnabled() {
-        return WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy());
+    public Strategy getStrategy() {
+        return strategy;
     }
 
     @Override
@@ -122,24 +125,22 @@ final class PolicyImpl implements Policy {
 
     @Override
     public ValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
-        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
-        if (workspace != null && WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy())) {
-            for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
-                validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResultBuilder);
-            }
+        ValidationResultImpl validationResult = new ValidationResultImpl();
+        for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
+            validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
         }
-        return validationResultBuilder.build();
+        return validationResult;
     }
 
-    private void validate(JCRNodeWrapper node, String name, String value, ValidationResultBuilderImpl validationResultBuilder) throws RepositoryException {
+    private void validate(JCRNodeWrapper node, String name, String value, ValidationResultImpl validationResult) throws RepositoryException {
         if (node.getProperty(name).getDefinition().getRequiredType() == PropertyType.STRING) {
-            validate(name, value, validationResultBuilder);
+            validate(name, value, validationResult);
         }
     }
 
-    void validate(String name, String value, ValidationResultBuilderImpl validationResultBuilder) {
-        String sanitized = policyFactory.sanitize(value, new Listener(name), validationResultBuilder);
-        validationResultBuilder.addSanitizedProperty(name, sanitized);
+    void validate(String name, String value, ValidationResultImpl validationResult) {
+        String sanitized = policyFactory.sanitize(value, new Listener(name), validationResult);
+        validationResult.addSanitizedProperty(name, sanitized);
     }
 
     @FunctionalInterface
@@ -152,7 +153,7 @@ final class PolicyImpl implements Policy {
         void handle(HtmlPolicyBuilder builder, String[] items);
     }
 
-    private static class Listener implements HtmlChangeListener<ValidationResultBuilderImpl> {
+    private static class Listener implements HtmlChangeListener<ValidationResultImpl> {
 
         private final String propertyName;
 
@@ -161,14 +162,14 @@ final class PolicyImpl implements Policy {
         }
 
         @Override
-        public void discardedTag(@Nullable ValidationResultBuilderImpl context, String elementName) {
+        public void discardedTag(@Nullable ValidationResultImpl context, String elementName) {
             if (context != null) {
                 context.rejectTag(propertyName, elementName);
             }
         }
 
         @Override
-        public void discardedAttributes(@Nullable ValidationResultBuilderImpl context, String tagName, String... attributeNames) {
+        public void discardedAttributes(@Nullable ValidationResultImpl context, String tagName, String... attributeNames) {
             if (context != null) {
                 context.rejectAttributes(propertyName, tagName, attributeNames);
             }

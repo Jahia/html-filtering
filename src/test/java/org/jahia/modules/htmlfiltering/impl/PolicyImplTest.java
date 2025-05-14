@@ -46,8 +46,8 @@ public class PolicyImplTest {
     public void GIVEN_empty_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
-        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
 
+        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
         policy.validate("myProp", html, validationResultBuilder);
         ValidationResult validationResult = validationResultBuilder.build();
 
@@ -60,8 +60,8 @@ public class PolicyImplTest {
         expectedRejectedTags.add("p");
         assertEquals(expectedRejectedTags, rejectionResult.getRejectedTags());
         assertTrue(rejectionResult.getRejectedAttributesByTagEntrySet().isEmpty());
-        assertEquals(1,validationResult.getSanitizedProperties().size());
-        assertEquals("Hello World",validationResult.getSanitizedProperties().get("myProp"));
+        assertEquals(1, validationResult.getSanitizedProperties().size());
+        assertEquals("Hello World", validationResult.getSanitizedProperties().get("myProp"));
 
     }
 
@@ -201,6 +201,47 @@ public class PolicyImplTest {
 
         assertEquals(expectedHtml, sanitized);
 
+    }
+
+    @Test
+    // TODO name
+    public void GIVEN() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        allowedRuleSet.setElements(of(
+                // accept attributes globally
+                buildElement(null, of("class", "title"), null),
+                // define a format for the 'id' attribute, global to all tags
+                buildElement(null, of("id"), "HTML_ID"),
+                // allow the 'src' attribute only on <img> tags
+                buildElement(of("img"), of("src"), null),
+                // allow the 'href' attribute only on <a> tags
+                buildElement(of("a"), of("href"), null),
+                // allow a few tags globally
+                buildElement(of("h1", "h2", "h3", "h4", "h5", "h6", "p", "img", "textarea"), null, null)
+        ));
+        allowedRuleSet.setProtocols(of("ftps", "https"));
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        RuleSetCfg disallowedRuleSet = new RuleSetCfg();
+        disallowedRuleSet.setElements(of(
+                // disallow the 'title' attribute on <p> tags:
+                buildElement(of("p"), of("title"), null),
+                // disallow regex for img src attributes:
+//                buildElement(of("img"), of("src"), "NO_GIF"),
+                // disallow a few tags globally
+                buildElement(of("h5", "h6"), null, null)
+        ));
+        workspace.setDisallowedRuleSet(disallowedRuleSet);
+        Map<String, Pattern> formatPatterns = new HashMap<>();
+        formatPatterns.put("HTML_ID", Pattern.compile("^[a-zA-Z0-9_]+$"));
+        formatPatterns.put("NO_GIF", Pattern.compile("^.*.gif$"));
+        PolicyImpl policy = new PolicyImpl(formatPatterns, workspace);
+
+        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
+        policy.validate("myProp", "<img src=\"https://example.com/foo.jpg\"/><img src=\"https://example.com/other.gif\"/>", validationResultBuilder);
+        ValidationResult validationResult = validationResultBuilder.build();
+
+        assertTrue(validationResult.isValid());
     }
 
     private static ElementCfg buildElement(List<String> tags, List<String> attributes, String format) {

@@ -20,6 +20,7 @@ import java.util.Set;
 
 /**
  * Represents the result of a validation process, encapsulating information about the properties being rejected (with their rejected tags and/or rejected attributes).
+ * It also contains a map of sanitized properties, exposed via the {@link #getSanitizedProperties()} method, where the keys represent property names.
  * <p>
  * Implementations of this interface should be immutable.
  */
@@ -32,7 +33,8 @@ public interface ValidationResult {
     boolean isValid();
 
     /**
-     * Retrieves a set of property rejection results, where each entry consists of a property name as the key and its corresponding validation result as the value.
+     * Retrieves a set of property rejection results, where each entry consists of a property name as the key and its corresponding property rejection result as the value.
+     * If the validation result is valid, the set is empty.
      *
      * @return a set of map entries representing property rejection results, with each entry associating a property name (key)
      * with its corresponding {@link PropertyRejectionResult} object (value)
@@ -58,6 +60,7 @@ public interface ValidationResult {
     /**
      * Retrieves a map of sanitized properties where the keys represent property names
      * and the values represent the sanitized content of those properties.
+     * The map is populated regardless of the validity of the validation result.
      *
      * @return a map containing sanitized properties with property names as keys and their sanitized values as values
      */

@@ -83,6 +83,9 @@ final class PolicyImpl implements Policy {
         }
         if (noAttributes) {
             // Contains tags without attributes
+            if (element.getFormat() != null) {
+                throw new IllegalArgumentException("'format' can only be used with 'attributes'. Item: " + element);
+            }
             tagHandler.handle(builder, element.getTags().toArray(new String[0]));
         } else {
             HtmlPolicyBuilder.AttributeBuilder attributeBuilder =

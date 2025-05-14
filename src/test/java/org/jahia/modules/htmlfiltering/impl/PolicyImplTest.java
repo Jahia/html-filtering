@@ -33,6 +33,21 @@ public class PolicyImplTest {
     }
 
     @Test
+    public void GIVEN_element_with_tags_and_format_WHEN_creating_policy_THEN_exception_is_thrown() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        ElementCfg elementCfg = buildElement(of("h1", "p"), null, "[A-Z]+");
+        allowedRuleSet.setElements(of(
+                elementCfg
+        ));
+        workspace.setAllowedRuleSet(allowedRuleSet);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("'format' can only be used with 'attributes'. Item: " + elementCfg, exception.getMessage());
+    }
+
+    @Test
     public void GIVEN_empty_configuration_WHEN_sanitizing_THEN_only_content_is_kept() {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";

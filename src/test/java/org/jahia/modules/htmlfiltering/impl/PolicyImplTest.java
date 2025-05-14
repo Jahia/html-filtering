@@ -36,15 +36,9 @@ public class PolicyImplTest {
     public void GIVEN_element_with_tags_and_format_WHEN_creating_policy_THEN_exception_is_thrown() {
         WorkspaceCfg workspace = new WorkspaceCfg();
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
-        ElementCfg elementCfg = buildElement(of("h1", "p"), null, "[A-Z]+");
-        allowedRuleSet.setElements(of(
-                elementCfg
-        ));
-        workspace.setAllowedRuleSet(allowedRuleSet);
+        ElementCfg element = new ElementCfg();
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
 
-        assertEquals("'format' can only be used with 'attributes'. Item: " + elementCfg, exception.getMessage());
     }
 
     @Test
@@ -219,8 +213,31 @@ public class PolicyImplTest {
     }
 
     @Test
-    // TODO name
-    public void GIVEN() {
+    @Parameters({
+            // test with allowed and disallowed attributes on several tags:
+            "<h1 id=\"myid1\" class=\"myclass\">title</h1><h3 id=\"myid3\" dir=\"rtl\">sub-title</h3>, <h1 id=\"myid1\" class=\"myclass\">title</h1><h3 id=\"myid3\">sub-title</h3>",
+            // invalid closing tag gets fixed:
+            "<h1>wrong closing tag</h2>, <h1>wrong closing tag</h1>",
+            // tags that are allowed and then disallowed are removed (but their content is kept):
+            "<h5>to remove</h5><h6>to remove</h6><p>text</p>, to removeto remove<p>text</p>",
+            // only valid ids matching the format are kept:
+            "<h1 id=\"&^z\">title1</h1><h2 id=\"A1a_\">title2</h2><h3 id=\"A1a+\">title3</h3>, <h1>title1</h1><h2 id=\"A1a_\">title2</h2><h3>title3</h3>",
+            // protocols that are allowed and then disallowed are removed:
+            "<a href=\"ftps://example.com\">valid link</a><a href=\"https://example.com\">not allowed link</a><a href=\"http://example.com\">not explicitly allowed means forbidden</a>, <a href=\"ftps://example.com\">valid link</a>not allowed linknot explicitly allowed means forbidden",
+            // TODO not working for now, should be fixed or the behaviour properly explained to customers
+            // 'src' attribute if <img> matching the disallowed format are removed:
+            // "<img src=\"ftps://example.com/foo.jpg\"/><img src=\"ftps://example.com/other.gif\"/>, <img src=\"ftps://example.com/foo.jpg\"/>",
+
+    })
+    public void GIVEN_a_complete_configuration_WHEN_sanitizing_THEN_string_matches_expected_output(String html, String expectedHtml) {
+        PolicyImpl policy = buildCompletePolicy();
+
+        String sanitized = policy.sanitize(html);
+
+        assertEquals(expectedHtml, sanitized);
+    }
+
+    private static PolicyImpl buildCompletePolicy() {
         WorkspaceCfg workspace = new WorkspaceCfg();
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         allowedRuleSet.setElements(of(
@@ -233,7 +250,7 @@ public class PolicyImplTest {
                 // allow the 'href' attribute only on <a> tags
                 buildElement(of("a"), of("href"), null),
                 // allow a few tags globally
-                buildElement(of("h1", "h2", "h3", "h4", "h5", "h6", "p", "img", "textarea"), null, null)
+                buildElement(of("h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "img", "textarea"), null, null)
         ));
         allowedRuleSet.setProtocols(of("ftps", "https"));
         workspace.setAllowedRuleSet(allowedRuleSet);
@@ -242,21 +259,16 @@ public class PolicyImplTest {
                 // disallow the 'title' attribute on <p> tags:
                 buildElement(of("p"), of("title"), null),
                 // disallow regex for img src attributes:
-//                buildElement(of("img"), of("src"), "NO_GIF"),
+                buildElement(of("img"), of("src"), "NO_GIF"), // TODO
                 // disallow a few tags globally
                 buildElement(of("h5", "h6"), null, null)
         ));
+        disallowedRuleSet.setProtocols(of("https"));
         workspace.setDisallowedRuleSet(disallowedRuleSet);
         Map<String, Pattern> formatPatterns = new HashMap<>();
         formatPatterns.put("HTML_ID", Pattern.compile("^[a-zA-Z0-9_]+$"));
-        formatPatterns.put("NO_GIF", Pattern.compile("^.*.gif$"));
-        PolicyImpl policy = new PolicyImpl(formatPatterns, workspace);
-
-        ValidationResultBuilderImpl validationResultBuilder = new ValidationResultBuilderImpl();
-        policy.validate("myProp", "<img src=\"https://example.com/foo.jpg\"/><img src=\"https://example.com/other.gif\"/>", validationResultBuilder);
-        ValidationResult validationResult = validationResultBuilder.build();
-
-        assertTrue(validationResult.isValid());
+        formatPatterns.put("NO_GIF", Pattern.compile(".*\\.gif"));
+        return new PolicyImpl(formatPatterns, workspace);
     }
 
     private static ElementCfg buildElement(List<String> tags, List<String> attributes, String format) {

@@ -6,6 +6,9 @@ htmlFiltering:
     LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
   editWorkspace:
     strategy: SANITIZE
+    nodeTypes: # restrict the rules to be applied on specific node types / mixins. if not specified, apply to all node types
+      - "jnt:bigText"
+      - "jnt:text"
     allowedRuleSet:
       elements:
         - attributes: [class, dir, hidden, lang, role, style, title]

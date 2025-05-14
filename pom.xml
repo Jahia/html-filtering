@@ -27,7 +27,7 @@
 
     <artifactId>html-filtering</artifactId>
     <name>Jahia HTML Filtering</name>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This modules provides configuration for HTML filtering.</description>
 
@@ -41,8 +41,7 @@
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
-        <jahia-module-signature>MCwCFCAUE3oPfB1El8bmWye5hunwCCkaAhQIj6T8Ph1mZ4YY0yU9IDPzg3hNTw==
-        </jahia-module-signature>
+        <jahia-module-signature>MCwCFEvlCD6n9ezEqx/OZeCuTE7abVbiAhRpalNBQ1hT1Z4MjHgHbhHEMB88hQ==</jahia-module-signature>
     </properties>
 
     <repositories>
@@ -60,6 +59,20 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.pragmatists</groupId>
+                <artifactId>JUnitParams</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.jahia.server</groupId>
@@ -73,6 +86,12 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jahia.server</groupId>
+            <artifactId>jahia-api</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -132,6 +151,48 @@
             <artifactId>json</artifactId>
             <version>20231013</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-properties</artifactId>
+            <!-- use the same version as the Jackson core one -->
+            <version>${jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version> <!-- matches the version declared in https://github.com/Jahia/jahia-private/blob/JAHIA_8_1_7_0/core/pom.xml#L141 -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>  <!-- matches the version declared in https://github.com/Jahia/jahia-private/blob/JAHIA_8_1_7_0/core/pom.xml#L101 -->
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.pragmatists</groupId>
+            <artifactId>JUnitParams</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -147,6 +208,9 @@
                             ${jahia.plugin.projectPackageImport},
                             graphql.annotations.annotationTypes;version="[6.5,99)",
                             javax.jcr;version="[2.0,3)",
+                            org.apache.commons.io;version="[2.11,3)",
+                            org.apache.commons.collections;version="[3.2,4)",
+                            org.jahia.api,
                             org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
                             org.jahia.modules.graphql.provider.dxm.security;version="[2.19,4)",
                             org.jahia.osgi,
@@ -155,6 +219,9 @@
                             org.slf4j;version="[1.7,2)",
                             *
                         </Import-Package>
+                        <Export-Package>
+                            org.jahia.modules.htmlfiltering
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

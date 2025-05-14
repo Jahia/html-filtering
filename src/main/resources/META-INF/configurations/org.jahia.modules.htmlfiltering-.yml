@@ -1,0 +1,119 @@
+# TODO add header to tell that this file should not be overwritten
+
+htmlFiltering:
+  formatDefinitions:
+    HTML_ID: '[a-zA-Z0-9\:\-_\.]+'
+    NUMBER_OR_PERCENT: '\d+%?'
+    LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
+  editWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - attributes: [class, dir, hidden, lang, role, style, title]
+        - attributes:
+            - id
+          format: HTML_ID
+        - attributes: [align]
+          tags: [caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr]
+        - attributes: [alt]
+          tags: [img]
+        - attributes: [autoplay, controls, loop, muted, preload]
+          tags: [audio, video]
+        - attributes: [cite]
+          tags: [blockquote, del, ins, q]
+        - attributes: [colspan, rowspan]
+          tags: [td, th]
+        - attributes: [crossorigin]
+          tags: [audio, img, source, video]
+        - attributes: [datetime]
+          tags: [del, ins, time]
+        - attributes: [disabled]
+          tags: [button]
+        - attributes: [download]
+          tags: [a]
+        - attributes: [headers]
+          tags: [td, th]
+        - attributes: [height, width]
+          tags: [canvas, img, table, td, th, col, colgroup, video]
+          format: NUMBER_OR_PERCENT
+        - attributes: [href]
+          tags: [a]
+          format: LINKS_URL
+        - attributes: [hreflang]
+          tags: [a]
+        - attributes: [kind, label]
+          tags: [track]
+        - attributes: [media, rel]
+          tags: [a]
+        - attributes: [src]
+          tags: [audio, img, source, track, video]
+        - attributes: [srcset]
+          tags: [img, source]
+        - attributes: [type]
+          tags: [ol, ul]
+        - attributes: [target]
+          tags: [a, source]
+        - attributes: [type]
+          tags: [a, blockquote, button, col, del, ins, link, q]
+        - attributes: [value]
+          tags: [li]
+        - attributes: [border, cellpadding, cellspacing, summary]
+          tags: [table]
+        - tags: [h1, h2, h3, h4, h5, h6, hgroup, p, a, img, figure, figcaption, canvas, picture, br, strong, b, em, i, span, div, ul, ol, li, dl, dd, dt, table, tbody, thead, tfoot, tr, td, th, col, colgroup, caption, blockquote, q, cite, code, pre, var, abbr, address, del, s, details, summary, ins, sub, sup, small, mark, hr, button, legend, audio, video, source, track, nav, article, main, aside, section, time, header, footer, wbr, u]
+      protocols: [http, https, mailto]
+  liveWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - attributes: [class, dir, hidden, lang, role, style]
+        - attributes:
+            - id
+          format: HTML_ID
+        - attributes: [align]
+          tags: [caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr]
+        - attributes: [alt]
+          tags: [img]
+        - attributes: [autoplay, controls, loop, muted, preload]
+          tags: [audio, video]
+        - attributes: [cite]
+          tags: [blockquote, del, ins, q]
+        - attributes: [colspan, rowspan]
+          tags: [td, th]
+        - attributes: [crossorigin]
+          tags: [audio, img, source, video]
+        - attributes: [datetime]
+          tags: [del, ins, time]
+        - attributes: [disabled]
+          tags: [button]
+        - attributes: [download]
+          tags: [a]
+        - attributes: [headers]
+          tags: [td, th]
+        - attributes: [height, width]
+          tags: [canvas, img, table, td, th, col, colgroup, video]
+          format: NUMBER_OR_PERCENT
+        - attributes: [href]
+          tags: [a]
+          format: LINKS_URL
+        - attributes: [hreflang]
+          tags: [a]
+        - attributes: [kind, label]
+          tags: [track]
+        - attributes: [media, rel]
+          tags: [a]
+        - attributes: [src]
+          tags: [audio, img, source, track, video]
+        - attributes: [srcset]
+          tags: [img, source]
+        - attributes: [type]
+          tags: [ol, ul]
+        - attributes: [target]
+          tags: [a, source]
+        - attributes: [type]
+          tags: [a, blockquote, button, col, del, ins, link, q]
+        - attributes: [value]
+          tags: [li]
+        - attributes: [border, cellpadding, cellspacing, summary]
+          tags: [table]
+        - tags: [h1, h2, h3, h4, h5, h6, hgroup, p, a, img, figure, figcaption, canvas, picture, br, strong, b, em, i, span, div, ul, ol, li, dl, dd, dt, table, tbody, thead, tfoot, tr, td, th, col, colgroup, caption, blockquote, q, cite, code, pre, var, abbr, address, del, s, details, summary, ins, sub, sup, small, mark, hr, button, legend, audio, video, source, track, nav, article, main, aside, section, time, header, footer, wbr, u]
+      protocols: [http, https, mailto]

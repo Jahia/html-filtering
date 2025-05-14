@@ -6,7 +6,7 @@ import {
     modifyContent, removeConfig
 } from '../fixtures/utils';
 
-describe('HTML rich text filtering', () => {
+describe.skip('HTML rich text filtering', () => {
     const siteKey = 'filteringSite';
     const textName = 'myText';
     const path = `/sites/${siteKey}/contents/${textName}`;

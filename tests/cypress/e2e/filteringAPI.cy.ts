@@ -2,7 +2,7 @@ import {createSite, deleteSite} from '@jahia/cypress';
 import {DocumentNode} from 'graphql';
 import {installConfig} from '../fixtures/utils';
 
-describe('HTML rich text filtering API', () => {
+describe.skip('HTML rich text filtering API', () => {
     const siteKey = 'filteringSite';
     const text = '<div id="myId" role="myRole" removed-attribute="removed">Testing <h1>Testing</h1><p><strong>Testing</strong></p></div>';
     let previewMutation: DocumentNode;

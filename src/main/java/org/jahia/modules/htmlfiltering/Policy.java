@@ -17,6 +17,7 @@
 package org.jahia.modules.htmlfiltering;
 
 import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.RepositoryException;
 
@@ -35,7 +36,7 @@ public interface Policy {
     Strategy getStrategy();
 
     /**
-     * Sanitize the given HTML text as per the HTML filtering policy.
+     * Sanitizes the given HTML text as per the HTML filtering policy.
      *
      * @param htmlText the HTML text to sanitize
      * @return the sanitized HTML text
@@ -43,7 +44,17 @@ public interface Policy {
     String sanitize(String htmlText);
 
     /**
-     * Sanitize the given HTML text
+     * Sanitizes the provided HTML text contained in a property using the rules defined by
+     * the filtering policy for a specific property definition.
+     *
+     * @param definition       the extended property definition which provides context and rules for sanitization
+     * @param propertyHtmlText the HTML text to be sanitized according to the specified policy
+     * @return the sanitized HTML string after applying the filtering rules
+     */
+    String sanitize(ExtendedPropertyDefinition definition, String propertyHtmlText);
+
+    /**
+     * Sanitizes the given HTML text
      *
      * @param htmlText the HTML text to sanitize
      * @return a {@link HtmlValidationResult} containing the sanitized HTML and additional information such as removed tags or attributes.
@@ -51,7 +62,7 @@ public interface Policy {
     HtmlValidationResult validate(String htmlText);
 
     /**
-     * Validate the properties of a given JCR node as per the HTML filtering policy.
+     * Validates the properties of a given JCR node as per the HTML filtering policy.
      *
      * @param node the JCR node to validate.
      * @return a {@link NodeValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.

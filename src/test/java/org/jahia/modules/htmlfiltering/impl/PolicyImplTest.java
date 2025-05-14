@@ -126,7 +126,7 @@ public class PolicyImplTest {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
 
-        assertEquals("Format UNDEFINED_FORMAT not defined, check your configuration", exception.getMessage());
+        assertEquals("Format 'UNDEFINED_FORMAT' not defined, check your configuration", exception.getMessage());
     }
 
     @Test

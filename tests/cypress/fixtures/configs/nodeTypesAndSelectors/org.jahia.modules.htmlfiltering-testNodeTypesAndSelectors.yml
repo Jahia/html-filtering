@@ -1,14 +1,13 @@
 htmlFiltering:
   editWorkspace:
     strategy: SANITIZE
-    include: []
+    process: ['nt:base.*']
     allowedRuleSet:
       elements:
-        - attributes: [id]
-        - tags: [p]
+        - tags: [p, h1]
   liveWorkspace:
     strategy: SANITIZE
+    process: ['nt:base.*']
     allowedRuleSet:
       elements:
-        - attributes: [id]
-        - tags: [p]
+        - tags: [p, h1]

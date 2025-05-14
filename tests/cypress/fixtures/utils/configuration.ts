@@ -22,6 +22,24 @@ export const removeConfig = siteKey => {
     executeGroovy('groovy/removeConfig.groovy', {PID: pid, IDENTIFIER: siteKey});
 };
 
+export const editSiteConfig = (key, value, siteKey) => {
+    const editConfigGql = gql`
+        mutation editConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
+            admin {
+                jahia {
+                    configuration(pid: $pid, identifier: $identifier) {
+                        value(name: $key value: $value)
+                    }
+                }
+            }
+        }
+    `;
+    return cy.apollo({
+        mutation: editConfigGql,
+        variables: {pid: 'org.jahia.modules.htmlfiltering', identifier: siteKey, key, value}
+    });
+};
+
 export const editConfig = (key, value, siteKey = 'default') => {
     const editConfigGql = gql`
         mutation editConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {

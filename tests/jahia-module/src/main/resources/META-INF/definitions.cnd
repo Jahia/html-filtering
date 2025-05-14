@@ -1,0 +1,26 @@
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+<htmlFilteringTestModule = 'http://www.example.org/html-filtering-test-module/nt/1.0'>
+<htmlFilteringTestModuleMix = 'http://www.example.org/html-filtering-test-module/mix/1.0'>
+
+[htmlFilteringTestModule:testNodeTypesAndSelectorsA] > jnt:content, jmix:droppableContent
+    - areaSelectorTextProp (string, textarea)
+    - noSelectorTextProp (string)
+    - prop1 (string, richtext)
+    - prop2 (string, richtext)
+    - prop3 (string, richtext)
+
+[htmlFilteringTestModule:testNodeTypesAndSelectorsB] > jnt:content, jmix:droppableContent
+    - prop1 (string, richtext)
+    - prop2 (string, richtext)
+    - prop4 (string, richtext)
+
+[htmlFilteringTestModule:testNodeTypesAndSelectorsC] > jnt:content, jmix:droppableContent
+    - prop1 (string, richtext)
+    - prop5 (string, richtext)
+
+[htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin] mixin
+    - prop6 (string, richtext)
+
+[htmlFilteringTestModule:testNodeTypesAndSelectorsD] > htmlFilteringTestModule:testNodeTypesAndSelectorsC, htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin
+    - prop7 (string, richtext)

@@ -206,8 +206,6 @@
                         <_dsannotations>*</_dsannotations>
                         <Import-Package>
                             ${jahia.plugin.projectPackageImport},
-                            com.fasterxml.jackson.core;version="[2.14,3)",
-                            com.fasterxml.jackson.databind.cfg;version="[2.14,3)",
                             graphql.annotations.annotationTypes;version="[6.5,99)",
                             javax.jcr;version="[2.0,3)",
                             org.apache.commons.io;version="[2.11,3)",

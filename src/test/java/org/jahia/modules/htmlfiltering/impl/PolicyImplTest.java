@@ -2,6 +2,7 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
@@ -36,19 +37,75 @@ public class PolicyImplTest {
     public void GIVEN_element_with_tags_and_format_WHEN_creating_policy_THEN_exception_is_thrown() {
         WorkspaceCfg workspace = new WorkspaceCfg();
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
         ElementCfg element = new ElementCfg();
+        element.setTags(of("h1", "p"));
+        element.setAttributes(Collections.emptyList()); // no attributes
+        element.setFormat("MY_FORMAT");
+        allowedRuleSet.setElements(of(element));
 
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
 
+        assertEquals("'format' can only be used with 'attributes'. Item: " + element, exception.getMessage());
     }
 
     @Test
-    public void GIVEN_empty_configuration_WHEN_sanitizing_THEN_only_content_is_kept() {
+    public void GIVEN_the_use_of_format_not_defined_WHEN_creating_policy_THEN_exception_is_thrown() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), "UNDEFINED_FORMAT")
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Format UNDEFINED_FORMAT not defined, check your configuration", exception.getMessage());
+    }
+
+    @Test
+    public void GIVEN_a_null_workspace_WHEN_creating_policy_THEN_the_default_strategy_is_to_sanitize() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), "UNDEFINED_FORMAT")
+        ));
+
+        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), null);
+
+        assertEquals(Strategy.SANITIZE, policy.getStrategy());
+    }
+
+    @Test
+    @Parameters({
+            "REJECT, REJECT",
+            "SANITIZE, SANITIZE",
+    })
+    public void GIVEN_a_workspace_with_a_specific_strategy_WHEN_creating_policy_THEN_the_strategy_matches(WorkspaceCfg.StrategyCfg strategyCfg, Strategy expectedStrategy) {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(strategyCfg);
+
+        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+
+        assertEquals(expectedStrategy, policy.getStrategy());
+    }
+
+    @Test
+    @Parameters({
+            // all tags get removed, but their content (when applicable) is kept:
+            "<p>Hello World</p><script>alert('Javascript')</script>, Hello World",
+            // simple HTML content is kept:
+            "my text, my text",
+            // invalid HTML content is removed but content is kept:
+            "<p>my text<h1>title</h6>, my texttitle"
+    })
+    public void GIVEN_empty_configuration_WHEN_sanitizing_THEN_only_content_is_kept(String html, String expectedHtml) {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
-        String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
         String sanitized = policy.sanitize(html);
 
-        assertEquals("Hello World", sanitized);
+        assertEquals(expectedHtml, sanitized);
     }
 
     @Test

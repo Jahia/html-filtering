@@ -1,34 +1,39 @@
-import {addNode, deleteNode} from '@jahia/cypress';
-import {
-    getContent,
-    modifyContent
-} from '../fixtures/utils';
+import {addNode, createSite, deleteSite} from '@jahia/cypress';
+import {getContent, modifyContent} from '../fixtures/utils';
 
 /**
  * Test scenarios for default filtering cases
  */
 describe('Default HTML filtering', () => {
-    const siteKey = 'digitall';
-    const textName = 'myText';
-    const path = `/sites/${siteKey}/contents/${textName}`;
+    const SITE_KEY = 'testHtmlFiltering';
+    const RICH_TEXT_NODE = 'testRichTextNode';
+    const path = `/sites/${SITE_KEY}/home/pagecontent/${RICH_TEXT_NODE}`;
 
-    beforeEach(() => {
+    before(() => {
+        // Create a site with an empty rich text component on the home page
+        createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
         addNode({
-            parentPathOrId: `/sites/${siteKey}/contents`,
-            primaryNodeType: 'jnt:bigText',
-            name: textName,
-            properties: [{name: 'text', value: '<p>hello there</p>', language: 'en'}]
+            parentPathOrId: `/sites/${SITE_KEY}/home`,
+            name: 'pagecontent',
+            primaryNodeType: 'jnt:contentList',
+            children: [
+                {
+                    name: RICH_TEXT_NODE,
+                    primaryNodeType: 'jnt:bigText',
+                    properties: [{name: 'text', value: 'test', language: 'en'}]
+                }
+            ]
         });
     });
 
-    afterEach(() => {
-        deleteNode(path);
+    after(() => {
+        deleteSite(SITE_KEY);
     });
 
     it('allows internal links - files', () => {
         // Note that the actual href text being sent over to the sanitizer is '##doc-context##/{workspace}/##ref:link1##'
-        const text = '<p><a href="/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf" ' +
-            'title="Conference Guide.pdf">/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf</a></p>';
+        const text = `<p><a href="/files/{workspace}/sites/${SITE_KEY}/files/images/pdf/Conference%20Guide.pdf" ' +
+            'title="Conference Guide.pdf">/files/{workspace}/sites/digitall/files/images/pdf/Conference%20Guide.pdf</a></p>`;
         modifyContent(path, text);
         getContent(path).then(result => {
             const value = result.data.jcr.nodeByPath.property.value;
@@ -42,7 +47,7 @@ describe('Default HTML filtering', () => {
 
     it('allows internal links - content', () => {
         // Note that the actual href text being sent over to the sanitizer is '##cms-context##/{mode}/{lang}/##ref:link1##'
-        const text = '<p><a href="/cms/{mode}/{lang}/sites/digitall/home/search-results.html" title="search-results">search results</a></p>';
+        const text = `<p><a href="/cms/{mode}/{lang}/sites/${SITE_KEY}/home.html" title="go to home page">home page</a></p>`;
         modifyContent(path, text);
         getContent(path).then(result => {
             const value = result.data.jcr.nodeByPath.property.value;

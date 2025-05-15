@@ -15,14 +15,32 @@
  */
 package org.jahia.modules.htmlfiltering;
 
+/**
+ * The RegistryService interface provides a mechanism to manage and retrieve
+ * HTML filtering policies for specific sites and workspaces.
+ * <p>
+ * This service allows retrieving a {@link Policy} for a specific site and workspace,
+ * enabling tailored HTML content filtering and validation based on the given context.
+ */
 public interface RegistryService {
+
+
     /**
-     * Get the policy for the given site and workspace.
-     * If the workspace does not exist for the given site, the default "live" workspace is used.
+     * Retrieves the HTML filtering policy for the specified site and workspace.
+     * <p>
+     * Policy resolution strategy (by priority):
+     * <ol>
+     *   <li>Site-specific configuration: <code>org.jahia.modules.htmlfiltering-&lt;site key&gt;.yml</code> found in any OSGi bundle</li>
+     *   <li>Default configuration: <code>org.jahia.modules.htmlfiltering.default.yml</code> found in any OSGi bundle, that can be used to configure multiple sites with the same configuration if they don't have a site-specific configuration</li>
+     *   <li>Fallback configuration: <code>org.jahia.modules.htmlfiltering.fallback.yml</code> provided by the <i>HTML Filtering</i> bundle</li>
+     * </ol>
+     * <p>
+     * <strong>Note:</strong> If the requested workspace does not exist for the given site, the default "live" workspace is used.
+     * The fallback configuration should not be overwritten as module updates would replace it.
      *
-     * @param siteKey       the site key
-     * @param workspaceName the workspace name
-     * @return the policy or null if no policy is found for the given site and workspace
+     * @param siteKey       the unique identifier for the site
+     * @param workspaceName the name of the workspace
+     * @return the policy applicable to the given site and workspace, or <code>null</code> if no policy is found
      */
     Policy getPolicy(String siteKey, String workspaceName);
 }

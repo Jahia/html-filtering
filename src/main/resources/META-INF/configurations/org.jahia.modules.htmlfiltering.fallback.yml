@@ -1,5 +1,4 @@
-# TODO add header to tell that this file should not be overwritten
-
+# fallback configuration
 htmlFiltering:
   formatDefinitions:
     HTML_ID: '[a-zA-Z0-9\:\-_\.]+'

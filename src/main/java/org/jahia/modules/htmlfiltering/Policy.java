@@ -43,11 +43,18 @@ public interface Policy {
     String sanitize(String htmlText);
 
     /**
+     * Sanitize the given HTML text
+     * @param htmlText - The HTML to sanitize
+     * @return a {@link HtmlValidationResult} containing the sanitzed HTML and additional information such as removed tags or attributes.
+     */
+    HtmlValidationResult validate(String htmlText);
+
+    /**
      * Validate the properties of a given JCR node as per the HTML filtering policy.
      *
      * @param node the JCR node to validate.
-     * @return a {@link ValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.
+     * @return a {@link NodeValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.
      * @throws RepositoryException if an error occurs while retrieving the node properties
      */
-    ValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
+    NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
 }

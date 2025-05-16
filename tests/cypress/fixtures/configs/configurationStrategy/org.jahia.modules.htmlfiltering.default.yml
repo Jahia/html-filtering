@@ -1,0 +1,7 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - attributes: [id]
+        - tags: [p]

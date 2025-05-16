@@ -10,22 +10,12 @@ export const installConfig = configFilePath => {
     );
 };
 
-export const getConfig = siteKey => {
-    const getConfigGql = gql`
-        query getConfig($pid: String!, $siteKey: String!) {
-            admin {
-                jahia {
-                    configuration(pid: $pid, identifier: $siteKey) {
-                        flatKeys
-                    }
-                }
-            }
-        }
-    `;
-    return cy.apollo({
-        query: getConfigGql,
-        variables: {pid, siteKey}
-    });
+export const removeDefaultConfig = () => {
+    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.default', IDENTIFIER: ''});
+};
+
+export const removeSiteConfig = siteKey => {
+    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering', IDENTIFIER: siteKey});
 };
 
 export const removeConfig = siteKey => {

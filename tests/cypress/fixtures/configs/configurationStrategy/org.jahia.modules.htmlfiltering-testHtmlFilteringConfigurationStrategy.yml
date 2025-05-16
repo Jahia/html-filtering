@@ -1,0 +1,6 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - tags: [p, h1]

@@ -7,8 +7,10 @@ def pid = "PID"
 def identifier = "IDENTIFIER"
 Config conf
 if ("".equals(identifier)) {
+    log.info("Deleting config by pid '{}'", pid)
     conf = configService.getConfig(pid)
 } else {
+    log.info("Deleting config by pid '{}' and identifier '{}'", pid, identifier)
     conf = configService.getConfig(pid, identifier)
 }
 def filename = conf.getIdentifier() // conf.getProperties().get("felix.fileinstall.filename");

@@ -19,11 +19,13 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.Value;
+import java.util.List;
 
 public class WorkspaceCfg {
     private RuleSetCfg allowedRuleSet;
     private RuleSetCfg disallowedRuleSet;
     private StrategyCfg strategy = StrategyCfg.SANITIZE;
+    private List<String> nodeTypes;
 
     public RuleSetCfg getAllowedRuleSet() {
         return allowedRuleSet;
@@ -47,6 +49,14 @@ public class WorkspaceCfg {
 
     public void setStrategy(StrategyCfg strategy) {
         this.strategy = strategy;
+    }
+
+    public List<String> getNodeTypes() {
+        return nodeTypes;
+    }
+
+    public void setNodeTypes(List<String> nodeTypes) {
+        this.nodeTypes = nodeTypes;
     }
 
     /**

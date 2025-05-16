@@ -30,6 +30,8 @@ import org.owasp.html.PolicyFactory;
 import javax.annotation.Nullable;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -43,14 +45,18 @@ import java.util.regex.Pattern;
 final class PolicyImpl implements Policy {
     private final Strategy strategy;
     private final PolicyFactory policyFactory;
+    private final List<String> nodeTypes;
+    private static final List<String> DEFAULT_NODE_TYPES = Collections.singletonList("nt:base"); // TODO to check
 
     public PolicyImpl(Map<String, Pattern> formatPatterns, WorkspaceCfg workspace) {
 
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
         if (workspace == null) {
             this.strategy = Strategy.SANITIZE;
+            this.nodeTypes = DEFAULT_NODE_TYPES;
         } else {
             this.strategy = WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy()) ? Strategy.REJECT : Strategy.SANITIZE;
+            this.nodeTypes = workspace.getNodeTypes() == null ? DEFAULT_NODE_TYPES : workspace.getNodeTypes();
             processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
                     HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
 
@@ -126,8 +132,10 @@ final class PolicyImpl implements Policy {
     @Override
     public ValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
         ValidationResultImpl validationResult = new ValidationResultImpl();
-        for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
-            validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
+        if (CollectionUtils.containsAny(nodeTypes, node.getNodeTypes())) {
+            for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
+                validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
+            }
         }
         return validationResult;
     }

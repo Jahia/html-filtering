@@ -2,8 +2,8 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.jahia.modules.htmlfiltering.HtmlValidationResult;
 import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.ValidationResult;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
@@ -113,21 +113,14 @@ public class PolicyImplTest {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), new WorkspaceCfg());
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
-        ValidationResultImpl validationResult = new ValidationResultImpl();
-        policy.validate("myProp", html, validationResult);
-
+        HtmlValidationResult validationResult = policy.validate(html);
         assertFalse(validationResult.isValid());
-        assertEquals(1, validationResult.getRejectionResultsByProperty().size());
-        assertTrue(validationResult.getRejectionResultsByProperty().containsKey("myProp"));
-        ValidationResult.PropertyRejectionResult rejectionResult = validationResult.getRejectionResultsByProperty().get("myProp");
         HashSet<String> expectedRejectedTags = new HashSet<>();
         expectedRejectedTags.add("script");
         expectedRejectedTags.add("p");
-        assertEquals(expectedRejectedTags, rejectionResult.getRejectedTags());
-        assertTrue(rejectionResult.getRejectedAttributesByTag().isEmpty());
-        assertEquals(1, validationResult.getSanitizedProperties().size());
-        assertEquals("Hello World", validationResult.getSanitizedProperties().get("myProp"));
-
+        assertEquals(expectedRejectedTags, validationResult.getRejectedTags());
+        assertTrue(validationResult.getRejectedAttributesByTag().isEmpty());
+        assertEquals("Hello World", validationResult.getSanitizedHtml());
     }
 
     @Test

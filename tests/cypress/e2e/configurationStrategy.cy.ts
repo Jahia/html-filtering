@@ -5,9 +5,10 @@ import {getContent, installConfig, modifyContent, removeDefaultConfig, removeSit
 //     For comprehensive tests, see PolicyImplTest.
 describe('Test the configuration strategy used by the HTML filtering module', () => {
     const SITE_KEY = 'testHtmlFilteringConfigurationStrategy';
+    const OTHER_SITE = 'otherSite'; // Site that does not have a configuration for the module
     const RICH_TEXT_NODE = 'testRichTextNode';
     const PATH = `/sites/${SITE_KEY}/home/pagecontent/${RICH_TEXT_NODE}`;
-    const HTML_TEXT = '<h1>my title</h1><p id="abc" class="myClass">my text</p>';
+    const HTML_TEXT = '<h1 id="_invalid">my title</h1><p id="abc" class="myClass">my text</p>';
     const EXPECTED_HTML_TEXT_WITH_FALLBACK = '<h1>my title</h1><p id="abc" class="myClass">my text</p>';
     const EXPECTED_HTML_TEXT_WITH_DEFAULT = 'my title<p id="abc">my text</p>';
     const EXPECTED_HTML_TEXT_WITH_PER_SITE = '<h1>my title</h1><p>my text</p>';
@@ -40,7 +41,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
     });
 
-    it('when a default configuration is provided, the HTML text is sanitized using the default strategy', () => {
+    it('when only a default configuration is provided, the HTML text is sanitized using the default strategy', () => {
         installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.default.yml');
         modifyContent(PATH, HTML_TEXT);
         getContent(PATH).then(result => {
@@ -60,7 +61,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         removeSiteConfig(SITE_KEY);
     });
 
-    it('when a default and per-site configuration is provided, the HTML text is sanitized using the per-site strategy', () => {
+    it('when a default and a per-site configuration is provided, the HTML text is sanitized using the per-site strategy', () => {
         installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.default.yml');
         installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering-${SITE_KEY}.yml`);
         modifyContent(PATH, HTML_TEXT);
@@ -70,5 +71,24 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
         removeSiteConfig(SITE_KEY);
         removeDefaultConfig();
+    });
+
+    it('when only a per-site configuration for another site is provided, the HTML text is sanitized using the fallback strategy', () => {
+        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering-${SITE_KEY}.yml`);
+        modifyContent(PATH, HTML_TEXT);
+        getContent(PATH).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+        });
+        removeSiteConfig(SITE_KEY);
+    });
+    it('when a default and a per-site configuration for another site is provided, the HTML text is sanitized using the default strategy', () => {
+        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering-${SITE_KEY}.yml`);
+        modifyContent(PATH, HTML_TEXT);
+        getContent(PATH).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+        });
+        removeSiteConfig(SITE_KEY);
     });
 });

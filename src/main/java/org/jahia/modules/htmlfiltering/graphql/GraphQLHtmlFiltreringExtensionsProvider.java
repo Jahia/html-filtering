@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.models;
+package org.jahia.modules.htmlfiltering.graphql;
 
-import java.util.List;
-import java.util.Set;
+import org.jahia.modules.graphql.provider.dxm.DXGraphQLExtensionsProvider;
+import org.osgi.service.component.annotations.Component;
 
-public interface HTMLFilteringConfigInterface {
-
-    Set<String> getProtocols();
-
-    Set<String> getElements();
-
-    List<GqlHTMLFilteringConfigAttribute> getAttributes();
+/**
+ * Html filtering graphql extension entry point
+ */
+@Component(immediate = true)
+public class GraphQLHtmlFiltreringExtensionsProvider implements DXGraphQLExtensionsProvider {
+    // Auto discovered
 }

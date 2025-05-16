@@ -16,9 +16,7 @@
 package org.jahia.modules.htmlfiltering.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.ValidationResult;
+import org.jahia.modules.htmlfiltering.*;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
@@ -30,6 +28,8 @@ import org.owasp.html.PolicyFactory;
 import javax.annotation.Nullable;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -124,21 +124,40 @@ final class PolicyImpl implements Policy {
     }
 
     @Override
-    public ValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
-        ValidationResultImpl validationResult = new ValidationResultImpl();
+    public HtmlValidationResult validate(String htmlText) {
+        HtmlValidationResultImpl result = new HtmlValidationResultImpl();
+        String SanitizedText = policyFactory.sanitize(htmlText, new HtmlChangeListener<HtmlValidationResultImpl>() {
+            @Override
+            public void discardedTag(HtmlValidationResultImpl context, String elementName) {
+                context.addRejectedTag(elementName);
+            }
+
+            @Override
+            public void discardedAttributes(HtmlValidationResultImpl context, String tagName, String... attributeNames) {
+                context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
+            }
+        }, result);
+        result.setValid(false); //To Do
+        result.setSanitizedHtml(SanitizedText);
+        return result;
+    }
+
+    @Override
+    public NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
+        NodeValidationResultImpl validationResult = new NodeValidationResultImpl();
         for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
             validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
         }
         return validationResult;
     }
 
-    private void validate(JCRNodeWrapper node, String name, String value, ValidationResultImpl validationResult) throws RepositoryException {
+    private void validate(JCRNodeWrapper node, String name, String value, NodeValidationResultImpl validationResult) throws RepositoryException {
         if (node.getProperty(name).getDefinition().getRequiredType() == PropertyType.STRING) {
             validate(name, value, validationResult);
         }
     }
 
-    void validate(String name, String value, ValidationResultImpl validationResult) {
+    void validate(String name, String value, NodeValidationResultImpl validationResult) {
         String sanitized = policyFactory.sanitize(value, new Listener(name), validationResult);
         validationResult.addSanitizedProperty(name, sanitized);
     }
@@ -153,7 +172,7 @@ final class PolicyImpl implements Policy {
         void handle(HtmlPolicyBuilder builder, String[] items);
     }
 
-    private static class Listener implements HtmlChangeListener<ValidationResultImpl> {
+    private static class Listener implements HtmlChangeListener<NodeValidationResultImpl> {
 
         private final String propertyName;
 
@@ -162,14 +181,14 @@ final class PolicyImpl implements Policy {
         }
 
         @Override
-        public void discardedTag(@Nullable ValidationResultImpl context, String elementName) {
+        public void discardedTag(@Nullable NodeValidationResultImpl context, String elementName) {
             if (context != null) {
                 context.rejectTag(propertyName, elementName);
             }
         }
 
         @Override
-        public void discardedAttributes(@Nullable ValidationResultImpl context, String tagName, String... attributeNames) {
+        public void discardedAttributes(@Nullable NodeValidationResultImpl context, String tagName, String... attributeNames) {
             if (context != null) {
                 context.rejectAttributes(propertyName, tagName, attributeNames);
             }

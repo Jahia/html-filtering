@@ -1,10 +1,7 @@
 package org.jahia.modules.htmlfiltering.validation;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.RegistryService;
-import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.ValidationResult;
+import org.jahia.modules.htmlfiltering.*;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.slf4j.Logger;
@@ -31,7 +28,7 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
     @Override
     public boolean isValid(JCRNodeWrapper node, ConstraintValidatorContext context) {
         RegistryService registryService = BundleUtils.getOsgiService(RegistryService.class, null);
-        ValidationResult validationResult;
+        NodeValidationResult nodeValidationResult;
         try {
             String siteKey = node.getResolveSite().getSiteKey();
             String workspaceName = node.getSession().getWorkspace().getName();
@@ -44,17 +41,17 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
                 logger.debug("The validation is only performed when the strategy is set to REJECT, current one is: {}. Validation skipped.", policy.getStrategy());
                 return true;
             }
-            validationResult = policy.validate(node);
+            nodeValidationResult = policy.validate(node);
         } catch (RepositoryException e) {
             logger.warn("Error while validating node {}", node.getPath(), e);
             return true; // TODO what should we do in this case?
         }
         // build error message
         final StringBuilder errors = new StringBuilder();
-        for (Map.Entry<String, ValidationResult.PropertyRejectionResult> entry : validationResult.getRejectionResultsByProperty().entrySet()) {
+        for (Map.Entry<String, RejectionResult> entry : nodeValidationResult.getRejectionResultsByProperty().entrySet()) {
             // Todo provide nicer error messages
             String propertyName = entry.getKey();
-            ValidationResult.PropertyRejectionResult propertyRejectionResult = entry.getValue();
+            RejectionResult propertyRejectionResult = entry.getValue();
             logger.debug("Sanitized property {}", propertyName);
             errors.append(propertyRejectionResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " + String.join(", ", propertyRejectionResult.getRejectedTags()));
 
@@ -66,6 +63,6 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         if (StringUtils.isNotEmpty(errors)) {
             context.buildConstraintViolationWithTemplate(errors.toString()).addConstraintViolation();
         }
-        return validationResult.isValid();
+        return nodeValidationResult.isValid();
     }
 }

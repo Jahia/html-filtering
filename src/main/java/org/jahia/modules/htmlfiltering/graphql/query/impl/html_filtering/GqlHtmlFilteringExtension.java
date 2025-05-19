@@ -30,6 +30,4 @@ public class GqlHtmlFilteringExtension {
     public static GqlHtmlFilteringQuery getHtmlFiltering() {
         return new GqlHtmlFilteringQuery();
     }
-
-
 }

@@ -84,7 +84,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     }
 
     @NotNull
-    public static String preservePlaceholders(String result) {
+    private static String preservePlaceholders(String result) {
         // TODO can this be configured in the lib?
         // Preserve URL context placeholders that might've been encoded by the sanitizer
         result = result.replace("%7bmode%7d", "{mode}");

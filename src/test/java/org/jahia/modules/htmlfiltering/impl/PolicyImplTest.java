@@ -114,7 +114,7 @@ public class PolicyImplTest {
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
         HtmlValidationResult validationResult = policy.validate(html);
-        assertFalse(validationResult.isValid());
+        assertFalse(validationResult.isSafe());
         HashSet<String> expectedRejectedTags = new HashSet<>();
         expectedRejectedTags.add("script");
         expectedRejectedTags.add("p");

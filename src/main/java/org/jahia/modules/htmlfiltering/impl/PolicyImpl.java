@@ -16,7 +16,10 @@
 package org.jahia.modules.htmlfiltering.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jahia.modules.htmlfiltering.*;
+import org.jahia.modules.htmlfiltering.HtmlValidationResult;
+import org.jahia.modules.htmlfiltering.NodeValidationResult;
+import org.jahia.modules.htmlfiltering.Policy;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;

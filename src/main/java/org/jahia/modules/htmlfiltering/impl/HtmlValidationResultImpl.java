@@ -22,7 +22,7 @@ class HtmlValidationResultImpl extends RejectionResultImpl implements HtmlValida
     private String sanitizedHtml;
 
     @Override
-    public boolean isValid() {
+    public boolean isSafe() {
         return getRejectedAttributesByTag().isEmpty() && getRejectedTags().isEmpty();
     }
 

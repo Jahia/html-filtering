@@ -19,23 +19,22 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import org.jahia.modules.htmlfiltering.HtmlValidationResult;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jahia.modules.htmlfiltering.interceptor.HtmlFilteringInterceptor.preservePlaceholders;
-
 /**
  * GraphQL representation of {@link HtmlValidationResult}
  */
-public class GqlHtmlFilteringResult {
+public class GqlValidationResult {
 
     private final String sanitizedHtml;
     private final Set<String> removedTags;
     private final Set<GqlRemovedAttributes> removedAttributes;
-    private final boolean isValid;
+    private final boolean isSafe;
 
-    public GqlHtmlFilteringResult(HtmlValidationResult validationResult) {
+    public GqlValidationResult(HtmlValidationResult validationResult) {
         this.sanitizedHtml = preservePlaceholders(validationResult.getSanitizedHtml());
         this.removedTags = validationResult.getRejectedTags();
         this.removedAttributes = validationResult.getRejectedAttributesByTag().entrySet().stream()
@@ -46,13 +45,13 @@ public class GqlHtmlFilteringResult {
                     return gqlAttr;
                 })
                 .collect(Collectors.toSet());
-        this.isValid = validationResult.isValid();
+        this.isSafe = validationResult.isSafe();
     }
 
     @GraphQLField
-    @GraphQLDescription("Check the validation of the sanitization, Returns true is the provided HTLM has no removed tags or attributes")
-    public boolean isValid() {
-        return isValid;
+    @GraphQLDescription("Returns true if the provided HTML has no unsafe tag or attribute. An unsafe tag (or attribute) is either a tag not in allowed Tags, or in the disallowed tags from the OSGi configuration.")
+    public boolean isSafe() {
+        return isSafe;
     }
 
     @GraphQLField
@@ -71,5 +70,15 @@ public class GqlHtmlFilteringResult {
     @GraphQLDescription("Removed Attributes")
     public Set<GqlRemovedAttributes> getRemovedAttributes() {
         return removedAttributes;
+    }
+
+    @NotNull
+    private static String preservePlaceholders(String result) {
+        // TODO can this be configured in the lib?
+        // Preserve URL context placeholders that might've been encoded by the sanitizer
+        result = result.replace("%7bmode%7d", "{mode}");
+        result = result.replace("%7blang%7d", "{lang}");
+        result = result.replace("%7bworkspace%7d", "{workspace}");
+        return result;
     }
 }

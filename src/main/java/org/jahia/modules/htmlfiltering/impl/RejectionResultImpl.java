@@ -20,7 +20,7 @@ class RejectionResultImpl implements RejectionResult {
         return rejectedTags;
     }
 
-     void addRejectedAttributeByTag(String tag, Set<String> attributes) {
+    void addRejectedAttributeByTag(String tag, Set<String> attributes) {
         // merge the attributes with the existing ones for that tag (if any)
         rejectedAttributesByTag.compute(tag, (k, existingAttributes) -> {
             if (existingAttributes == null) {

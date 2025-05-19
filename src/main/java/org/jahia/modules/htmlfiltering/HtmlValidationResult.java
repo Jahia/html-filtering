@@ -17,14 +17,14 @@ package org.jahia.modules.htmlfiltering;
 
 /**
  * Represents the result of an HTML text validation process
- * */
-public interface HtmlValidationResult  extends RejectionResult {
+ */
+public interface HtmlValidationResult extends RejectionResult {
     /**
      * Returns <code>true</code> if the validation result is valid, i.e., no rejected tags or attributes were found.
      *
      * @return <code>true</code> if the validation result is valid, <code>false</code> otherwise.
      */
-    boolean isValid();
+    boolean isSafe();
 
     /**
      * Returns the sanitized HTML after the validation process.

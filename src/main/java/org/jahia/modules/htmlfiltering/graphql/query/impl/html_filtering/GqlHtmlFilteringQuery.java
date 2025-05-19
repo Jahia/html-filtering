@@ -36,7 +36,7 @@ public class GqlHtmlFilteringQuery {
 
     @GraphQLField
     @GraphQLName("validate")
-    @GraphQLDescription("Validate a given html from a resolved policy and returns removed tags and attributes")
+    @GraphQLDescription("Validate a given html from a resolved policy from a provided worskpace and site from its OSGi configuration, then returns sanitized HTML, removed tags and attributes")
     public GqlHtmlFilteringResult validate(@GraphQLName("html") String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace,@GraphQLName("siteKey") String siteKey) {
         // Resolve policy
         Policy policy = registry.getPolicy(siteKey, workspace.getValue());

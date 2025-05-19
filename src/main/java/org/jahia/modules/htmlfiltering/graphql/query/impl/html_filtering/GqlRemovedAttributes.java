@@ -25,17 +25,17 @@ import java.util.Set;
  */
 public class GqlRemovedAttributes {
 
-    private String element;
+    private String tag;
     private Set<String> attributes;
 
     @GraphQLField
-    @GraphQLDescription("Element on witch the attribute has been removed")
-    public String getElement() {
-        return element;
+    @GraphQLDescription("Tag on witch the attribute has been removed")
+    public String getTag() {
+        return tag;
     }
 
-    public void setElement(String element) {
-        this.element = element;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     @GraphQLField

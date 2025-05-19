@@ -44,7 +44,8 @@ public interface Policy {
 
     /**
      * Sanitize the given HTML text
-     * @param htmlText - The HTML to sanitize
+     *
+     * @param htmlText the HTML text to sanitize
      * @return a {@link HtmlValidationResult} containing the sanitized HTML and additional information such as removed tags or attributes.
      */
     HtmlValidationResult validate(String htmlText);

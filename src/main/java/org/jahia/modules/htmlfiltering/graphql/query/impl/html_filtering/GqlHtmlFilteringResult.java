@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.jahia.modules.htmlfiltering.interceptor.HtmlFilteringInterceptor.preservePlaceholders;
+
 /**
  * GraphQL representation of {@link HtmlValidationResult}
  */
@@ -34,12 +36,12 @@ public class GqlHtmlFilteringResult {
     private final boolean isValid;
 
     public GqlHtmlFilteringResult(HtmlValidationResult validationResult) {
-        this.sanitizedHtml = validationResult.getSanitizedHtml();
+        this.sanitizedHtml = preservePlaceholders(validationResult.getSanitizedHtml());
         this.removedTags = validationResult.getRejectedTags();
         this.removedAttributes = validationResult.getRejectedAttributesByTag().entrySet().stream()
                 .map(entry -> {
                     GqlRemovedAttributes gqlAttr = new GqlRemovedAttributes();
-                    gqlAttr.setElement(entry.getKey());
+                    gqlAttr.setTag(entry.getKey());
                     gqlAttr.setAttributes(new HashSet<>(entry.getValue()));
                     return gqlAttr;
                 })
@@ -48,7 +50,7 @@ public class GqlHtmlFilteringResult {
     }
 
     @GraphQLField
-    @GraphQLDescription("Check the validation of the sanitazation, Returns true is the provided HTLM has no removed tags or attributes")
+    @GraphQLDescription("Check the validation of the sanitization, Returns true is the provided HTLM has no removed tags or attributes")
     public boolean isValid() {
         return isValid;
     }

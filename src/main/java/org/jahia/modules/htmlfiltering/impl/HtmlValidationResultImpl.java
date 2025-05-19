@@ -20,15 +20,10 @@ import org.jahia.modules.htmlfiltering.HtmlValidationResult;
 class HtmlValidationResultImpl extends RejectionResultImpl implements HtmlValidationResult {
 
     private String sanitizedHtml;
-    private boolean valid;
 
     @Override
     public boolean isValid() {
-        return valid;
-    }
-
-    public void setValid(boolean valid) {
-        this.valid = valid;
+        return getRejectedAttributesByTag().isEmpty() && getRejectedTags().isEmpty();
     }
 
     @Override

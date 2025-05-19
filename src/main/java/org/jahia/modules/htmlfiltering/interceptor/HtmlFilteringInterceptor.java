@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering;
+package org.jahia.modules.htmlfiltering.interceptor;
 
+import org.jahia.modules.htmlfiltering.Policy;
+import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
 import org.jahia.services.content.interceptor.BaseInterceptor;
@@ -81,7 +84,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     }
 
     @NotNull
-    private static String preservePlaceholders(String result) {
+    public static String preservePlaceholders(String result) {
         // TODO can this be configured in the lib?
         // Preserve URL context placeholders that might've been encoded by the sanitizer
         result = result.replace("%7bmode%7d", "{mode}");

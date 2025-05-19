@@ -137,7 +137,7 @@ final class PolicyImpl implements Policy {
                 context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
             }
         }, result);
-        result.setValid(result.getRejectedAttributesByTag().isEmpty() && result.getRejectedTags().isEmpty()); // ToDo
+
         result.setSanitizedHtml(SanitizedText);
         return result;
     }

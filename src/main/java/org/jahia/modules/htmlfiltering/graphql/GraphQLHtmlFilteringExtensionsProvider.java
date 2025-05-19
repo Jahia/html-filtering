@@ -22,6 +22,6 @@ import org.osgi.service.component.annotations.Component;
  * Html filtering graphql extension entry point
  */
 @Component(immediate = true)
-public class graphQLHtmlFilteringExtensionsProvider implements DXGraphQLExtensionsProvider {
+public class GraphQLHtmlFilteringExtensionsProvider implements DXGraphQLExtensionsProvider {
     // Auto discovered
 }

@@ -49,20 +49,16 @@
         </repository>
     </repositories>
 
-  <distributionManagement>
-      <repository>
-          <id>jahia-enterprise-customers-releases</id>
-          <url>https://devtools.jahia.com/nexus/content/repositories/jahia-enterprise-customers-releases</url>
-      </repository>
-      <snapshotRepository>
-          <id>jahia-enterprise-customers-snapshots</id>
-          <url>https://devtools.jahia.com/nexus/content/repositories/jahia-enterprise-customers-snapshots</url>
-      </snapshotRepository>
-      <site>
-          <id>jahia.website</id>
-          <url>file://${jahia.site.path}</url>
-      </site>
-  </distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>jahia-releases</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/jahia-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>jahia-snapshots</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/jahia-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <plugins>

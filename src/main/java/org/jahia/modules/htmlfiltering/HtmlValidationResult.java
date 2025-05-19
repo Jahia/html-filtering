@@ -20,9 +20,9 @@ package org.jahia.modules.htmlfiltering;
  */
 public interface HtmlValidationResult extends RejectionResult {
     /**
-     * Returns <code>true</code> if the validation result is valid, i.e., no rejected tags or attributes were found.
+     * Returns <code>true</code> if the validation result is safe, i.e., no rejected tags or attributes were found.
      *
-     * @return <code>true</code> if the validation result is valid, <code>false</code> otherwise.
+     * @return <code>true</code> if the validation result is safe, <code>false</code> otherwise.
      */
     boolean isSafe();
 

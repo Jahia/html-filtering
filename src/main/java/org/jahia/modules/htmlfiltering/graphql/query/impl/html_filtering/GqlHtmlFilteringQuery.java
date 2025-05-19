@@ -40,9 +40,9 @@ public class GqlHtmlFilteringQuery {
     public GqlValidationResult validate(@GraphQLName("html") String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace, @GraphQLName("siteKey") String siteKey) {
         // Resolve policy
         Policy policy = registry.getPolicy(siteKey, workspace.getValue());
-        HtmlValidationResult results = policy.validate(html);
+        HtmlValidationResult result = policy.validate(html);
 
-        return new GqlValidationResult(results);
+        return new GqlValidationResult(result);
     }
 }
 

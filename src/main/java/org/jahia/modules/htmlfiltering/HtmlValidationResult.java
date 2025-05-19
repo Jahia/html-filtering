@@ -27,6 +27,8 @@ public interface HtmlValidationResult  extends RejectionResult {
     boolean isValid();
 
     /**
+     * Returns the sanitized HTML after the validation process.
+     *
      * @return - The sanitized HTML
      */
     String getSanitizedHtml();

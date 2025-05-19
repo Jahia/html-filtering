@@ -147,11 +147,6 @@
             <version>20240325.1</version>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20231013</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.osgi.version}</version>
@@ -179,6 +174,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>  <!-- matches the version declared in https://github.com/Jahia/jahia-private/blob/JAHIA_8_1_7_0/core/pom.xml#L101 -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -213,6 +214,8 @@
                             org.jahia.api,
                             org.jahia.modules.graphql.provider.dxm;version="[2.19,4)",
                             org.jahia.modules.graphql.provider.dxm.security;version="[2.19,4)",
+                            org.jahia.modules.graphql.provider.dxm.osgi.annotations;version="[2.19,4)",
+                            org.jahia.modules.graphql.provider.dxm.node;version="[2.19,4)",
                             org.jahia.osgi,
                             org.jahia.services.content,
                             org.osgi.framework;version="[1.8,2)",

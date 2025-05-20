@@ -12,9 +12,11 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy=HtmlValidator.class)
+@Constraint(validatedBy = HtmlValidator.class)
 public @interface HtmlFilteringConstraint {
     String message() default "Error validating html";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

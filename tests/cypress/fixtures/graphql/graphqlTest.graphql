@@ -1,0 +1,13 @@
+query HtmlFiltering($html: String!, $workspace: Workspace = EDIT, $siteKey: String) {
+    htmlFiltering {
+        validate(html: $html, workspace: $workspace, siteKey: $siteKey) {
+            removedTags
+            removedAttributes {
+                attributes
+                tag
+            }
+            sanitizedHtml
+            safe
+        }
+    }
+}

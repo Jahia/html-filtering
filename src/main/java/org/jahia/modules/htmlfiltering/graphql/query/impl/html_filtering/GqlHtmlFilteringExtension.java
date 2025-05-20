@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.query.impl;
+package org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
-import org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering.GqlHtmlFilteringQuery;
+import graphql.annotations.annotationTypes.GraphQLTypeExtension;
+import org.jahia.modules.graphql.provider.dxm.DXGraphQLProvider;
 
-@GraphQLName("HTMLFilteringConfigurationQuery")
-@GraphQLDescription("Entry point for site HTML Filtering queries")
-public class GqlHTMLFilteringConfigurationQuery {
+@GraphQLTypeExtension(DXGraphQLProvider.Query.class)
+public class GqlHtmlFilteringExtension {
 
     @GraphQLField
     @GraphQLName("htmlFiltering")
-    @GraphQLDescription("HTML filtering settings queries")
-    public GqlHtmlFilteringQuery getHtmlFiltering() {
+    @GraphQLDescription("Main access to html filtering API")
+    public static GqlHtmlFilteringQuery getHtmlFiltering() {
         return new GqlHtmlFilteringQuery();
     }
 }

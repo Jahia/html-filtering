@@ -15,6 +15,7 @@
  */
 package org.jahia.modules.htmlfiltering.configuration;
 
+import org.jahia.modules.htmlfiltering.interceptor.HtmlFilteringInterceptor;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
@@ -64,10 +65,10 @@ public class WorkspaceCfg {
         /**
          * Strategy to sanitize the HTML content by removing all tags and attributes that
          * are not part of the allowed rule set.
-         * This cleanup is performed automatically before storing the value of a node property in the JCR, in  {@link org.jahia.modules.htmlfiltering.HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)}.
+         * This cleanup is performed automatically before storing the value of a node property in the JCR, in  {@link HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)}.
          * When this strategy is used, the validation in ({@link org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)}) is disabled.
          *
-         * @see org.jahia.modules.htmlfiltering.HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
+         * @see HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
          */
         SANITIZE
     }

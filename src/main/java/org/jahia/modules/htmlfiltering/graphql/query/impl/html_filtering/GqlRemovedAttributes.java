@@ -13,35 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.models;
+package org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
 
-@GraphQLDescription("Model for HTML filter settings of a site")
-public class GqlHTMLFiltering {
+import java.util.Set;
 
-    private String siteKey;
-    private boolean filteringEnabled;
+/**
+ * Graphql representation of a removed attribute.
+ */
+public class GqlRemovedAttributes {
 
-    public GqlHTMLFiltering(String siteKey, boolean filteringEnabled) {
-        this.siteKey = siteKey;
-        this.filteringEnabled = filteringEnabled;
+    private String tag;
+    private Set<String> attributes;
+
+    @GraphQLField
+    @GraphQLDescription("Tag on witch the attribute has been removed")
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     @GraphQLField
-    @GraphQLName("siteKey")
-    @GraphQLDescription("Site key")
-    public String getSiteKey() {
-        return siteKey;
+    @GraphQLDescription("Name of the removed attribute")
+    public Set<String> getAttributes() {
+        return attributes;
     }
 
-
-    @GraphQLField
-    @GraphQLName("filteringEnabled")
-    @GraphQLDescription("Indicates if html filtering is enabled or not")
-    public Boolean getFilteringEnabled() {
-        return filteringEnabled;
+    public void setAttributes(Set<String> attributes) {
+        this.attributes = attributes;
     }
 }

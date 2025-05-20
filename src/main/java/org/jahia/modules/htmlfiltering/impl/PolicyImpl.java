@@ -51,15 +51,20 @@ final class PolicyImpl implements Policy {
 
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
         if (workspace == null) {
-            this.strategy = Strategy.SANITIZE;
-        } else {
-            this.strategy = WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy()) ? Strategy.REJECT : Strategy.SANITIZE;
-            processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
-                    HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
-
-            processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
-                    HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
+            throw new IllegalArgumentException("Workspace configuration is not set");
         }
+        if (workspace.getStrategy() == null) {
+            throw new IllegalArgumentException("'strategy' is not set");
+        }
+        this.strategy = WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy()) ? Strategy.REJECT : Strategy.SANITIZE;
+        if (workspace.getAllowedRuleSet() == null) {
+            throw new IllegalArgumentException("'allowedRuleSet' is not set");
+        }
+        processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
+                HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
+
+        processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
+                HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
         this.policyFactory = builder.toFactory();
     }
 
@@ -67,11 +72,12 @@ final class PolicyImpl implements Policy {
                                        Map<String, Pattern> formatPatterns,
                                        AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagHandler, BuilderHandlerFunction protocolHandler) {
         if (ruleSet != null) {
+            if (CollectionUtils.isEmpty(ruleSet.getElements())) {
+                throw new IllegalArgumentException("At least one item in 'elements' must be defined");
+            }
             // Apply element rules
-            if (ruleSet.getElements() != null) {
-                for (ElementCfg element : ruleSet.getElements()) {
-                    processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, element);
-                }
+            for (ElementCfg element : ruleSet.getElements()) {
+                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, element);
             }
 
             // Apply protocol rules
@@ -85,7 +91,7 @@ final class PolicyImpl implements Policy {
         boolean noTags = CollectionUtils.isEmpty(element.getTags());
         boolean noAttributes = CollectionUtils.isEmpty(element.getAttributes());
         if (noTags && noAttributes) {
-            throw new IllegalArgumentException("Each item in the 'elements' of an 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element);
+            throw new IllegalArgumentException("Each item in 'elements' of 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element);
         }
         if (noAttributes) {
             // Contains tags without attributes

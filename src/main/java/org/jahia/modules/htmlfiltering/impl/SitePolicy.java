@@ -46,8 +46,17 @@ final class SitePolicy {
                 logger.debug("Compiled format {} regex: {}", formatName, formatRegex);
             });
         }
-        editWorkspacePolicy = new PolicyImpl(formatPatterns, siteConfiguration.getEditWorkspace());
-        liveWorkspacePolicy = new PolicyImpl(formatPatterns, siteConfiguration.getLiveWorkspace());
+        try {
+            editWorkspacePolicy = new PolicyImpl(formatPatterns, siteConfiguration.getEditWorkspace());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unable to create the policy for the 'editWorkspace', reason: " + e.getMessage(), e);
+        }
+        try {
+            liveWorkspacePolicy = new PolicyImpl(formatPatterns, siteConfiguration.getLiveWorkspace());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unable to create the policy for the 'liveWorkspace', reason: " + e.getMessage(), e);
+        }
+
     }
 
     Policy getPolicy(String workspaceName) {

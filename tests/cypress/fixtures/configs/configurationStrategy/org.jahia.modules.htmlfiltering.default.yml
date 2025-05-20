@@ -5,3 +5,9 @@ htmlFiltering:
       elements:
         - attributes: [id]
         - tags: [p]
+  liveWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - attributes: [id]
+        - tags: [p]

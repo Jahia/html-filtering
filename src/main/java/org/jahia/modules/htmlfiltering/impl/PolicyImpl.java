@@ -53,9 +53,6 @@ final class PolicyImpl implements Policy {
         if (workspace == null) {
             throw new IllegalArgumentException("Workspace configuration is not set");
         }
-        if (workspace.getStrategy() == null) {
-            throw new IllegalArgumentException("'strategy' is not set");
-        }
         this.strategy = readStrategy(workspace);
         if (workspace.getAllowedRuleSet() == null) {
             throw new IllegalArgumentException("'allowedRuleSet' is not set");
@@ -69,6 +66,9 @@ final class PolicyImpl implements Policy {
     }
 
     private static Strategy readStrategy(WorkspaceCfg workspace) {
+        if (workspace.getStrategy() == null) {
+            throw new IllegalArgumentException("'strategy' is not set");
+        }
         switch (workspace.getStrategy()) {
             case REJECT:
                 return Strategy.REJECT;

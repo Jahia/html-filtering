@@ -24,7 +24,7 @@ import javax.jcr.Value;
 public class WorkspaceCfg {
     private RuleSetCfg allowedRuleSet;
     private RuleSetCfg disallowedRuleSet;
-    private StrategyCfg strategy = StrategyCfg.SANITIZE;
+    private StrategyCfg strategy;
 
     public RuleSetCfg getAllowedRuleSet() {
         return allowedRuleSet;

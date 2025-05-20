@@ -56,7 +56,7 @@ final class PolicyImpl implements Policy {
         if (workspace.getStrategy() == null) {
             throw new IllegalArgumentException("'strategy' is not set");
         }
-        this.strategy = WorkspaceCfg.StrategyCfg.REJECT.equals(workspace.getStrategy()) ? Strategy.REJECT : Strategy.SANITIZE;
+        this.strategy = readStrategy(workspace);
         if (workspace.getAllowedRuleSet() == null) {
             throw new IllegalArgumentException("'allowedRuleSet' is not set");
         }
@@ -66,6 +66,17 @@ final class PolicyImpl implements Policy {
         processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
                 HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
         this.policyFactory = builder.toFactory();
+    }
+
+    private static Strategy readStrategy(WorkspaceCfg workspace) {
+        switch (workspace.getStrategy()) {
+            case REJECT:
+                return Strategy.REJECT;
+            case SANITIZE:
+                return Strategy.SANITIZE;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown 'strategy':%s ", workspace.getStrategy()));
+        }
     }
 
     private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetCfg ruleSet,

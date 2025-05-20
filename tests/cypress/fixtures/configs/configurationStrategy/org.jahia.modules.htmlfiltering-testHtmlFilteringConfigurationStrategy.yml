@@ -4,3 +4,8 @@ htmlFiltering:
     allowedRuleSet:
       elements:
         - tags: [p, h1]
+  liveWorkspace:
+    strategy: SANITIZE
+    allowedRuleSet:
+      elements:
+        - tags: [p, h1]

@@ -84,6 +84,7 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_element_without_attributes_and_tags_WHEN_creating_policy_THEN_exception_is_thrown() {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         ElementCfg element = new ElementCfg();
         element.setTags(Collections.emptyList()); // no tags
@@ -99,6 +100,7 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_element_with_tags_and_format_WHEN_creating_policy_THEN_exception_is_thrown() {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
         ElementCfg element = new ElementCfg();
@@ -115,6 +117,7 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_the_use_of_format_not_defined_WHEN_creating_policy_THEN_exception_is_thrown() {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
@@ -204,6 +207,7 @@ public class PolicyImplTest {
     })
     public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
@@ -227,6 +231,7 @@ public class PolicyImplTest {
     })
     public void GIVEN_configuration_with_allowed_attributes_on_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
@@ -251,6 +256,7 @@ public class PolicyImplTest {
     })
     public void GIVEN_configuration_with_allowed_attributes_and_allowed_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
@@ -276,6 +282,7 @@ public class PolicyImplTest {
     })
     public void GIVEN_configuration_with_allowed_protocols_on_a_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         allowedRuleSet.setProtocols(of("http", "https"));
         workspace.setAllowedRuleSet(allowedRuleSet);
@@ -307,6 +314,7 @@ public class PolicyImplTest {
     })
     public void GIVEN_configuration_with_formats_defined_WHEN_sanitizing_THEN_string_is_sanitized_with_the_format(String html, String expectedHtml) {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         allowedRuleSet.setElements(of(
                 buildElement(of("p"), of("id"), "LOWERCASE_LETTERS"),
@@ -354,6 +362,7 @@ public class PolicyImplTest {
 
     private static PolicyImpl buildCompletePolicy() {
         WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
         RuleSetCfg allowedRuleSet = new RuleSetCfg();
         allowedRuleSet.setElements(of(
                 // accept attributes globally

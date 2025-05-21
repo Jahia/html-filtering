@@ -77,8 +77,12 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
             logger.debug("The policy strategy is set to REJECT for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
             return originalValue;
         }
+        if (!policy.isApplicableToProperty(node, name, definition)) {
+            logger.debug("The policy is not applicable to the node: {}, property: {}, definition: {}. Interceptor skipped.", node.getPath(), name, definition);
+            return originalValue;
+        }
         String content = originalValue.getString();
-        String resultText = policy.sanitize(definition, content);
+        String resultText = policy.sanitize(content);
         return getModifiedValue(node, preservePlaceholders(resultText), content, originalValue);
 
     }

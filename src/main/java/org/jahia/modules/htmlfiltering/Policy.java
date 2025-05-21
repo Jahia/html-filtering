@@ -18,7 +18,9 @@ package org.jahia.modules.htmlfiltering;
 
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+import org.jahia.services.content.nodetypes.SelectorType;
 
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 /**
@@ -35,6 +37,27 @@ public interface Policy {
      */
     Strategy getStrategy();
 
+
+    /**
+     * Determines whether the policy is applicable to a given property.
+     * <p>
+     * A property is filtered if all the following conditions are met:
+     * <ul>
+     *
+     * <li>it is of type {@link PropertyType#STRING}</li>
+     * <li>it has a {@link SelectorType#RICHTEXT} selector</li>
+     * <li>it matches the properties to be processed for the node type (<code>process</code> parameter of the configuration)</li>
+     * <li>it does not match the properties to be skipped for the node type (<code>skip</code> parameter of the configuration)</li>
+     * </ul>
+     *
+     * @param node               the JCR node
+     * @param propertyName       the property name to evaluate
+     * @param propertyDefinition the property definition
+     * @return <code>true</code> if the policy is applicable to the given property, <code>false</code> otherwise
+     */
+    boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName,
+                                   ExtendedPropertyDefinition propertyDefinition);
+
     /**
      * Sanitizes the given HTML text as per the HTML filtering policy.
      *
@@ -42,16 +65,6 @@ public interface Policy {
      * @return the sanitized HTML text
      */
     String sanitize(String htmlText);
-
-    /**
-     * Sanitizes the provided HTML text in the context of a specific property definition. It applies the sanitization rules applicable to the given property
-     * (based on <code>include</code> and <code>skip</code> settings in the configuration files).
-     *
-     * @param definition       the extended property definition which provides context for sanitization
-     * @param propertyHtmlText the HTML text to be sanitized according to the specified policy
-     * @return the sanitized HTML string after applying the filtering rules
-     */
-    String sanitize(ExtendedPropertyDefinition definition, String propertyHtmlText);
 
     /**
      * Sanitizes the given HTML text

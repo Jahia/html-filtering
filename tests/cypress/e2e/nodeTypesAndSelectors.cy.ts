@@ -125,9 +125,8 @@ describe('Test the fitering on node types and selectors', () => {
 
     function mutateAndAssert(node: string, propertyName: string, alteredProperties: string[]) {
         const fullPath = node + '.' + propertyName;
-        console.log('alteredProperties', alteredProperties);
-        console.log('mutateAndAssert', node, propertyName, fullPath, alteredProperties.includes(fullPath) ? 'sanitized' : 'original');
         const expected = alteredProperties.includes(fullPath) ? SANITIZED_HTML_TEXT : ORIGINAL_HTML_TEXT;
+        console.log('mutateAndAssert: ', node, propertyName, fullPath, expected);
 
         mutateNodeTextProperty(PATH + node, propertyName, ORIGINAL_HTML_TEXT);
         return getPropertyValue(PATH + node, propertyName).then(result => {

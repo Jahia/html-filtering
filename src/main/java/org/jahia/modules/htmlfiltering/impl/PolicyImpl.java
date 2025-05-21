@@ -100,7 +100,6 @@ final class PolicyImpl implements Policy {
         this.policyFactory = builder.toFactory();
     }
 
-    // TODO better name
     private static Map<String, Set<String>> populatePropsByNodeType(List<String> propsByNodeType) {
         Map<String, Set<String>> result = new HashMap<>();
         for (String nodeTypeProperty : propsByNodeType) {

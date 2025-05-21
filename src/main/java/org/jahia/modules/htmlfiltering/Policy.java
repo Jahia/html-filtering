@@ -44,10 +44,10 @@ public interface Policy {
     String sanitize(String htmlText);
 
     /**
-     * Sanitizes the provided HTML text contained in a property using the rules defined by
-     * the filtering policy for a specific property definition.
+     * Sanitizes the provided HTML text in the context of a specific property definition. It applies the sanitization rules applicable to the given property
+     * (based on <code>include</code> and <code>skip</code> settings in the configuration files).
      *
-     * @param definition       the extended property definition which provides context and rules for sanitization
+     * @param definition       the extended property definition which provides context for sanitization
      * @param propertyHtmlText the HTML text to be sanitized according to the specified policy
      * @return the sanitized HTML string after applying the filtering rules
      */

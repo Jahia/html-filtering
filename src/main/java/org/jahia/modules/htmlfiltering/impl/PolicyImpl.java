@@ -118,7 +118,7 @@ final class PolicyImpl implements Policy {
                     setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
                     break;
                 default:
-                    throw new IllegalArgumentException(String.format("Invalid format for 'process' / 'skip' item: %s. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty));
+                    throw new IllegalArgumentException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
             }
         }
         return result;
@@ -131,7 +131,7 @@ final class PolicyImpl implements Policy {
             Set<String> properties = result.get(nodeType);
             if (properties == null) {
                 if (result.containsKey(nodeType)) {
-                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, configSectionName, propertyPattern); // TODO wording
+                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, configSectionName, propertyPattern);
                     return;
                 }
                 properties = new HashSet<>();
@@ -143,7 +143,7 @@ final class PolicyImpl implements Policy {
 
     private static void setWildcardEntryForNodeType(Map<String, Set<String>> result, String nodeType, String configSectionName) {
         if (result.containsKey(nodeType)) {
-            logger.warn("There is already an entry for the node type {} under '{}' that gets overwritten with the wildcard", nodeType, configSectionName); // TODO wording
+            logger.warn("There is already an entry for the node type {} under '{}'. Overwriting it with the wildcard", nodeType, configSectionName);
         }
         // Wildcard pattern: all properties are to be processed for this node type
         result.put(nodeType, null);

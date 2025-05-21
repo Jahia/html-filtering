@@ -230,7 +230,29 @@ public class PolicyImplTest {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
 
-        assertEquals("Invalid format for 'process' / 'skip' item: " + invalidProcessEntry + ". Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
+        assertEquals("Invalid format for item '" + invalidProcessEntry + "' in 'process'. Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
+    }
+
+    @Test
+    @Parameters({
+            "foo.bar.more",
+            "  foo  .  bar .   more",
+            "foo.bar.even.more",
+    })
+    public void GIVEN_an_invalid_skip_entry_WHEN_creating_policy_THEN_exception_is_thrown(String invalidProcessEntry) {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of("nt:base"));
+        workspace.setSkip(of(invalidProcessEntry));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Invalid format for item '" + invalidProcessEntry + "' in 'skip'. Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
     }
 
     @Test

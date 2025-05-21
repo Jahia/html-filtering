@@ -16,6 +16,7 @@
 package org.jahia.modules.htmlfiltering.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.HtmlValidationResult;
 import org.jahia.modules.htmlfiltering.NodeValidationResult;
 import org.jahia.modules.htmlfiltering.Policy;
@@ -24,16 +25,24 @@ import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
 import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+import org.jahia.services.content.nodetypes.SelectorType;
 import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -44,7 +53,24 @@ import java.util.regex.Pattern;
  * and validation operations.
  */
 final class PolicyImpl implements Policy {
+    private static final Logger logger = LoggerFactory.getLogger(PolicyImpl.class);
     private final Strategy strategy;
+    /**
+     * A map that associates node types with a set of property names to be processed.
+     * Each entry in the map defines a node type (key) and its corresponding properties (value)
+     * that must be considered for processing within that node type.
+     * <p>
+     * The value can be <code>null</code> in case all properties of the node type are to be processed.
+     */
+    final Map<String, Set<String>> propsToProcessByNodeType;
+    /**
+     * A map that associates node types with a set of property names to be skipped.
+     * Each entry in the map defines a node type (key) and its corresponding properties (value)
+     * that must be skipped for processing within that node type.
+     * <p>
+     * The value can be <code>null</code> in case all properties of the node type are to be skipped.
+     */
+    final Map<String, Set<String>> propsToSkipByNodeType;
     private final PolicyFactory policyFactory;
 
     public PolicyImpl(Map<String, Pattern> formatPatterns, WorkspaceCfg workspace) {
@@ -54,6 +80,16 @@ final class PolicyImpl implements Policy {
             throw new IllegalArgumentException("Workspace configuration is not set");
         }
         this.strategy = readStrategy(workspace);
+
+        if (CollectionUtils.isEmpty(workspace.getProcess())) {
+            throw new IllegalArgumentException("'process' is not set");
+        }
+        propsToProcessByNodeType = createPropsByNodeType(workspace.getProcess(), "process");
+        if (CollectionUtils.isEmpty(workspace.getSkip())) {
+            workspace.setSkip(Collections.emptyList());
+        }
+        propsToSkipByNodeType = createPropsByNodeType(workspace.getSkip(), "skip");
+
         if (workspace.getAllowedRuleSet() == null) {
             throw new IllegalArgumentException("'allowedRuleSet' is not set");
         }
@@ -63,6 +99,54 @@ final class PolicyImpl implements Policy {
         processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
                 HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
         this.policyFactory = builder.toFactory();
+    }
+
+    private static Map<String, Set<String>> createPropsByNodeType(List<String> propsByNodeType, String configSectionName) {
+        Map<String, Set<String>> result = new HashMap<>();
+        for (String nodeTypeProperty : propsByNodeType) {
+            if (StringUtils.isEmpty(nodeTypeProperty)) {
+                throw new IllegalArgumentException(String.format("Each item in '%s' must be set and not empty", configSectionName));
+            }
+            String[] parts = StringUtils.split(nodeTypeProperty, '.');
+            switch (parts.length) {
+                case 1:
+                    setWildcardEntryForNodeType(result, parts[0], configSectionName);
+                    break;
+                case 2:
+                    String nodeType = parts[0];
+                    String propertyPattern = parts[1];
+                    setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
+            }
+        }
+        return result;
+    }
+
+    private static void setPropertyPatternEntryForNodeType(String propertyPattern, Map<String, Set<String>> result, String nodeType, String configSectionName) {
+        if (propertyPattern.equals("*")) {
+            setWildcardEntryForNodeType(result, nodeType, configSectionName);
+        } else {
+            Set<String> properties = result.get(nodeType);
+            if (properties == null) {
+                if (result.containsKey(nodeType)) {
+                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, configSectionName, propertyPattern);
+                    return;
+                }
+                properties = new HashSet<>();
+                result.put(nodeType, properties);
+            }
+            properties.add(propertyPattern);
+        }
+    }
+
+    private static void setWildcardEntryForNodeType(Map<String, Set<String>> result, String nodeType, String configSectionName) {
+        if (result.containsKey(nodeType)) {
+            logger.warn("There is already an entry for the node type {} under '{}'. Overwriting it with the wildcard", nodeType, configSectionName);
+        }
+        // Wildcard pattern: all properties are to be processed for this node type
+        result.put(nodeType, null);
     }
 
     private static Strategy readStrategy(WorkspaceCfg workspace) {
@@ -118,8 +202,7 @@ final class PolicyImpl implements Policy {
             if (element.getFormat() != null) {
                 Pattern formatPattern = formatPatterns.get(element.getFormat());
                 if (formatPattern == null) {
-                    throw new IllegalArgumentException("Format " + element.getFormat() +
-                            " not defined, check your configuration");
+                    throw new IllegalArgumentException(String.format("Format '%s' not defined, check your configuration", element.getFormat()));
                 }
                 attributeBuilder.matching(formatPattern);
             }
@@ -139,9 +222,45 @@ final class PolicyImpl implements Policy {
     }
 
     @Override
+    public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
+        return isRichTextStringProperty(propertyDefinition)
+                && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
+                && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
+    }
+
+    @Override
     public String sanitize(String htmlText) {
         return policyFactory.sanitize(htmlText);
     }
+
+
+    private static boolean isRichTextStringProperty(ExtendedPropertyDefinition definition) {
+        return
+                definition.getRequiredType() == PropertyType.STRING
+                        && definition.getSelector() == SelectorType.RICHTEXT;
+    }
+
+    private static boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) {
+        for (Map.Entry<String, Set<String>> entry : propsByNodeType.entrySet()) {
+            String nodeType = entry.getKey();
+            if (safeIsNodeType(node, nodeType)) {
+                Set<String> props = entry.getValue();
+                // it is a wildcard, or it matches the property's name
+                return props == null || props.contains(propertyName);
+            }
+        }
+        return false; // no match found for any node type
+    }
+
+    private static boolean safeIsNodeType(JCRNodeWrapper node, String nodeType) {
+        try {
+            return node.isNodeType(nodeType);
+        } catch (RepositoryException e) {
+            logger.debug("Unable to check if the node {} is of type {}", node, nodeType, e);
+        }
+        return false;
+    }
+
 
     @Override
     public HtmlValidationResult validate(String htmlText) {
@@ -171,15 +290,11 @@ final class PolicyImpl implements Policy {
         return validationResult;
     }
 
-    private void validate(JCRNodeWrapper node, String name, String value, NodeValidationResultImpl validationResult) throws RepositoryException {
-        if (node.getProperty(name).getDefinition().getRequiredType() == PropertyType.STRING) {
-            validate(name, value, validationResult);
+    private void validate(JCRNodeWrapper node, String propertyName, String value, NodeValidationResultImpl validationResult) throws RepositoryException {
+        if (isApplicableToProperty(node, propertyName, node.getApplicablePropertyDefinition(propertyName))) {
+            String sanitized = policyFactory.sanitize(value, new Listener(propertyName), validationResult);
+            validationResult.addSanitizedProperty(propertyName, sanitized);
         }
-    }
-
-    void validate(String name, String value, NodeValidationResultImpl validationResult) {
-        String sanitized = policyFactory.sanitize(value, new Listener(name), validationResult);
-        validationResult.addSanitizedProperty(name, sanitized);
     }
 
     @FunctionalInterface

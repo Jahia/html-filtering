@@ -17,7 +17,10 @@
 package org.jahia.modules.htmlfiltering;
 
 import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+import org.jahia.services.content.nodetypes.SelectorType;
 
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 /**
@@ -34,8 +37,29 @@ public interface Policy {
      */
     Strategy getStrategy();
 
+
     /**
-     * Sanitize the given HTML text as per the HTML filtering policy.
+     * Determines whether the policy is applicable to a given property.
+     * <p>
+     * A property is filtered if all the following conditions are met:
+     * <ul>
+     *
+     * <li>it is of type {@link PropertyType#STRING}</li>
+     * <li>it has a {@link SelectorType#RICHTEXT} selector</li>
+     * <li>it matches the properties to be processed for the node type (<code>process</code> parameter of the configuration)</li>
+     * <li>it does not match the properties to be skipped for the node type (<code>skip</code> parameter of the configuration)</li>
+     * </ul>
+     *
+     * @param node               the JCR node
+     * @param propertyName       the property name to evaluate
+     * @param propertyDefinition the property definition
+     * @return <code>true</code> if the policy is applicable to the given property, <code>false</code> otherwise
+     */
+    boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName,
+                                   ExtendedPropertyDefinition propertyDefinition);
+
+    /**
+     * Sanitizes the given HTML text as per the HTML filtering policy.
      *
      * @param htmlText the HTML text to sanitize
      * @return the sanitized HTML text
@@ -43,7 +67,7 @@ public interface Policy {
     String sanitize(String htmlText);
 
     /**
-     * Sanitize the given HTML text
+     * Sanitizes the given HTML text
      *
      * @param htmlText the HTML text to sanitize
      * @return a {@link HtmlValidationResult} containing the sanitized HTML and additional information such as removed tags or attributes.
@@ -51,7 +75,7 @@ public interface Policy {
     HtmlValidationResult validate(String htmlText);
 
     /**
-     * Validate the properties of a given JCR node as per the HTML filtering policy.
+     * Validates the properties of a given JCR node as per the HTML filtering policy.
      *
      * @param node the JCR node to validate.
      * @return a {@link NodeValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.

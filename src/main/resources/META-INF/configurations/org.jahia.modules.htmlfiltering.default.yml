@@ -6,6 +6,7 @@ htmlFiltering:
     LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
   editWorkspace:
     strategy: SANITIZE
+    process: ['nt:base.*']
     allowedRuleSet:
       elements:
         - attributes: [class, dir, hidden, lang, role, style, title]
@@ -62,6 +63,7 @@ htmlFiltering:
       protocols: [http, https, mailto]
   liveWorkspace:
     strategy: SANITIZE
+    process: ['nt:base.*']
     allowedRuleSet:
       elements:
         - attributes: [class, dir, hidden, lang, role, style]

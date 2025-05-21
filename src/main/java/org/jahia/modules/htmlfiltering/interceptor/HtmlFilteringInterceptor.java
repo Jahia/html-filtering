@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {
@@ -46,8 +45,6 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
 
     @Activate
     public void start() {
-        setRequiredTypes(Collections.singleton("String"));
-        setSelectors(Collections.singleton("RichText"));
         jcrStoreService.addInterceptor(this);
     }
 
@@ -65,6 +62,9 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     public Value beforeSetValue(JCRNodeWrapper node, String name,
                                 ExtendedPropertyDefinition definition, Value originalValue)
             throws RepositoryException {
+        if (originalValue == null) {
+            return null;
+        }
 
         String siteKey = node.getResolveSite().getSiteKey();
         String workspaceName = node.getSession().getWorkspace().getName();
@@ -75,6 +75,10 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
         }
         if (Strategy.REJECT.equals(policy.getStrategy())) {
             logger.debug("The policy strategy is set to REJECT for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
+            return originalValue;
+        }
+        if (!policy.isApplicableToProperty(node, name, definition)) {
+            logger.debug("The policy is not applicable to the node: {}, property: {}, definition: {}. Interceptor skipped.", node.getPath(), name, definition);
             return originalValue;
         }
         String content = originalValue.getString();
@@ -113,6 +117,9 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     public Value[] beforeSetValues(JCRNodeWrapper node, String name,
                                    ExtendedPropertyDefinition definition, Value[] originalValues)
             throws RepositoryException {
+        if (originalValues == null) {
+            return null;
+        }
         Value[] res = new Value[originalValues.length];
 
         for (int i = 0; i < originalValues.length; i++) {

@@ -20,11 +20,14 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.Value;
+import java.util.List;
 
 public class WorkspaceCfg {
     private RuleSetCfg allowedRuleSet;
     private RuleSetCfg disallowedRuleSet;
     private StrategyCfg strategy;
+    private List<String> process;
+    private List<String> skip;
 
     public RuleSetCfg getAllowedRuleSet() {
         return allowedRuleSet;
@@ -48,6 +51,22 @@ public class WorkspaceCfg {
 
     public void setStrategy(StrategyCfg strategy) {
         this.strategy = strategy;
+    }
+
+    public List<String> getProcess() {
+        return process;
+    }
+
+    public void setProcess(List<String> process) {
+        this.process = process;
+    }
+
+    public List<String> getSkip() {
+        return skip;
+    }
+
+    public void setSkip(List<String> skip) {
+        this.skip = skip;
     }
 
     /**
@@ -79,6 +98,8 @@ public class WorkspaceCfg {
                 "allowedRuleSet=" + allowedRuleSet +
                 ", disallowedRuleSet=" + disallowedRuleSet +
                 ", strategy=" + strategy +
+                ", process=" + process +
+                ", skip=" + skip +
                 '}';
     }
 }

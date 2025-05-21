@@ -61,7 +61,7 @@ final class PolicyImpl implements Policy {
      * <p>
      * The value can be <code>null</code> in case all properties of the node type are to be processed.
      */
-    private final Map<String, Set<String>> propsToProcessByNodeType;
+    final Map<String, Set<String>> propsToProcessByNodeType;
     /**
      * A map that associates node types with a set of property names to be skipped.
      * Each entry in the map defines a node type (key) and its corresponding properties (value)
@@ -69,7 +69,7 @@ final class PolicyImpl implements Policy {
      * <p>
      * The value can be <code>null</code> in case all properties of the node type are to be skipped.
      */
-    private final Map<String, Set<String>> propsToSkipByNodeType;
+    final Map<String, Set<String>> propsToSkipByNodeType;
     private final PolicyFactory policyFactory;
 
     public PolicyImpl(Map<String, Pattern> formatPatterns, WorkspaceCfg workspace) {
@@ -83,11 +83,11 @@ final class PolicyImpl implements Policy {
         if (CollectionUtils.isEmpty(workspace.getProcess())) {
             throw new IllegalArgumentException("'process' is not set");
         }
-        propsToProcessByNodeType = populatePropsByNodeType(workspace.getProcess());
+        propsToProcessByNodeType = createPropsByNodeType(workspace.getProcess());
         if (CollectionUtils.isEmpty(workspace.getSkip())) {
             workspace.setSkip(Collections.emptyList());
         }
-        propsToSkipByNodeType = populatePropsByNodeType(workspace.getSkip());
+        propsToSkipByNodeType = createPropsByNodeType(workspace.getSkip());
 
         if (workspace.getAllowedRuleSet() == null) {
             throw new IllegalArgumentException("'allowedRuleSet' is not set");
@@ -100,7 +100,7 @@ final class PolicyImpl implements Policy {
         this.policyFactory = builder.toFactory();
     }
 
-    private static Map<String, Set<String>> populatePropsByNodeType(List<String> propsByNodeType) {
+    private static Map<String, Set<String>> createPropsByNodeType(List<String> propsByNodeType) {
         Map<String, Set<String>> result = new HashMap<>();
         for (String nodeTypeProperty : propsByNodeType) {
             if (StringUtils.isEmpty(nodeTypeProperty)) {
@@ -112,13 +112,7 @@ final class PolicyImpl implements Policy {
                         ". Expected format is 'nodeType.property' or 'nodeType.*'");
             }
             String nodeType = parts[0];
-            if (StringUtils.isEmpty(nodeType)) {
-                throw new IllegalArgumentException("Node type cannot be empty in 'process' / 'skip' item: " + nodeTypeProperty);
-            }
             String propertyPattern = parts[1];
-            if (StringUtils.isEmpty(propertyPattern)) {
-                throw new IllegalArgumentException("Property pattern cannot be empty in 'process' / 'skip' item: " + nodeTypeProperty);
-            }
 
             if (propertyPattern.equals("*")) {
                 if (result.containsKey(nodeType)) {
@@ -226,20 +220,20 @@ final class PolicyImpl implements Policy {
         return propertyHtmlText;
     }
 
-  /**
-   * Determines whether the given property definition should be filtered.
-   * A property is filtered if all the following conditions are met:
-   * <ul>
-   *
-   * <li>it is of type {@link PropertyType#STRING}</li>
-   * <li>it has a {@link SelectorType#RICHTEXT} selector</li>
-   * <li>it matches the properties to be processed for the node type (<code>process</code> parameter of the configuration)</li>
-   * <li>it does not match the properties to be skipped for the node type (<code>skip</code> parameter of the configuration)</li>
-   * </ul>
-   *
-   * @param definition the property definition to evaluate
-   * @return <code>true</code> if the property should be filtered based on its type and matching conditions, <code>false</code> otherwise
-   */
+    /**
+     * Determines whether the given property definition should be filtered.
+     * A property is filtered if all the following conditions are met:
+     * <ul>
+     *
+     * <li>it is of type {@link PropertyType#STRING}</li>
+     * <li>it has a {@link SelectorType#RICHTEXT} selector</li>
+     * <li>it matches the properties to be processed for the node type (<code>process</code> parameter of the configuration)</li>
+     * <li>it does not match the properties to be skipped for the node type (<code>skip</code> parameter of the configuration)</li>
+     * </ul>
+     *
+     * @param definition the property definition to evaluate
+     * @return <code>true</code> if the property should be filtered based on its type and matching conditions, <code>false</code> otherwise
+     */
     private boolean shouldBeFiltered(ExtendedPropertyDefinition definition) {
         return isRichTextStringProperty(definition)
                 && matches(definition, propsToProcessByNodeType)

@@ -16,10 +16,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -42,6 +44,28 @@ public class PolicyImplTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
 
         assertEquals("'strategy' is not set", exception.getMessage());
+    }
+
+    @Test
+    public void GIVEN_a_null_process_WHEN_creating_policy_THEN_exception_is_thrown() {
+
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        workspace.setProcess(null); // null 'process'
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("'process' is not set", exception.getMessage());
+    }
+
+    @Test
+    public void GIVEN_an_empty_process_WHEN_creating_policy_THEN_exception_is_thrown() {
+
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        workspace.setProcess(of()); // empty 'process'
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("'process' is not set", exception.getMessage());
     }
 
     @Test
@@ -152,6 +176,104 @@ public class PolicyImplTest {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
         assertEquals(expectedStrategy, policy.getStrategy());
+    }
+
+
+    @Test
+    public void GIVEN_an_empty_process_entry_WHEN_creating_policy_THEN_exception_is_thrown() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of(""));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Each item in 'process' / 'skip' must be set and not empty", exception.getMessage());
+    }
+
+    @Test
+    @Parameters({
+            "foo",
+            "bar.",
+            ".foo",
+            "foo.bar.more",
+            "   .bar",
+            "foo.    ",
+    })
+    public void GIVEN_an_invalid_process_entry_WHEN_creating_policy_THEN_exception_is_thrown(String invalidProcessEntry) {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of(invalidProcessEntry));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Invalid format for 'process' / 'skip' item: " + invalidProcessEntry + ". Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
+    }
+
+    @Test
+    public void GIVEN_a_process_entry_that_overrides_a_wildcard_WHEN_creating_policy_THEN_exception_is_thrown() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of("foo.*", "foo.bar"));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Duplicate 'process' / 'skip' item for the node type: foo", exception.getMessage());
+    }
+
+
+    @Test
+    public void GIVEN_a_skip_entry_with_wildcard_that_overrides_one_with_a_prop_WHEN_creating_policy_THEN_exception_is_thrown() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of("bar.*"));
+        workspace.setSkip(of("foo.myProp", "foo.*"));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+
+        assertEquals("Duplicate 'process' / 'skip' item for the node type: foo", exception.getMessage());
+    }
+
+    @Test
+    public void GIVEN_a_mix_of_process_and_skip_entries_WHEN_creating_policy_THEN_propsByNodeType_maps_are_populated_correctly() {
+        WorkspaceCfg workspace = new WorkspaceCfg();
+        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        workspace.setProcess(of("nt:base.jcr:description", "myNt:myOtherNode.myFirstProp", "myNt:myOtherNode.mySecondProp", "myOtherNt:myMixin.*"));
+        workspace.setSkip(of("myNt:myNode.propToSkip", "myNt:foo.*"));
+        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        workspace.setAllowedRuleSet(allowedRuleSet);
+        allowedRuleSet.setElements(of(
+                buildElement(null, of("id"), null)
+        ));
+
+        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+
+        assertEquals(3, policy.propsToProcessByNodeType.size());
+        assertEquals(setOf("jcr:description"), policy.propsToProcessByNodeType.get("nt:base"));
+        assertEquals(setOf("myFirstProp", "mySecondProp"), policy.propsToProcessByNodeType.get("myNt:myOtherNode"));
+        assertNull(policy.propsToProcessByNodeType.get("myOtherNt:myMixin"));
+        assertEquals(2, policy.propsToSkipByNodeType.size());
+        assertEquals(setOf("propToSkip"), policy.propsToSkipByNodeType.get("myNt:myNode"));
+        assertNull(policy.propsToSkipByNodeType.get("myNt:foo"));
     }
 
     @Test
@@ -418,7 +540,13 @@ public class PolicyImplTest {
         return elementCfg;
     }
 
+    // equivalent of List.of(...) only available in Java 9+
     private static <T> List<T> of(T... items) {
         return Arrays.asList(items);
+    }
+
+    // equivalent of Set.of(...) only available in Java 9+
+    private static <T> Set<T> setOf(T... items) {
+        return new HashSet<>(Arrays.asList(items));
     }
 }

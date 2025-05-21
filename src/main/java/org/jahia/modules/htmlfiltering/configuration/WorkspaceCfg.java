@@ -98,8 +98,8 @@ public class WorkspaceCfg {
                 "allowedRuleSet=" + allowedRuleSet +
                 ", disallowedRuleSet=" + disallowedRuleSet +
                 ", strategy=" + strategy +
-                ", included=" + process +
-                ", excluded=" + skip +
+                ", process=" + process +
+                ", skip=" + skip +
                 '}';
     }
 }

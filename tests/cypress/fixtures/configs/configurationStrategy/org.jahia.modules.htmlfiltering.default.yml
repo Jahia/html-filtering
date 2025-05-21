@@ -1,7 +1,7 @@
 htmlFiltering:
   editWorkspace:
     strategy: SANITIZE
-    include: []
+    process: []
     allowedRuleSet:
       elements:
         - attributes: [id]

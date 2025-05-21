@@ -208,7 +208,6 @@ final class PolicyImpl implements Policy {
         }
     }
 
-
     @Override
     public Strategy getStrategy() {
         return strategy;
@@ -227,10 +226,24 @@ final class PolicyImpl implements Policy {
         return propertyHtmlText;
     }
 
+  /**
+   * Determines whether the given property definition should be filtered.
+   * A property is filtered if all the following conditions are met:
+   * <ul>
+   *
+   * <li>it is of type {@link PropertyType#STRING}</li>
+   * <li>it has a {@link SelectorType#RICHTEXT} selector</li>
+   * <li>it matches the properties to be processed for the node type (<code>process</code> parameter of the configuration)</li>
+   * <li>it does not match the properties to be skipped for the node type (<code>skip</code> parameter of the configuration)</li>
+   * </ul>
+   *
+   * @param definition the property definition to evaluate
+   * @return <code>true</code> if the property should be filtered based on its type and matching conditions, <code>false</code> otherwise
+   */
     private boolean shouldBeFiltered(ExtendedPropertyDefinition definition) {
         return isRichTextStringProperty(definition)
-                && isListed(definition, propsToProcessByNodeType)
-                && !isListed(definition, propsToSkipByNodeType);
+                && matches(definition, propsToProcessByNodeType)
+                && !matches(definition, propsToSkipByNodeType);
     }
 
     private static boolean isRichTextStringProperty(ExtendedPropertyDefinition definition) {
@@ -239,7 +252,7 @@ final class PolicyImpl implements Policy {
                         && definition.getSelector() == SelectorType.RICHTEXT;
     }
 
-    private static boolean isListed(ExtendedItemDefinition extendedItemDefinition, Map<String, Set<String>> map) {
+    private static boolean matches(ExtendedItemDefinition extendedItemDefinition, Map<String, Set<String>> map) {
         ExtendedNodeType nodeType = extendedItemDefinition.getDeclaringNodeType();
         if (nodeType == null) {
             return false;

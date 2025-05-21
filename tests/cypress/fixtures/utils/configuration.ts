@@ -15,7 +15,7 @@ export const removeGlobalCustomConfig = () => {
 };
 
 export const removeSiteConfig = siteKey => {
-    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering', IDENTIFIER: siteKey});
+    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.site', IDENTIFIER: siteKey});
 };
 
 export const editSiteConfig = (key, value, siteKey) => {

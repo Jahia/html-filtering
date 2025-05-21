@@ -20,9 +20,9 @@ import org.osgi.service.component.annotations.Component;
 
 @Component(immediate = true, service = {ManagedService.class, AbstractSitePolicyService.class},
         property = {
-                "service.pid=org.jahia.modules.htmlfiltering.default",
-                "service.description=HTML filtering default policy service to retrieve the default policy to use for a site that does not have a site-specific configuration",
+                "service.pid=org.jahia.modules.htmlfiltering.global.custom",
+                "service.description=HTML filtering global custom policy service to retrieve the global custom policy to use for sites that do not have a site-specific configuration",
                 "service.vendor=Jahia Solutions Group SA"
         })
-public final class DefaultSitePolicyServiceImpl extends AbstractSitePolicyService {
+public final class GlobalCustomSitePolicyServiceImpl extends AbstractSitePolicyService {
 }

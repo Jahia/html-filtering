@@ -1,4 +1,4 @@
-# default configuration
+# global default configuration
 htmlFiltering:
   formatDefinitions:
     HTML_ID: '[a-zA-Z0-9\:\-_\.]+'

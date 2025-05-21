@@ -30,13 +30,13 @@ public interface RegistryService {
      * <p>
      * Policy resolution strategy (by priority):
      * <ol>
-     *   <li>Site-specific configuration: <code>org.jahia.modules.htmlfiltering-&lt;site key&gt;.yml</code> found in any OSGi bundle</li>
-     *   <li>Default configuration: <code>org.jahia.modules.htmlfiltering.default.yml</code> found in any OSGi bundle, that can be used to configure multiple sites with the same configuration if they don't have a site-specific configuration</li>
-     *   <li>Fallback configuration: <code>org.jahia.modules.htmlfiltering.fallback.yml</code> provided by the <i>HTML Filtering</i> bundle</li>
+     *   <li>Site-specific configuration: <code>org.jahia.modules.htmlfiltering.site-&lt;site key&gt;.yml</code> found in any OSGi bundle</li>
+     *   <li>Global custom configuration: <code>org.jahia.modules.htmlfiltering.global.custom.yml</code> found in any OSGi bundle, that can be used to configure multiple sites with the same configuration if they don't have a site-specific configuration</li>
+     *   <li>Global default configuration: <code>org.jahia.modules.htmlfiltering.global.default.yml</code> provided by the <i>HTML Filtering</i> bundle</li>
      * </ol>
      * <p>
      * <strong>Note:</strong> If the requested workspace does not exist for the given site, the default "live" workspace is used.
-     * The fallback configuration should not be overwritten as module updates would replace it.
+     * The global default configuration should not be overwritten as module updates would replace it.
      *
      * @param siteKey       the unique identifier for the site
      * @param workspaceName the name of the workspace

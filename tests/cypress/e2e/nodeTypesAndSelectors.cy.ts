@@ -117,7 +117,7 @@ describe('Test the fitering on node types and selectors', () => {
         deleteSite(SITE_KEY);
     });
     beforeEach(() => {
-        installConfig(`configs/nodeTypesAndSelectors/org.jahia.modules.htmlfiltering-${SITE_KEY}.yml`);
+        installConfig(`configs/nodeTypesAndSelectors/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
     });
     afterEach(() => {
         removeSiteConfig(SITE_KEY);
@@ -190,7 +190,7 @@ describe('Test the fitering on node types and selectors', () => {
         `;
         // Create variables object
         const variables = {
-            pid: 'org.jahia.modules.htmlfiltering',
+            pid: 'org.jahia.modules.htmlfiltering.site',
             identifier: SITE_KEY
         };
         // Add each array value as a separate variable

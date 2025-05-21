@@ -20,10 +20,10 @@ import org.osgi.service.component.annotations.Component;
 
 @Component(immediate = true, service = {ManagedService.class, AbstractSitePolicyService.class},
         property = {
-                "service.pid=org.jahia.modules.htmlfiltering.fallback",
-                "service.description=HTML filtering fallback policy service to retrieve the fallback policy",
+                "service.pid=org.jahia.modules.htmlfiltering.global.default",
+                "service.description=HTML filtering global default policy service to retrieve the global default policy",
                 "service.vendor=Jahia Solutions Group SA"
         })
-public final class FallbackSitePolicyServiceImpl extends AbstractSitePolicyService {
+public final class GlobalDefaultSitePolicyServiceImpl extends AbstractSitePolicyService {
 
 }

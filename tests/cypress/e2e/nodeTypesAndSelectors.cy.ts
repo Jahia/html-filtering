@@ -65,7 +65,7 @@ describe('Test the fitering on node types and selectors', () => {
         {
             process: ['htmlFilteringTestModule:testNodeTypesAndSelectorsC.*'],
             skip: [],
-            alteredProperties: ['/testC.prop1', '/testC.prop5', '/testD.prop7']
+            alteredProperties: ['/testC.prop1', '/testC.prop5', '/testD.prop6', '/testD.prop7']
         },
         // Skip a property that is not processed
         {

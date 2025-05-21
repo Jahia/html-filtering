@@ -101,21 +101,21 @@ final class PolicyImpl implements Policy {
         this.policyFactory = builder.toFactory();
     }
 
-    private static Map<String, Set<String>> createPropsByNodeType(List<String> propsByNodeType, String name) {
+    private static Map<String, Set<String>> createPropsByNodeType(List<String> propsByNodeType, String configSectionName) {
         Map<String, Set<String>> result = new HashMap<>();
         for (String nodeTypeProperty : propsByNodeType) {
             if (StringUtils.isEmpty(nodeTypeProperty)) {
-                throw new IllegalArgumentException(String.format("Each item in '%s' must be set and not empty", name));
+                throw new IllegalArgumentException(String.format("Each item in '%s' must be set and not empty", configSectionName));
             }
             String[] parts = StringUtils.split(nodeTypeProperty, '.');
             switch (parts.length) {
                 case 1:
-                    setWildcardEntryForNodeType(name, result, parts[0]);
+                    setWildcardEntryForNodeType(result, parts[0], configSectionName);
                     break;
                 case 2:
                     String nodeType = parts[0];
                     String propertyPattern = parts[1];
-                    setPropertyPatternEntryForNodeType(name, propertyPattern, result, nodeType);
+                    setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
                     break;
                 default:
                     throw new IllegalArgumentException(String.format("Invalid format for 'process' / 'skip' item: %s. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty));
@@ -124,14 +124,14 @@ final class PolicyImpl implements Policy {
         return result;
     }
 
-    private static void setPropertyPatternEntryForNodeType(String name, String propertyPattern, Map<String, Set<String>> result, String nodeType) {
+    private static void setPropertyPatternEntryForNodeType(String propertyPattern, Map<String, Set<String>> result, String nodeType, String configSectionName) {
         if (propertyPattern.equals("*")) {
-            setWildcardEntryForNodeType(name, result, nodeType);
+            setWildcardEntryForNodeType(result, nodeType, configSectionName);
         } else {
             Set<String> properties = result.get(nodeType);
             if (properties == null) {
                 if (result.containsKey(nodeType)) {
-                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, name, propertyPattern); // TODO wording
+                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, configSectionName, propertyPattern); // TODO wording
                     return;
                 }
                 properties = new HashSet<>();
@@ -141,9 +141,9 @@ final class PolicyImpl implements Policy {
         }
     }
 
-    private static void setWildcardEntryForNodeType(String name, Map<String, Set<String>> result, String nodeType) {
+    private static void setWildcardEntryForNodeType(Map<String, Set<String>> result, String nodeType, String configSectionName) {
         if (result.containsKey(nodeType)) {
-            logger.warn("There is already an entry for the node type {} under '{}' that gets overwritten with the wildcard", nodeType, name); // TODO wording
+            logger.warn("There is already an entry for the node type {} under '{}' that gets overwritten with the wildcard", nodeType, configSectionName); // TODO wording
         }
         // Wildcard pattern: all properties are to be processed for this node type
         result.put(nodeType, null);

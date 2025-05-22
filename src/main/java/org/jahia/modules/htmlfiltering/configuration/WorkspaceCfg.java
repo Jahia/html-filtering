@@ -20,6 +20,7 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.Value;
+import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
 public class WorkspaceCfg {
@@ -78,14 +79,13 @@ public class WorkspaceCfg {
          * Strategy to reject HTML content that does not adhere to the allowed rule set.
          * Any content that violates the defined rules will be deemed invalid and not accepted.
          *
-         * @see org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)
+         * @see org.jahia.modules.htmlfiltering.validation.HtmlValidator#isValid(JCRNodeWrapper, ConstraintValidatorContext)
          */
         REJECT,
         /**
          * Strategy to sanitize the HTML content by removing all tags and attributes that
          * are not part of the allowed rule set.
-         * This cleanup is performed automatically before storing the value of a node property in the JCR, in  {@link HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)}.
-         * When this strategy is used, the validation in ({@link org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)}) is disabled.
+         * This cleanup is performed automatically before storing the value of a node property in the JCR.
          *
          * @see HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
          */

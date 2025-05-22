@@ -70,7 +70,7 @@ final class SitePolicy {
     }
 
     static class SitePolicyBuilder {
-        private final static JavaPropsMapper javaPropsMapper = JavaPropsMapper.builder()
+        private static final JavaPropsMapper javaPropsMapper = JavaPropsMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
                 .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
                 .build();

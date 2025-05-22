@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.Strategy;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.component.annotations.Component;
@@ -91,7 +92,7 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
     }
 
     @Override
-    public Policy getPolicy(String siteKey, String workspaceName) {
+    public Policy resolvePolicy(String siteKey, String workspaceName) {
         // 1) site-specific configuration
         SitePolicy sitePolicy = policiesBySiteKey.get(siteKey);
         if (sitePolicy != null) {
@@ -113,6 +114,17 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
             return sitePolicy.getPolicy(workspaceName);
         }
         logger.debug("No site policy found for siteKey: {}, workspaceName: {}", siteKey, workspaceName);
+        return null;
+    }
+
+    @Override
+    public Policy resolvePolicy(String siteKey, String workspaceName, Strategy strategy) {
+        Policy policy = resolvePolicy(siteKey, workspaceName);
+        if (policy != null && policy.getStrategy() == strategy) {
+            return policy;
+        }
+
+        logger.debug("No site policy found for siteKey: {}, workspaceName: {}, strategy: {}", siteKey, workspaceName, strategy.name());
         return null;
     }
 }

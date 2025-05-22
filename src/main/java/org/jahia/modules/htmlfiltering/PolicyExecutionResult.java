@@ -13,7 +13,21 @@ import java.util.Set;
  * The interface provides methods to access details about these rejected elements to help identify
  * validation failures.
  */
-public interface RejectionResult {
+public interface PolicyExecutionResult {
+
+    /**
+     * Returns <code>true</code> if the validation result is valid, i.e., no rejected tags or attributes were found.
+     *
+     * @return <code>true</code> if the validation result is valid, <code>false</code> otherwise.
+     */
+    boolean isValid();
+
+    /**
+     * Returns the sanitized HTML.
+     *
+     * @return - The sanitized HTML
+     */
+    String getSanitizedHtml();
 
     /**
      * Retrieves the set of tags that were rejected during the validation process.

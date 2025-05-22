@@ -42,5 +42,15 @@ public interface RegistryService {
      * @param workspaceName the name of the workspace
      * @return the policy applicable to the given site and workspace, or <code>null</code> if no policy is found
      */
-    Policy getPolicy(String siteKey, String workspaceName);
+    Policy resolvePolicy(String siteKey, String workspaceName);
+
+    /**
+     * Same as {@link #resolvePolicy(String, String)} but allows to specify a strategy.
+     * <p>
+     * @param siteKey       the unique identifier for the site
+     * @param workspaceName the name of the workspace
+     * @param strategy      the strategy to be used for the policy
+     * @return the policy applicable to the given site, workspace and strategy, or <code>null</code> if no policy is found
+     */
+    Policy resolvePolicy(String siteKey, String workspaceName, Strategy strategy);
 }

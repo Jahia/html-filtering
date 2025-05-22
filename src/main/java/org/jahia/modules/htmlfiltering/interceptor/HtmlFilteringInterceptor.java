@@ -31,12 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.validation.constraints.NotNull;
+import javax.jcr.ValueFactory;
 
 @Component(immediate = true)
 public class HtmlFilteringInterceptor extends BaseInterceptor {
 
-    private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
 
@@ -59,73 +59,52 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     }
 
     @Override
-    public Value beforeSetValue(JCRNodeWrapper node, String name,
-                                ExtendedPropertyDefinition definition, Value originalValue)
+    public Value beforeSetValue(JCRNodeWrapper node, String name, ExtendedPropertyDefinition definition, Value originalValue)
             throws RepositoryException {
-        if (originalValue == null) {
-            return null;
+        Policy policy = getPolicyForInterceptor(node, name, definition, originalValue);
+        if (policy != null) {
+            return processValue(policy, originalValue, node.getSession().getValueFactory());
         }
 
-        String siteKey = node.getResolveSite().getSiteKey();
-        String workspaceName = node.getSession().getWorkspace().getName();
-        Policy policy = registryService.getPolicy(siteKey, workspaceName);
-        if (policy == null) {
-            logger.debug("No policy found for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
-            return originalValue;
-        }
-        if (Strategy.REJECT.equals(policy.getStrategy())) {
-            logger.debug("The policy strategy is set to REJECT for siteKey: {}, workspace: {}. Interceptor skipped.", siteKey, workspaceName);
-            return originalValue;
-        }
-        if (!policy.isApplicableToProperty(node, name, definition)) {
-            logger.debug("The policy is not applicable to the node: {}, property: {}, definition: {}. Interceptor skipped.", node.getPath(), name, definition);
-            return originalValue;
-        }
-        String content = originalValue.getString();
-        String resultText = policy.sanitize(content);
-        return getModifiedValue(node, preservePlaceholders(resultText), content, originalValue);
-
-    }
-
-    @NotNull
-    private static String preservePlaceholders(String result) {
-        // TODO can this be configured in the lib?
-        // Preserve URL context placeholders that might've been encoded by the sanitizer
-        result = result.replace("%7bmode%7d", "{mode}");
-        result = result.replace("%7blang%7d", "{lang}");
-        result = result.replace("%7bworkspace%7d", "{workspace}");
-        return result;
-    }
-
-    private static Value getModifiedValue(JCRNodeWrapper node, String result, String content, Value originalValue) throws RepositoryException {
-        if (!result.equals(content)) {
-            Value modifiedValue = node.getSession().getValueFactory().createValue(result);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Done filtering of \"unwanted\" HTML tags.");
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Modified value: {}", result);
-                }
-            }
-            return modifiedValue;
-        } else if (logger.isDebugEnabled()) {
-            logger.debug("The value does not contain HTML tags that needs to be removed. The content remains unchanged.");
-        }
         return originalValue;
     }
 
     @Override
-    public Value[] beforeSetValues(JCRNodeWrapper node, String name,
-                                   ExtendedPropertyDefinition definition, Value[] originalValues)
+    public Value[] beforeSetValues(JCRNodeWrapper node, String name, ExtendedPropertyDefinition definition, Value[] originalValues)
             throws RepositoryException {
-        if (originalValues == null) {
-            return null;
+        Policy policy = getPolicyForInterceptor(node, name, definition, originalValues);
+        if (policy != null) {
+            Value[] sanitizedValues = new Value[originalValues.length];
+            for (int i = 0; i < originalValues.length; i++) {
+                sanitizedValues[i] = processValue(policy, originalValues[i], node.getSession().getValueFactory());
+            }
+            return sanitizedValues;
         }
-        Value[] res = new Value[originalValues.length];
+        return originalValues;
+    }
 
-        for (int i = 0; i < originalValues.length; i++) {
-            Value originalValue = originalValues[i];
-            res[i] = beforeSetValue(node, name, definition, originalValue);
+    private Policy getPolicyForInterceptor(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition definition, Object originalValue) throws RepositoryException {
+        if (originalValue != null) {
+            // Resolve policy with strategy: SANITIZE
+            Policy policy = registryService.resolvePolicy(node.getResolveSite().getSiteKey(),
+                    node.getSession().getWorkspace().getName(), Strategy.SANITIZE);
+            if (policy != null && policy.isApplicableToProperty(node, propertyName, definition)) {
+                return policy;
+            }
         }
-        return res;
+
+        return null;
+    }
+
+    private static Value processValue(Policy policy, Value originalValue, ValueFactory valueFactory) throws RepositoryException {
+        String originalText = originalValue.getString();
+        String sanitizedText = policy.execute(originalValue.getString()).getSanitizedHtml();
+        if (!originalText.equals(sanitizedText)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Sanitize value from {} to {}", originalText, sanitizedText);
+            }
+            return valueFactory.createValue(sanitizedText);
+        }
+        return originalValue;
     }
 }

@@ -20,7 +20,6 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import org.jahia.modules.graphql.provider.dxm.node.NodeQueryExtensions;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
-import org.jahia.modules.htmlfiltering.HtmlValidationResult;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.RegistryService;
 
@@ -38,11 +37,12 @@ public class GqlHtmlFilteringQuery {
     @GraphQLName("validate")
     @GraphQLDescription("Validate a given html from a resolved policy from a provided worskpace and site from its OSGi configuration, then returns sanitized HTML, removed tags and attributes")
     public GqlValidationResult validate(@GraphQLName("html") String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace, @GraphQLName("siteKey") String siteKey) {
-        // Resolve policy
-        Policy policy = registry.getPolicy(siteKey, workspace.getValue());
-        HtmlValidationResult result = policy.validate(html);
+        Policy policy = registry.resolvePolicy(siteKey, workspace.getValue());
+        if (policy != null) {
+            return new GqlValidationResult(policy.execute(html));
+        }
 
-        return new GqlValidationResult(result);
+        return null;
     }
 }
 

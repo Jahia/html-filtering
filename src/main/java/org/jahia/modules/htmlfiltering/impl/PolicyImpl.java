@@ -17,10 +17,7 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.modules.htmlfiltering.HtmlValidationResult;
-import org.jahia.modules.htmlfiltering.NodeValidationResult;
-import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.Strategy;
+import org.jahia.modules.htmlfiltering.*;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
 import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
@@ -33,9 +30,7 @@ import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
+import javax.jcr.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -222,28 +217,28 @@ final class PolicyImpl implements Policy {
     }
 
     @Override
-    public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
-        return isRichTextStringProperty(propertyDefinition)
+    public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) throws RepositoryException {
+        boolean result = isRichTextStringProperty(propertyDefinition)
                 && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
                 && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
-    }
 
-    @Override
-    public String sanitize(String htmlText) {
-        return policyFactory.sanitize(htmlText);
-    }
+        if (logger.isDebugEnabled()) {
+            logger.debug("The policy is{} applicable to the node: {}, property: {}, definition: {}.", result ? "" : " not",
+                    node.getPath(), propertyName, propertyDefinition);
+        }
 
+        return result;
+    }
 
     private static boolean isRichTextStringProperty(ExtendedPropertyDefinition definition) {
-        return
-                definition.getRequiredType() == PropertyType.STRING
-                        && definition.getSelector() == SelectorType.RICHTEXT;
+        return definition.getRequiredType() == PropertyType.STRING
+                && definition.getSelector() == SelectorType.RICHTEXT;
     }
 
-    private static boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) {
+    private static boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) throws RepositoryException {
         for (Map.Entry<String, Set<String>> entry : propsByNodeType.entrySet()) {
             String nodeType = entry.getKey();
-            if (safeIsNodeType(node, nodeType)) {
+            if (node.isNodeType(nodeType)) {
                 Set<String> props = entry.getValue();
                 // it is a wildcard, or it matches the property's name
                 return props == null || props.contains(propertyName);
@@ -252,49 +247,23 @@ final class PolicyImpl implements Policy {
         return false; // no match found for any node type
     }
 
-    private static boolean safeIsNodeType(JCRNodeWrapper node, String nodeType) {
-        try {
-            return node.isNodeType(nodeType);
-        } catch (RepositoryException e) {
-            logger.debug("Unable to check if the node {} is of type {}", node, nodeType, e);
-        }
-        return false;
-    }
-
-
     @Override
-    public HtmlValidationResult validate(String htmlText) {
-        HtmlValidationResultImpl result = new HtmlValidationResultImpl();
-        String SanitizedText = policyFactory.sanitize(htmlText, new HtmlChangeListener<HtmlValidationResultImpl>() {
+    public PolicyExecutionResultImpl execute(String htmlText) {
+        PolicyExecutionResultImpl result = new PolicyExecutionResultImpl();
+        String sanitized = policyFactory.sanitize(htmlText, new HtmlChangeListener<PolicyExecutionResultImpl>() {
             @Override
-            public void discardedTag(HtmlValidationResultImpl context, String elementName) {
+            public void discardedTag(PolicyExecutionResultImpl context, String elementName) {
                 context.addRejectedTag(elementName);
             }
 
             @Override
-            public void discardedAttributes(HtmlValidationResultImpl context, String tagName, String... attributeNames) {
+            public void discardedAttributes(PolicyExecutionResultImpl context, String tagName, String... attributeNames) {
                 context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
             }
         }, result);
 
-        result.setSanitizedHtml(SanitizedText);
+        result.setSanitizedHtml(sanitized);
         return result;
-    }
-
-    @Override
-    public NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
-        NodeValidationResultImpl validationResult = new NodeValidationResultImpl();
-        for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
-            validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
-        }
-        return validationResult;
-    }
-
-    private void validate(JCRNodeWrapper node, String propertyName, String value, NodeValidationResultImpl validationResult) throws RepositoryException {
-        if (isApplicableToProperty(node, propertyName, node.getApplicablePropertyDefinition(propertyName))) {
-            String sanitized = policyFactory.sanitize(value, new Listener(propertyName), validationResult);
-            validationResult.addSanitizedProperty(propertyName, sanitized);
-        }
     }
 
     @FunctionalInterface
@@ -305,28 +274,5 @@ final class PolicyImpl implements Policy {
     @FunctionalInterface
     private interface BuilderHandlerFunction {
         void handle(HtmlPolicyBuilder builder, String[] items);
-    }
-
-    private static class Listener implements HtmlChangeListener<NodeValidationResultImpl> {
-
-        private final String propertyName;
-
-        public Listener(String name) {
-            propertyName = name;
-        }
-
-        @Override
-        public void discardedTag(@Nullable NodeValidationResultImpl context, String elementName) {
-            if (context != null) {
-                context.rejectTag(propertyName, elementName);
-            }
-        }
-
-        @Override
-        public void discardedAttributes(@Nullable NodeValidationResultImpl context, String tagName, String... attributeNames) {
-            if (context != null) {
-                context.rejectAttributes(propertyName, tagName, attributeNames);
-            }
-        }
     }
 }

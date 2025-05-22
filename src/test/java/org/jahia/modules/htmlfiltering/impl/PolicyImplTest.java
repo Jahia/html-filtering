@@ -2,7 +2,7 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import org.jahia.modules.htmlfiltering.HtmlValidationResult;
+import org.jahia.modules.htmlfiltering.PolicyExecutionResult;
 import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
 import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
@@ -334,7 +334,7 @@ public class PolicyImplTest {
         ));
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -352,8 +352,8 @@ public class PolicyImplTest {
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
-        HtmlValidationResult validationResult = policy.validate(html);
-        assertFalse(validationResult.isSafe());
+        PolicyExecutionResult validationResult = policy.execute(html);
+        assertFalse(validationResult.isValid());
         HashSet<String> expectedRejectedTags = new HashSet<>();
         expectedRejectedTags.add("script");
         expectedRejectedTags.add("p");
@@ -386,7 +386,7 @@ public class PolicyImplTest {
         ));
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -412,7 +412,7 @@ public class PolicyImplTest {
         ));
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -438,7 +438,7 @@ public class PolicyImplTest {
         ));
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -466,7 +466,7 @@ public class PolicyImplTest {
         ));
         PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -504,7 +504,7 @@ public class PolicyImplTest {
         formatPatterns.put("DIGITS", Pattern.compile("^[0-9]+$"));
         PolicyImpl policy = new PolicyImpl(formatPatterns, workspace);
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
 
@@ -522,6 +522,10 @@ public class PolicyImplTest {
             "<h1 id=\"&^z\">title1</h1><h2 id=\"A1a_\">title2</h2><h3 id=\"A1a+\">title3</h3>, <h1>title1</h1><h2 id=\"A1a_\">title2</h2><h3>title3</h3>",
             // protocols that are allowed and then disallowed are removed:
             "<a href=\"ftps://example.com\">valid link</a><a href=\"https://example.com\">not allowed link</a><a href=\"http://example.com\">not explicitly allowed means forbidden</a>, <a href=\"ftps://example.com\">valid link</a>not allowed linknot explicitly allowed means forbidden",
+            // editor post processing should keep known placeholders: {mode}, {lang}, {workspace} should be conserved during sanitization
+            "<a href=\"##cms-context##/{mode}/{lang}/{workspace}/##ref:link1##.html\">link</a>, <a href=\"##cms-context##/{mode}/{lang}/{workspace}/##ref:link1##.html\">link</a>",
+            // editor post processing should not keep unknown placeholders: {unknown} should replaced with %7bunknown%7d in href
+            "<a href=\"##cms-context##/{unknown}/##ref:link1##.html\">link</a>, <a href=\"##cms-context##/%7bunknown%7d/##ref:link1##.html\">link</a>",
             // TODO not working for now, should be fixed or the behaviour properly explained to customers
             // 'src' attribute if <img> matching the disallowed format are removed:
             // "<img src=\"ftps://example.com/foo.jpg\"/><img src=\"ftps://example.com/other.gif\"/>, <img src=\"ftps://example.com/foo.jpg\"/>",
@@ -530,7 +534,7 @@ public class PolicyImplTest {
     public void GIVEN_a_complete_configuration_WHEN_sanitizing_THEN_string_matches_expected_output(String html, String expectedHtml) {
         PolicyImpl policy = buildCompletePolicy();
 
-        String sanitized = policy.sanitize(html);
+        String sanitized = policy.execute(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }

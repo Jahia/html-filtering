@@ -25,7 +25,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * Defines the HTML filtering policy for a given site and workspace.
- * The policies can be retrieved using {@link RegistryService#getPolicy(String, String)}.
+ * The policies can be retrieved using {@link RegistryService#resolvePolicy(String, String)}.
  */
 public interface Policy {
 
@@ -55,30 +55,15 @@ public interface Policy {
      * @return <code>true</code> if the policy is applicable to the given property, <code>false</code> otherwise
      */
     boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName,
-                                   ExtendedPropertyDefinition propertyDefinition);
+                                   ExtendedPropertyDefinition propertyDefinition) throws RepositoryException;
 
     /**
-     * Sanitizes the given HTML text as per the HTML filtering policy.
+     * Executes the policy on the given HTML text.
+     * <p>
+     * The HTML text is processed according to the policy's rules.
      *
-     * @param htmlText the HTML text to sanitize
-     * @return the sanitized HTML text
+     * @param htmlText the HTML text to process
+     * @return the result of the execution, containing any modifications or errors
      */
-    String sanitize(String htmlText);
-
-    /**
-     * Sanitizes the given HTML text
-     *
-     * @param htmlText the HTML text to sanitize
-     * @return a {@link HtmlValidationResult} containing the sanitized HTML and additional information such as removed tags or attributes.
-     */
-    HtmlValidationResult validate(String htmlText);
-
-    /**
-     * Validates the properties of a given JCR node as per the HTML filtering policy.
-     *
-     * @param node the JCR node to validate.
-     * @return a {@link NodeValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.
-     * @throws RepositoryException if an error occurs while retrieving the node properties
-     */
-    NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
+    PolicyExecutionResult execute(String htmlText);
 }

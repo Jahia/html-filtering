@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getPropertyValue, installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtures/utils';
+import {installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtures/utils';
 import gql from 'graphql-tag';
 
 describe('Test the fitering on node types and selectors', () => {

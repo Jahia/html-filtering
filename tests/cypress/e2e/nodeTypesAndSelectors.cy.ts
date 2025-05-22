@@ -9,78 +9,80 @@ describe('Test the fitering on node types and selectors', () => {
     const SANITIZED_HTML_TEXT = '<h1>my title</h1>sub-title<p>my text</p>'; // Only <h1> and <p> tags are allowed as per the configuration
 
     const STRING_RICH_TEXT_PROPS_TEST_DATA = [
-        // Filter everything
         {
+            name: 'Filter everything',
             process: ['nt:base.*'],
             skip: [],
             alteredProperties: ['/testA.prop1', '/testA.prop2', '/testA.prop3', '/testB.prop1', '/testB.prop2', '/testB.prop4', '/testC.prop1', '/testC.prop5', '/testD.prop6', '/testD.prop7'] // All properties are sanitized
         },
-        // Filter everything but one property
         {
+            name: 'Filter everything but one property',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsB.prop4'],
             alteredProperties: ['/testA.prop1', '/testA.prop2', '/testA.prop3', '/testB.prop1', '/testB.prop2', '/testC.prop1', '/testC.prop5', '/testD.prop6', '/testD.prop7'] // All except testB.prop4
         },
-        // Filter out multiple properties (and an unknown one)
         {
+            name: 'Filter out multiple properties',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsA.prop1', 'htmlFilteringTestModule:testNodeTypesAndSelectorsA.prop3', 'htmlFilteringTestModule:testNodeTypesAndSelectorsC.prop5', 'unknownNS:unknownNode.unknownProp'],
             alteredProperties: ['/testA.prop2', '/testB.prop1', '/testB.prop2', '/testB.prop4', '/testC.prop1', '/testD.prop6', '/testD.prop7']
         },
-        // Filter out props of a specific node type
         {
+            name: 'Filter out props of a specific node type',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsB.*'],
             alteredProperties: ['/testA.prop1', '/testA.prop2', '/testA.prop3', '/testC.prop1', '/testC.prop5', '/testD.prop6', '/testD.prop7']
         },
-        // Filter out props of multiple node types, including a mixin with inherited properties
         {
+            name: 'Filter out props of multiple node types, including a mixin with inherited properties 1',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsA.*', 'htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin.*'],
             alteredProperties: ['/testB.prop1', '/testB.prop2', '/testB.prop4', '/testC.prop1', '/testC.prop5']
         },
         {
+            name: 'Filter out props of multiple node types, including a mixin with inherited properties 2',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsC.*', 'htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin.*'],
             alteredProperties: ['/testA.prop1', '/testA.prop2', '/testA.prop3', '/testB.prop1', '/testB.prop2', '/testB.prop4']
         },
         {
+            name: 'Filter out props of multiple node types, including a mixin with inherited properties 3',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsC.*', 'htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin.prop7'],
             alteredProperties: ['/testA.prop1', '/testA.prop2', '/testA.prop3', '/testB.prop1', '/testB.prop2', '/testB.prop4', '/testD.prop6']
         },
-        // Process all properties of a specific node type
         {
+            name: 'Process all properties of a specific node type',
             process: ['htmlFilteringTestModule:testNodeTypesAndSelectorsB.*'],
             skip: [],
             alteredProperties: ['/testB.prop1', '/testB.prop2', '/testB.prop4']
         },
-        // Process all properties of a specific node type but skip one of them
         {
+            name: 'Process all properties of a specific node type but skip one of them',
             process: ['htmlFilteringTestModule:testNodeTypesAndSelectorsB.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsB.prop2'],
             alteredProperties: ['/testB.prop1', '/testB.prop4']
         },
-        // Process all properties on a node type that is inherited
         {
+            name: 'Process all properties on a node type that is inherited',
             process: ['htmlFilteringTestModule:testNodeTypesAndSelectorsC.*'],
             skip: [],
             alteredProperties: ['/testC.prop1', '/testC.prop5', '/testD.prop6', '/testD.prop7']
         },
-        // Skip a property that is not processed
         {
+            name: 'Skip a property that is not processed',
             process: ['htmlFilteringTestModule:testNodeTypesAndSelectorsA.*', 'htmlFilteringTestModule:testNodeTypesAndSelectorsC.prop1'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsA.prop2', 'htmlFilteringTestModule:testNodeTypesAndSelectorsB.prop2'],
             alteredProperties: ['/testA.prop1', '/testA.prop3', '/testC.prop1']
         },
-        // Skip everything with nt:base.*
         {
+            name: 'Skip everything with nt:base.*',
             process: ['nt:base.*'],
             skip: ['nt:base.*'],
             alteredProperties: []
         },
-        // Skip everything by listing all node types
         {
+            name: 'Skip everything by listing all node types',
             process: ['nt:base.*'],
             skip: ['htmlFilteringTestModule:testNodeTypesAndSelectorsA.*', 'htmlFilteringTestModule:testNodeTypesAndSelectorsB.*', 'htmlFilteringTestModule:testNodeTypesAndSelectorsC.*', 'htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin.*', 'htmlFilteringTestModule:testNodeTypesAndSelectorsD.*'],
             alteredProperties: []
@@ -213,7 +215,7 @@ describe('Test the fitering on node types and selectors', () => {
     }
 
     STRING_RICH_TEXT_PROPS_TEST_DATA.forEach(test => {
-        it(`${test.process}/${test.skip} should filter the correct properties`, () => {
+        it(`${test.name}: should filter the correct properties`, () => {
             // First set up the configuration
             cy.then(() => {
                 return editIncludeExcludeProperties(test.process, test.skip);

@@ -3,6 +3,7 @@
 
 - installBundle:
     - 'mvn:org.jahia.modules/html-filtering'
+    - 'mvn:org.jahia.test/html-filtering-test-module'
   autoStart: true
   uninstallPreviousVersion: true
 - karafCommand: "bundle:list"

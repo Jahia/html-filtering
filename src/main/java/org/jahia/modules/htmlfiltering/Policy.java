@@ -31,7 +31,6 @@ public interface Policy {
 
     /**
      * Retrieves the strategy defined in the policy for handling HTML content.
-     * If not defined, the default strategy is {@link Strategy#SANITIZE}.
      *
      * @return the strategy
      */

@@ -33,7 +33,7 @@ import java.util.Map;
 
 @Component(immediate = true, service = {RegistryService.class, ManagedServiceFactory.class},
         property = {
-                "service.pid=org.jahia.modules.htmlfiltering",
+                "service.pid=org.jahia.modules.htmlfiltering.site",
                 "service.description=HTML filtering registry service to retrieve the policy to use for a given workspace of a given site",
                 "service.vendor=Jahia Solutions Group SA"
         })
@@ -51,11 +51,11 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
      */
     private final Map<String, String> sitesByPid = Collections.synchronizedMap(new HashMap<>());
 
-    @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.default)")
-    private AbstractSitePolicyService defaultSitePolicyService;
+    @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.global.custom)")
+    private AbstractSitePolicyService globalCustomSitePolicyService;
 
-    @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.fallback)")
-    private AbstractSitePolicyService fallbackSitePolicyService;
+    @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.global.default)")
+    private AbstractSitePolicyService globalDefaultSitePolicyService;
 
     @Override
     public String getName() {
@@ -99,17 +99,17 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
             return sitePolicy.getPolicy(workspaceName);
         }
 
-        // 2) default configuration
-        sitePolicy = defaultSitePolicyService.getSitePolicy();
+        // 2) global custom configuration
+        sitePolicy = globalCustomSitePolicyService.getSitePolicy();
         if (sitePolicy != null) {
-            logger.debug("Default site policy found");
+            logger.debug("Global custom site policy found");
             return sitePolicy.getPolicy(workspaceName);
         }
 
-        // 3) fallback configuration
-        sitePolicy = fallbackSitePolicyService.getSitePolicy();
+        // 3) global default configuration
+        sitePolicy = globalDefaultSitePolicyService.getSitePolicy();
         if (sitePolicy != null) {
-            logger.debug("Fallback site policy found");
+            logger.debug("Global default site policy found");
             return sitePolicy.getPolicy(workspaceName);
         }
         logger.debug("No site policy found for siteKey: {}, workspaceName: {}", siteKey, workspaceName);

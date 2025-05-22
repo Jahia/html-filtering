@@ -10,16 +10,12 @@ export const installConfig = configFilePath => {
     );
 };
 
-export const removeDefaultConfig = () => {
-    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.default', IDENTIFIER: ''});
+export const removeGlobalCustomConfig = () => {
+    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.global.custom', IDENTIFIER: ''});
 };
 
 export const removeSiteConfig = siteKey => {
-    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering', IDENTIFIER: siteKey});
-};
-
-export const removeConfig = siteKey => {
-    executeGroovy('groovy/removeConfig.groovy', {PID: pid, IDENTIFIER: siteKey});
+    executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.site', IDENTIFIER: siteKey});
 };
 
 export const editSiteConfig = (key, value, siteKey) => {

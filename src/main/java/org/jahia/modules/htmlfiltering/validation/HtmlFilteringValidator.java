@@ -14,7 +14,7 @@ public class HtmlFilteringValidator implements JCRNodeValidator {
     private final JCRNodeWrapper node;
 
     public HtmlFilteringValidator(JCRNodeWrapper node) {
-        logger.info("Creating HtmlFilteringValidator for {}", node.getPath());
+        logger.debug("Creating HtmlFilteringValidator for {}", node.getPath());
         this.node = node;
     }
 

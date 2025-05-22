@@ -30,7 +30,7 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
             }
         }
     `;
-    cy.apollo({
+    return cy.apollo({
         mutation: modifyNodeGql,
         variables: {pathOrId, propertyName, text, language}
     });

@@ -130,10 +130,11 @@ describe('Test the fitering on node types and selectors', () => {
         const expected = alteredProperties.includes(fullPath) ? SANITIZED_HTML_TEXT : ORIGINAL_HTML_TEXT;
         console.log('mutateAndAssert: ', node, propertyName, fullPath, expected);
 
-        mutateNodeTextProperty(PATH + node, propertyName, ORIGINAL_HTML_TEXT);
-        return getPropertyValue(PATH + node, propertyName).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(expected);
+        return mutateNodeTextProperty(PATH + node, propertyName, ORIGINAL_HTML_TEXT).then(() => {
+            return getPropertyValue(PATH + node, propertyName).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(expected);
+            });
         });
     }
 

@@ -18,9 +18,9 @@ package org.jahia.modules.htmlfiltering.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.*;
-import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
-import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
-import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.ElementCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.RuleSetCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.WorkspaceCfg;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.SelectorType;
@@ -238,13 +238,23 @@ final class PolicyImpl implements Policy {
     private static boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) throws RepositoryException {
         for (Map.Entry<String, Set<String>> entry : propsByNodeType.entrySet()) {
             String nodeType = entry.getKey();
-            if (node.isNodeType(nodeType)) {
+            if (safeIsNodeType(node, nodeType)) {
                 Set<String> props = entry.getValue();
                 // it is a wildcard, or it matches the property's name
                 return props == null || props.contains(propertyName);
             }
         }
         return false; // no match found for any node type
+    }
+
+    private static boolean safeIsNodeType(JCRNodeWrapper node, String nodeType) {
+        try {
+            return node.isNodeType(nodeType);
+        } catch (RepositoryException e) {
+            logger.warn("Unable to check if the node {} is of type {}, " +
+                    "please review your html-filtering configured skip/process node types declarations", node, nodeType, e);
+        }
+        return false;
     }
 
     @Override

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.api.Constants;
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.configuration.SiteCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.SiteCfg;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

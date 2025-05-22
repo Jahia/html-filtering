@@ -4,9 +4,9 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.jahia.modules.htmlfiltering.PolicyExecutionResult;
 import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
-import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
-import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.ElementCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.RuleSetCfg;
+import org.jahia.modules.htmlfiltering.impl.config.model.WorkspaceCfg;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

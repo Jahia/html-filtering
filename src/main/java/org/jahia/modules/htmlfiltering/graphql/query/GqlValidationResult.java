@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering;
+package org.jahia.modules.htmlfiltering.graphql.query;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
@@ -35,8 +35,9 @@ public class GqlValidationResult {
     }
 
     @GraphQLField
-    @GraphQLDescription("Returns true if the provided HTML has no unsafe tag or attribute. An unsafe tag (or attribute) is either a tag not in allowed Tags, or in the disallowed tags from the OSGi configuration.")
-    public boolean isValid() {
+    @GraphQLDescription("Returns true if the provided HTML has no unsafe tag or attribute. An unsafe tag (or attribute) " +
+            "is either a tag not in allowed Tags, or in the disallowed tags from the OSGi configuration.")
+    public boolean isSafe() {
         return policyExecutionResult.isValid();
     }
 

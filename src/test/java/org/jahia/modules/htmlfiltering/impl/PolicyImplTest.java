@@ -317,6 +317,33 @@ public class PolicyImplTest {
         assertNull(policy.propsToSkipByNodeType.get("myNt:foo"));
     }
 
+    @Parameters({
+            // basic paragraph
+            "p,<p>sample text</p>,<p>sample text</p>",
+            // only paragraph tags are kept
+            "p,<p><i>sample<i> text</p><script>alert('hello')</script>,<p>sample text</p>",
+            // by default, the owasp-java-html-sanitizer does not allow text content in <script> so we need to overwrite this behavior
+            "script,<script>alert('hello')</script>,<script>alert('hello')</script>",
+            // other tags are removed
+            "script,<p>text</p><script>alert('hello')</script>,text<script>alert('hello')</script>",
+    })
+    @Test
+    public void GIVEN__a_configuration_that_allows_tags_WHEN_sanitizing_THEN_its_text_content_is_kept(String tag, String html, String expectedHtml) {
+        PolicyModel policyModel = new PolicyModel();
+        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
+        policyModel.setProcess(of("nt:base.*"));
+        policyModel.setAllowedRuleSet(new RuleSetModel());
+        policyModel.getAllowedRuleSet().setElements(of(
+                buildElement(of(tag), null, null)
+        ));
+
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel);
+
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
+
+        assertEquals(expectedHtml, sanitized);
+    }
+
     @Test
     @Parameters({
             // all tags get removed, but their content (when applicable) is kept:

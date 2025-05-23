@@ -96,9 +96,9 @@ public class ConfigBuilder {
         // Configure OWASP
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
         processRuleSet(builder, policyModel.getAllowedRuleSet(), formatPatterns,
-                HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
+                HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowTextIn, HtmlPolicyBuilder::allowUrlProtocols);
         processRuleSet(builder, policyModel.getDisallowedRuleSet(), formatPatterns,
-                HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
+                HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowTextIn, HtmlPolicyBuilder::disallowUrlProtocols);
 
         return new PolicyImpl(readStrategy(policyModel),
                 createPropsByNodeType(policyModel.getProcess(), "process"),
@@ -173,14 +173,14 @@ public class ConfigBuilder {
     private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetModel ruleSet,
                                        Map<String, Pattern> formatPatterns,
                                        AttributeBuilderHandlerFunction attributeBuilderHandlerFunction,
-                                       BuilderHandlerFunction tagHandler, BuilderHandlerFunction protocolHandler) {
+                                       BuilderHandlerFunction tagHandler, BuilderHandlerFunction textContentHandler, BuilderHandlerFunction protocolHandler) {
         if (ruleSet != null) {
             if (CollectionUtils.isEmpty(ruleSet.getElements())) {
                 throw new IllegalArgumentException("At least one item in 'elements' must be defined");
             }
             // Apply element rules
             for (ElementModel element : ruleSet.getElements()) {
-                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, element);
+                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler,textContentHandler, element);
             }
 
             // Apply protocol rules
@@ -192,7 +192,7 @@ public class ConfigBuilder {
 
     private static void processElement(HtmlPolicyBuilder builder, Map<String, Pattern> formatPatterns,
                                        AttributeBuilderHandlerFunction attributeBuilderHandlerFunction,
-                                       BuilderHandlerFunction tagHandler, ElementModel element) {
+                                       BuilderHandlerFunction tagHandler, BuilderHandlerFunction textContentHandler, ElementModel element) {
         boolean noTags = CollectionUtils.isEmpty(element.getTags());
         boolean noAttributes = CollectionUtils.isEmpty(element.getAttributes());
         if (noTags && noAttributes) {
@@ -204,6 +204,7 @@ public class ConfigBuilder {
                 throw new IllegalArgumentException("'format' can only be used with 'attributes'. Item: " + element);
             }
             tagHandler.handle(builder, element.getTags().toArray(new String[0]));
+            textContentHandler.handle(builder, element.getTags().toArray(new String[0]));
         } else {
             HtmlPolicyBuilder.AttributeBuilder attributeBuilder =
                     attributeBuilderHandlerFunction.handle(builder, element.getAttributes().toArray(new String[0]));

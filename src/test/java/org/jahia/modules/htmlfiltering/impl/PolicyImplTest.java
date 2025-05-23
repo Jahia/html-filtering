@@ -166,9 +166,9 @@ public class PolicyImplTest {
             "REJECT, REJECT",
             "SANITIZE, SANITIZE",
     })
-    public void GIVEN_a_workspace_with_a_specific_strategy_WHEN_creating_policy_THEN_the_strategy_matches(PolicyModel.PolicyStrategy strategyCfg, Strategy expectedStrategy) {
+    public void GIVEN_a_workspace_with_a_specific_strategy_WHEN_creating_policy_THEN_the_strategy_matches(PolicyModel.PolicyStrategy strategyModel, Strategy expectedStrategy) {
         PolicyModel workspace = new PolicyModel();
-        workspace.setStrategy(strategyCfg);
+        workspace.setStrategy(strategyModel);
         workspace.setProcess(of("nt:base.*"));
         workspace.setAllowedRuleSet(new RuleSetModel());
         workspace.getAllowedRuleSet().setElements(of(
@@ -578,11 +578,11 @@ public class PolicyImplTest {
     }
 
     private static ElementModel buildElement(List<String> tags, List<String> attributes, String format) {
-        ElementModel elementCfg = new ElementModel();
-        elementCfg.setTags(tags);
-        elementCfg.setAttributes(attributes);
-        elementCfg.setFormat(format);
-        return elementCfg;
+        ElementModel elementModel = new ElementModel();
+        elementModel.setTags(tags);
+        elementModel.setAttributes(attributes);
+        elementModel.setFormat(format);
+        return elementModel;
     }
 
     // equivalent of List.of(...) only available in Java 9+

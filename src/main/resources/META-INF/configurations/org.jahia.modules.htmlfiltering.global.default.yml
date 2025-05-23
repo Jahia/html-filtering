@@ -5,12 +5,13 @@ htmlFiltering:
   formatDefinitions:
     HTML_ID: '[a-zA-Z][a-zA-Z0-9\:\-_\.]*'  # IDs must start with a letter and can contain letters, digits, colons, hyphens, underscores, or dots
     NUMBER_OR_PERCENT: '([0-9]+|[0-9]+\.[0-9]+|[0-9]+%|auto)' # Examples: "123", "123.45", "25%", "auto"
-    LINKS_URL: '(?:(?:/[\p{L}\p{N}\._/\-~]*)|(?:[\p{L}\p{N}]+:(?://)?[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*)|(?:#[\w-]+))' # Allows various URL formats: absolute paths (ex: "/about/contact"), protocol URLs (ex: "http://example.com") and anchors (ex: "#section-id")
+    LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
   editWorkspace:
     strategy: SANITIZE
     process: [ 'nt:base.*' ]
     skip: [ ]
     allowedRuleSet:
+      # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
         # inline formatting tags:
@@ -91,6 +92,7 @@ htmlFiltering:
     process: [ 'nt:base.*' ]
     skip: [ ]
     allowedRuleSet:
+      # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
         # inline formatting tags:

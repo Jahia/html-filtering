@@ -1,4 +1,5 @@
 instrumented/
+set-env.sh
 .nyc_output
 cypress/videos
 coverage

@@ -22,6 +22,7 @@ import graphql.annotations.annotationTypes.GraphQLTypeExtension;
 import org.jahia.modules.graphql.provider.dxm.DXGraphQLProvider;
 
 @GraphQLTypeExtension(DXGraphQLProvider.Query.class)
+@SuppressWarnings("java:S1118") // ignore "Utility classes should not have public constructors"
 public class GqlHtmlFilteringExtension {
 
     @GraphQLField

@@ -2,11 +2,13 @@ package org.jahia.modules.htmlfiltering.impl;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import org.jahia.modules.htmlfiltering.PolicyExecutionResult;
+import org.jahia.modules.htmlfiltering.Policy;
+import org.jahia.modules.htmlfiltering.PolicySanitizedHtmlResult;
 import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.impl.config.model.ElementCfg;
-import org.jahia.modules.htmlfiltering.impl.config.model.RuleSetCfg;
-import org.jahia.modules.htmlfiltering.impl.config.model.WorkspaceCfg;
+import org.jahia.modules.htmlfiltering.impl.config.ConfigBuilder;
+import org.jahia.modules.htmlfiltering.model.ElementModel;
+import org.jahia.modules.htmlfiltering.model.RuleSetModel;
+import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,17 +33,17 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_a_null_workspace_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), null));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), null));
 
-        assertEquals("Workspace configuration is not set", exception.getMessage());
+        assertEquals("Workspace policy configuration is not set", exception.getMessage());
     }
 
     @Test
     public void GIVEN_a_null_strategy_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
+        PolicyModel workspace = new PolicyModel();
         workspace.setStrategy(null); // null 'strategy'
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("'strategy' is not set", exception.getMessage());
     }
@@ -49,10 +51,10 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_a_null_process_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(null); // null 'process'
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("'process' is not set", exception.getMessage());
     }
@@ -60,10 +62,10 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_an_empty_process_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of()); // empty 'process'
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("'process' is not set", exception.getMessage());
     }
@@ -71,11 +73,11 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_a_null_allowedRuleSet_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of("nt:base.*"));
         workspace.setAllowedRuleSet(null); // null 'allowedRuleSet'
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("'allowedRuleSet' is not set", exception.getMessage());
     }
@@ -83,13 +85,13 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_null_elements_in_allowedRuleSet_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         allowedRuleSet.setElements(null);// null 'elements'
         workspace.setAllowedRuleSet(allowedRuleSet);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("At least one item in 'elements' must be defined", exception.getMessage());
     }
@@ -97,64 +99,64 @@ public class PolicyImplTest {
     @Test
     public void GIVEN_empty_elements_in_allowedRuleSet_WHEN_creating_policy_THEN_exception_is_thrown() {
 
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         allowedRuleSet.setElements(of()); // empty 'elements'
         workspace.setAllowedRuleSet(allowedRuleSet);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("At least one item in 'elements' must be defined", exception.getMessage());
     }
 
     @Test
     public void GIVEN_element_without_attributes_and_tags_WHEN_creating_policy_THEN_exception_is_thrown() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
-        ElementCfg element = new ElementCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
+        ElementModel element = new ElementModel();
         element.setTags(Collections.emptyList()); // no tags
         element.setAttributes(Collections.emptyList()); // no attributes
         allowedRuleSet.setElements(of(element));
         workspace.setAllowedRuleSet(allowedRuleSet);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Each item in 'elements' of 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element, exception.getMessage());
     }
 
     @Test
     public void GIVEN_element_with_tags_and_format_WHEN_creating_policy_THEN_exception_is_thrown() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
-        ElementCfg element = new ElementCfg();
+        ElementModel element = new ElementModel();
         element.setTags(of("h1", "p"));
         element.setAttributes(Collections.emptyList()); // no attributes
         element.setFormat("MY_FORMAT");
         allowedRuleSet.setElements(of(element));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("'format' can only be used with 'attributes'. Item: " + element, exception.getMessage());
     }
 
     @Test
     public void GIVEN_the_use_of_format_not_defined_WHEN_creating_policy_THEN_exception_is_thrown() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), "UNDEFINED_FORMAT")
         ));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Format 'UNDEFINED_FORMAT' not defined, check your configuration", exception.getMessage());
     }
@@ -164,16 +166,16 @@ public class PolicyImplTest {
             "REJECT, REJECT",
             "SANITIZE, SANITIZE",
     })
-    public void GIVEN_a_workspace_with_a_specific_strategy_WHEN_creating_policy_THEN_the_strategy_matches(WorkspaceCfg.StrategyCfg strategyCfg, Strategy expectedStrategy) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
+    public void GIVEN_a_workspace_with_a_specific_strategy_WHEN_creating_policy_THEN_the_strategy_matches(PolicyModel.PolicyStrategy strategyCfg, Strategy expectedStrategy) {
+        PolicyModel workspace = new PolicyModel();
         workspace.setStrategy(strategyCfg);
         workspace.setProcess(of("nt:base.*"));
-        workspace.setAllowedRuleSet(new RuleSetCfg());
+        workspace.setAllowedRuleSet(new RuleSetModel());
         workspace.getAllowedRuleSet().setElements(of(
                 buildElement(of("p"), null, null)
         ));
 
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
         assertEquals(expectedStrategy, policy.getStrategy());
     }
@@ -181,33 +183,33 @@ public class PolicyImplTest {
 
     @Test
     public void GIVEN_an_empty_process_entry_WHEN_creating_policy_THEN_exception_is_thrown() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of(""));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Each item in 'process' must be set and not empty", exception.getMessage());
     }
 
     @Test
     public void GIVEN_an_empty_skip_entry_WHEN_creating_policy_THEN_exception_is_thrown() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base"));
         workspace.setSkip(of(""));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Each item in 'skip' must be set and not empty", exception.getMessage());
     }
@@ -219,16 +221,16 @@ public class PolicyImplTest {
             "foo.bar.even.more",
     })
     public void GIVEN_an_invalid_process_entry_WHEN_creating_policy_THEN_exception_is_thrown(String invalidProcessEntry) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of(invalidProcessEntry));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Invalid format for item '" + invalidProcessEntry + "' in 'process'. Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
     }
@@ -240,32 +242,32 @@ public class PolicyImplTest {
             "foo.bar.even.more",
     })
     public void GIVEN_an_invalid_skip_entry_WHEN_creating_policy_THEN_exception_is_thrown(String invalidProcessEntry) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base"));
         workspace.setSkip(of(invalidProcessEntry));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new PolicyImpl(Collections.emptyMap(), workspace));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace));
 
         assertEquals("Invalid format for item '" + invalidProcessEntry + "' in 'skip'. Expected format is 'nodeType.property' or 'nodeType.*'", exception.getMessage());
     }
 
     @Test
     public void GIVEN_a_process_entry_that_overrides_a_wildcard_WHEN_creating_policy_THEN_only_wildcard_is_kept() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("foo.*", "foo.bar"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        PolicyImpl policy = (PolicyImpl) ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
         assertEquals(1, policy.propsToProcessByNodeType.size());
         assertNull(policy.propsToProcessByNodeType.get("foo"));
@@ -274,17 +276,17 @@ public class PolicyImplTest {
 
     @Test
     public void GIVEN_a_skip_entry_with_wildcard_that_overrides_one_with_a_prop_WHEN_creating_policy_THEN_only_wildcard_is_kept() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("bar.*"));
         workspace.setSkip(of("foo.myProp", "foo.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        PolicyImpl policy = (PolicyImpl) ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
         assertEquals(1, policy.propsToSkipByNodeType.size());
         assertNull(policy.propsToProcessByNodeType.get("foo"));
@@ -292,17 +294,17 @@ public class PolicyImplTest {
 
     @Test
     public void GIVEN_a_mix_of_process_and_skip_entries_WHEN_creating_policy_THEN_propsByNodeType_maps_are_populated_correctly() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.jcr:description", "myNt:myOtherNode.myFirstProp", "myNt:myOtherNode.mySecondProp", "myOtherNt:myMixin.*", "foo"));
         workspace.setSkip(of("myNt:myNode.propToSkip", "bar", "myNt:foo.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("id"), null)
         ));
 
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        PolicyImpl policy = (PolicyImpl) ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
         assertEquals(4, policy.propsToProcessByNodeType.size());
         assertEquals(setOf("jcr:description"), policy.propsToProcessByNodeType.get("nt:base"));
@@ -325,34 +327,34 @@ public class PolicyImplTest {
             "<p>my text<h1>title</h6>, my texttitle"
     })
     public void GIVEN_minimal_configuration_WHEN_sanitizing_THEN_only_content_is_kept(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        workspace.setAllowedRuleSet(new RuleSetCfg());
+        workspace.setAllowedRuleSet(new RuleSetModel());
         workspace.getAllowedRuleSet().setElements(of(
                 buildElement(of("basicTag"), null, null)
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
 
     @Test
     public void GIVEN_minimal_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        workspace.setAllowedRuleSet(new RuleSetCfg());
+        workspace.setAllowedRuleSet(new RuleSetModel());
         workspace.getAllowedRuleSet().setElements(of(
                 buildElement(of("basicTag"), null, null)
         ));
 
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
-        PolicyExecutionResult validationResult = policy.execute(html);
+        PolicySanitizedHtmlResult validationResult = policy.sanitize(html);
         assertFalse(validationResult.isValid());
         HashSet<String> expectedRejectedTags = new HashSet<>();
         expectedRejectedTags.add("script");
@@ -376,17 +378,17 @@ public class PolicyImplTest {
             "<h1 class=\"test\" invalid=\"unknown\">title</h1>, <h1>title</h1>"
     })
     public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(of("h1", "p"), null, null)
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -401,18 +403,18 @@ public class PolicyImplTest {
             "<h1 id=\"myid\">title</h1><h2 id=\"myotherid\">sub-title</h2>, <h1 id=\"myid\">title</h1><h2>sub-title</h2>",
     })
     public void GIVEN_configuration_with_allowed_attributes_on_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(of("h1", "p"), of("class", "id"), null),
                 buildElement(of("h1", "h2", "p"), null, null) // the tags must also be allowed "globally"
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -427,18 +429,18 @@ public class PolicyImplTest {
             "<h1 id=\"myid\">title</h1><h2>sub-title</h2>, <h1 id=\"myid\">title</h1>sub-title",
     })
     public void GIVEN_configuration_with_allowed_attributes_and_allowed_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(of("h1", "p"), null, null),
                 buildElement(null, of("class", "id"), null)
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -454,19 +456,19 @@ public class PolicyImplTest {
             "<p>text:<img alt=\"myimage\" src=\"ftp://example.com/image.gif\" /></p>, <p>text:</p>",
     })
     public void GIVEN_configuration_with_allowed_protocols_on_a_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         allowedRuleSet.setProtocols(of("http", "https"));
         workspace.setAllowedRuleSet(allowedRuleSet);
         allowedRuleSet.setElements(of(
                 buildElement(null, of("href", "src"), null),
                 buildElement(of("a", "p", "img"), null, null)
         ));
-        PolicyImpl policy = new PolicyImpl(Collections.emptyMap(), workspace);
+        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
@@ -487,10 +489,10 @@ public class PolicyImplTest {
 
     })
     public void GIVEN_configuration_with_formats_defined_WHEN_sanitizing_THEN_string_is_sanitized_with_the_format(String html, String expectedHtml) {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.SANITIZE);
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         allowedRuleSet.setElements(of(
                 buildElement(of("p"), of("id"), "LOWERCASE_LETTERS"),
                 buildElement(of("p"), of("class"), "DIGITS"),
@@ -502,9 +504,9 @@ public class PolicyImplTest {
         Map<String, Pattern> formatPatterns = new HashMap<>();
         formatPatterns.put("LOWERCASE_LETTERS", Pattern.compile("^[a-z]+$"));
         formatPatterns.put("DIGITS", Pattern.compile("^[0-9]+$"));
-        PolicyImpl policy = new PolicyImpl(formatPatterns, workspace);
+        Policy policy = ConfigBuilder.buildPolicy(formatPatterns, workspace);
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
 
@@ -532,18 +534,18 @@ public class PolicyImplTest {
 
     })
     public void GIVEN_a_complete_configuration_WHEN_sanitizing_THEN_string_matches_expected_output(String html, String expectedHtml) {
-        PolicyImpl policy = buildCompletePolicy();
+        Policy policy = buildCompletePolicy();
 
-        String sanitized = policy.execute(html).getSanitizedHtml();
+        String sanitized = policy.sanitize(html).getSanitizedHtml();
 
         assertEquals(expectedHtml, sanitized);
     }
 
-    private static PolicyImpl buildCompletePolicy() {
-        WorkspaceCfg workspace = new WorkspaceCfg();
-        workspace.setStrategy(WorkspaceCfg.StrategyCfg.REJECT);
+    private static Policy buildCompletePolicy() {
+        PolicyModel workspace = new PolicyModel();
+        workspace.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         workspace.setProcess(of("nt:base.*"));
-        RuleSetCfg allowedRuleSet = new RuleSetCfg();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
         allowedRuleSet.setElements(of(
                 // accept attributes globally
                 buildElement(null, of("class", "title"), null),
@@ -558,7 +560,7 @@ public class PolicyImplTest {
         ));
         allowedRuleSet.setProtocols(of("ftps", "https"));
         workspace.setAllowedRuleSet(allowedRuleSet);
-        RuleSetCfg disallowedRuleSet = new RuleSetCfg();
+        RuleSetModel disallowedRuleSet = new RuleSetModel();
         disallowedRuleSet.setElements(of(
                 // disallow the 'title' attribute on <p> tags:
                 buildElement(of("p"), of("title"), null),
@@ -572,11 +574,11 @@ public class PolicyImplTest {
         Map<String, Pattern> formatPatterns = new HashMap<>();
         formatPatterns.put("HTML_ID", Pattern.compile("^[a-zA-Z0-9_]+$"));
         formatPatterns.put("NO_GIF", Pattern.compile(".*\\.gif"));
-        return new PolicyImpl(formatPatterns, workspace);
+        return ConfigBuilder.buildPolicy(formatPatterns, workspace);
     }
 
-    private static ElementCfg buildElement(List<String> tags, List<String> attributes, String format) {
-        ElementCfg elementCfg = new ElementCfg();
+    private static ElementModel buildElement(List<String> tags, List<String> attributes, String format) {
+        ElementModel elementCfg = new ElementModel();
         elementCfg.setTags(tags);
         elementCfg.setAttributes(attributes);
         elementCfg.setFormat(format);

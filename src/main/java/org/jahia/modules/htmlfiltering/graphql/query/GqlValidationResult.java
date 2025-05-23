@@ -17,20 +17,20 @@ package org.jahia.modules.htmlfiltering.graphql.query;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
-import org.jahia.modules.htmlfiltering.PolicyExecutionResult;
+import org.jahia.modules.htmlfiltering.PolicySanitizedHtmlResult;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * GraphQL representation of {@link PolicyExecutionResult}
+ * GraphQL representation of {@link PolicySanitizedHtmlResult}
  */
 public class GqlValidationResult {
 
-    private final PolicyExecutionResult policyExecutionResult;
+    private final PolicySanitizedHtmlResult policyExecutionResult;
 
-    public GqlValidationResult(PolicyExecutionResult policyExecutionResult) {
+    public GqlValidationResult(PolicySanitizedHtmlResult policyExecutionResult) {
         this.policyExecutionResult = policyExecutionResult;
     }
 

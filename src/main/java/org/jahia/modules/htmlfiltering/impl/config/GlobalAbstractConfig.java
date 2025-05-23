@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.impl;
+package org.jahia.modules.htmlfiltering.impl.config;
 
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -23,26 +23,26 @@ import org.slf4j.LoggerFactory;
 import java.util.Dictionary;
 import java.util.concurrent.atomic.AtomicReference;
 
-abstract class AbstractSitePolicyService implements ManagedService {
+public abstract class GlobalAbstractConfig implements ManagedService {
 
     // Uses getClass() to ensure logs show the correct implementing class name.
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final AtomicReference<SitePolicy> sitePolicyReference = new AtomicReference<>();
+    private final AtomicReference<Config> htmlFilteringConfigRef = new AtomicReference<>();
 
-    SitePolicy getSitePolicy() {
-        return sitePolicyReference.get();
+    public Config getHtmlFilteringConfig() {
+        return htmlFilteringConfigRef.get();
     }
 
     @Override
     public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
         if (properties == null) {
-            sitePolicyReference.set(null);
-            logger.info("Resetting site policy");
+            htmlFilteringConfigRef.set(null);
+            logger.info("Resetting [{}] html filtering configuration", getClass().getSimpleName());
         } else {
-            logger.info("Updating site policy with props: {}", properties);
-            SitePolicy sitePolicy = SitePolicy.SitePolicyBuilder.build(properties);
-            sitePolicyReference.set(sitePolicy);
+            logger.info("Updating [{}] html filtering configuration", getClass().getSimpleName());
+            Config config = ConfigBuilder.build(properties);
+            htmlFilteringConfigRef.set(config);
         }
     }
 }

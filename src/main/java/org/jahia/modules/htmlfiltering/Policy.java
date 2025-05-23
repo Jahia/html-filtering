@@ -21,11 +21,10 @@ import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.SelectorType;
 
 import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
 
 /**
  * Defines the HTML filtering policy for a given site and workspace.
- * The policies can be retrieved using {@link RegistryService#resolvePolicy(String, String)}.
+ * The policies can be retrieved using {@link PolicyRegistry#resolvePolicy(String, String)}.
  */
 public interface Policy {
 
@@ -55,15 +54,15 @@ public interface Policy {
      * @return <code>true</code> if the policy is applicable to the given property, <code>false</code> otherwise
      */
     boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName,
-                                   ExtendedPropertyDefinition propertyDefinition) throws RepositoryException;
+                                   ExtendedPropertyDefinition propertyDefinition);
 
     /**
-     * Executes the policy on the given HTML text.
-     * <p>
-     * The HTML text is processed according to the policy's rules.
+     * A policy is capable of processing HTML String input and:
+     * - filter unwanted tags/attributes based on the configured rules
+     * - provide information on the filtered tags/attributes
      *
-     * @param htmlText the HTML text to process
-     * @return the result of the execution, containing any modifications or errors
+     * @param htmlText the HTML text to be sanitized
+     * @return the result of the sanitize operation, including the filtered HTML and any changes made
      */
-    PolicyExecutionResult execute(String htmlText);
+    PolicySanitizedHtmlResult sanitize(String htmlText);
 }

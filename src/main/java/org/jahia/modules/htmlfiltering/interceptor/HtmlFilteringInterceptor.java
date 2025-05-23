@@ -16,7 +16,7 @@
 package org.jahia.modules.htmlfiltering.interceptor;
 
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.PolicyRegistry;
 import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
@@ -34,14 +34,13 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
 @Component(immediate = true)
+@SuppressWarnings("java:S2160") // ignore warning asking to override equals methods
 public class HtmlFilteringInterceptor extends BaseInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
-
-    @Reference
-    RegistryService registryService;
+    private PolicyRegistry policyRegistry;
 
     @Activate
     public void start() {
@@ -56,6 +55,11 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     @Reference
     public void setJcrStoreService(JCRStoreService jcrStoreService) {
         this.jcrStoreService = jcrStoreService;
+    }
+
+    @Reference
+    public void setPolicyRegistry(PolicyRegistry policyRegistry) {
+        this.policyRegistry = policyRegistry;
     }
 
     @Override
@@ -86,7 +90,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private Policy getPolicyForInterceptor(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition definition, Object originalValue) throws RepositoryException {
         if (originalValue != null) {
             // Resolve policy with strategy: SANITIZE
-            Policy policy = registryService.resolvePolicy(node.getResolveSite().getSiteKey(),
+            Policy policy = policyRegistry.resolvePolicy(node.getResolveSite().getSiteKey(),
                     node.getSession().getWorkspace().getName(), Strategy.SANITIZE);
             if (policy != null && policy.isApplicableToProperty(node, propertyName, definition)) {
                 return policy;
@@ -98,7 +102,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
 
     private static Value processValue(Policy policy, Value originalValue, ValueFactory valueFactory) throws RepositoryException {
         String originalText = originalValue.getString();
-        String sanitizedText = policy.execute(originalValue.getString()).getSanitizedHtml();
+        String sanitizedText = policy.sanitize(originalValue.getString()).getSanitizedHtml();
         if (!originalText.equals(sanitizedText)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Sanitize value from {} to {}", originalText, sanitizedText);

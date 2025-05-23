@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.impl;
+package org.jahia.modules.htmlfiltering.impl.config;
 
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.annotations.Component;
 
-@Component(immediate = true, service = {ManagedService.class, AbstractSitePolicyService.class},
+@Component(immediate = true, service = {ManagedService.class, GlobalAbstractConfig.class},
         property = {
                 "service.pid=org.jahia.modules.htmlfiltering.global.custom",
-                "service.description=HTML filtering global custom policy service to retrieve the global custom policy to use for sites that do not have a site-specific configuration",
+                "service.description=HTML filtering global custom config service to retrieve the global custom config to use for sites that do not have a site-specific configuration",
                 "service.vendor=Jahia Solutions Group SA"
         })
-public final class GlobalCustomSitePolicyServiceImpl extends AbstractSitePolicyService {
+public final class GlobalCustomConfig extends GlobalAbstractConfig {
+
+        // This class is intentionally empty. It serves as a marker for the global default configuration.
+        // The actual implementation is in the parent class HtmlFilteringAbstractGlobalConfig.
+        // The properties defined in the @Component annotation are used for OSGi service registration.
 }

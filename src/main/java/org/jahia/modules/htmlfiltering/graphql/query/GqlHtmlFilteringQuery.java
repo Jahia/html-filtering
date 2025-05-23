@@ -21,7 +21,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import org.jahia.modules.graphql.provider.dxm.node.NodeQueryExtensions;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.PolicyRegistry;
 
 import javax.inject.Inject;
 
@@ -29,9 +29,14 @@ import javax.inject.Inject;
 @GraphQLDescription("HTML filtering query")
 public class GqlHtmlFilteringQuery {
 
+
+    private PolicyRegistry registry;
+
     @Inject
     @GraphQLOsgiService
-    private RegistryService registry;
+    public void setRegistry(PolicyRegistry registry) {
+        this.registry = registry;
+    }
 
     @GraphQLField
     @GraphQLName("validate")
@@ -39,7 +44,7 @@ public class GqlHtmlFilteringQuery {
     public GqlValidationResult validate(@GraphQLName("html") String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace, @GraphQLName("siteKey") String siteKey) {
         Policy policy = registry.resolvePolicy(siteKey, workspace.getValue());
         if (policy != null) {
-            return new GqlValidationResult(policy.execute(html));
+            return new GqlValidationResult(policy.sanitize(html));
         }
 
         return null;

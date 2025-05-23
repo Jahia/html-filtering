@@ -16,13 +16,13 @@
 package org.jahia.modules.htmlfiltering;
 
 /**
- * The RegistryService interface provides a mechanism to manage and retrieve
- * HTML filtering policies for specific sites and workspaces.
+ * The PolicyRegistry interface provides a mechanism to manage and retrieve
+ * HTML filtering policies for specific sites, workspaces, strategies.
  * <p>
  * This service allows retrieving a {@link Policy} for a specific site and workspace,
  * enabling tailored HTML content filtering and validation based on the given context.
  */
-public interface RegistryService {
+public interface PolicyRegistry {
 
 
     /**
@@ -45,7 +45,7 @@ public interface RegistryService {
     Policy resolvePolicy(String siteKey, String workspaceName);
 
     /**
-     * Same as {@link #resolvePolicy(String, String)} but allows to specify a strategy.
+     * Same as {@link #resolvePolicy(String, String)} but allows to specify a required strategy.
      * <p>
      * @param siteKey       the unique identifier for the site
      * @param workspaceName the name of the workspace

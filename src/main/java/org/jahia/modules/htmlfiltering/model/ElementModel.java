@@ -13,35 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.impl.config.model;
+package org.jahia.modules.htmlfiltering.model;
 
 import java.util.List;
 
-public class RuleSetCfg {
-    private List<String> protocols;
-    private List<ElementCfg> elements;
+public class ElementModel {
+    private List<String> tags;
+    private List<String> attributes;
+    private String format;
 
-    public List<String> getProtocols() {
-        return protocols;
+    public List<String> getTags() {
+        return tags;
     }
 
-    public void setProtocols(List<String> protocols) {
-        this.protocols = protocols;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
-    public List<ElementCfg> getElements() {
-        return elements;
+    public List<String> getAttributes() {
+        return attributes;
     }
 
-    public void setElements(List<ElementCfg> elements) {
-        this.elements = elements;
+    public void setAttributes(List<String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     @Override
     public String toString() {
-        return "RuleSetCfg{" +
-                "protocols=" + protocols +
-                ", elements=" + elements +
+        return "ElementModel{" +
+                "tags=" + tags +
+                ", attributes=" + attributes +
+                ", format='" + format + '\'' +
                 '}';
     }
 }

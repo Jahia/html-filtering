@@ -1,13 +1,13 @@
 package org.jahia.modules.htmlfiltering.impl;
 
-import org.jahia.modules.htmlfiltering.PolicyExecutionResult;
+import org.jahia.modules.htmlfiltering.PolicySanitizedHtmlResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class PolicyExecutionResultImpl implements PolicyExecutionResult {
+class PolicySanitizedHtmlResultImpl implements PolicySanitizedHtmlResult {
     private final Set<String> rejectedTags = new HashSet<>();
     private final Map<String, Set<String>> rejectedAttributesByTag = new HashMap<>();
     private String sanitizedHtml;
@@ -23,14 +23,7 @@ class PolicyExecutionResultImpl implements PolicyExecutionResult {
 
     @Override
     public String getSanitizedHtml() {
-        if (sanitizedHtml != null) {
-            // post process the sanitized HTML to replace the Jahia rich text editors placeholders
-            // todo make this configurable/extendable ?
-            String result = sanitizedHtml.replace("%7bmode%7d", "{mode}");
-            result = result.replace("%7blang%7d", "{lang}");
-            return result.replace("%7bworkspace%7d", "{workspace}");
-        }
-        return null;
+        return sanitizedHtml;
     }
 
     @Override

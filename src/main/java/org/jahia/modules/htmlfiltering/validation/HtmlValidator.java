@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstraint, JCRNodeWrapper> {
 
-    private final static Logger logger = LoggerFactory.getLogger(HtmlValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(HtmlValidator.class);
 
     @Override
     public void initialize(HtmlFilteringConstraint constraintAnnotation) {
@@ -30,35 +30,20 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
 
     @Override
     public boolean isValid(JCRNodeWrapper node, ConstraintValidatorContext context) {
-        RegistryService registryService = BundleUtils.getOsgiService(RegistryService.class, null);
-        boolean isValid = true;
+        PolicyRegistry policyRegistry = BundleUtils.getOsgiService(PolicyRegistry.class, null);
+
+        boolean isValid;
         try {
             // Resolve policy with strategy: REJECT
-            Policy policy = registryService.resolvePolicy(node.getResolveSite().getSiteKey(),
+            Policy policy = policyRegistry.resolvePolicy(node.getResolveSite().getSiteKey(),
                     node.getSession().getWorkspace().getName(), Strategy.REJECT);
             if (policy == null) {
                 return true;
             }
 
             // Validate properties
-            PropertyIterator properties = node.getProperties();
             StringBuilder errors = new StringBuilder();
-            while (properties.hasNext()) {
-                final Property property = properties.nextProperty();
-                String propertyName = property.getName();
-
-                // Only validate property if the policy is applicable to it
-                if (policy.isApplicableToProperty(node, propertyName, (ExtendedPropertyDefinition) property.getDefinition())) {
-                    if (property.isMultiple()) {
-                        Value[] values = property.getValues();
-                        for (Value value : values) {
-                            isValid = isValid && validatePropertyValue(propertyName, value, policy, errors);
-                        }
-                    } else {
-                        isValid = isValid && validatePropertyValue(propertyName, property.getValue(), policy, errors);
-                    }
-                }
-            }
+            isValid = validateNodeProperties(node, policy, errors);
 
             // If there are any errors, add them to the context
             if (StringUtils.isNotEmpty(errors)) {
@@ -72,8 +57,30 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         return isValid;
     }
 
+    private boolean validateNodeProperties(JCRNodeWrapper node, Policy policy, StringBuilder errors) throws RepositoryException {
+        boolean isValid = true;
+        PropertyIterator properties = node.getProperties();
+        while (properties.hasNext()) {
+            final Property property = properties.nextProperty();
+            String propertyName = property.getName();
+
+            // Only validate property if the policy is applicable to it
+            if (policy.isApplicableToProperty(node, propertyName, (ExtendedPropertyDefinition) property.getDefinition())) {
+                if (property.isMultiple()) {
+                    Value[] values = property.getValues();
+                    for (Value value : values) {
+                        isValid = isValid && validatePropertyValue(propertyName, value, policy, errors);
+                    }
+                } else {
+                    isValid = isValid && validatePropertyValue(propertyName, property.getValue(), policy, errors);
+                }
+            }
+        }
+        return isValid;
+    }
+
     private boolean validatePropertyValue(String propertyName, Value value, Policy policy, StringBuilder errors) throws RepositoryException {
-        PolicyExecutionResult policyExecutionResult = policy.execute(value.getString());
+        PolicySanitizedHtmlResult policyExecutionResult = policy.sanitize(value.getString());
         if (!policyExecutionResult.isValid()) {
             collectError(propertyName, errors, policyExecutionResult);
             return false;
@@ -81,7 +88,7 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         return true;
     }
 
-    private void collectError(String propertyName, StringBuilder errors, PolicyExecutionResult propertyRejectionResult) {
+    private void collectError(String propertyName, StringBuilder errors, PolicySanitizedHtmlResult propertyRejectionResult) {
         // TODO nicer error messages ?
         errors.append(propertyRejectionResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " +
                 String.join(", ", propertyRejectionResult.getRejectedTags()));

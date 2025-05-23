@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.configuration;
+package org.jahia.modules.htmlfiltering.model;
 
 import java.util.Map;
 
@@ -21,24 +21,24 @@ import java.util.Map;
  * Represents the HTML filtering configuration for a given site.
  * A configuration can be defined for a given site by creating a file named <code>org.jahia.modules.htmlfiltering.site-&lt;siteKey&gt;.yml</code> in the <code>META-INF/configurations/</code> folder of a bundle.
  */
-public class SiteCfg {
-    private WorkspaceCfg editWorkspace;
-    private WorkspaceCfg liveWorkspace;
+public class ConfigModel {
+    private PolicyModel editWorkspace;
+    private PolicyModel liveWorkspace;
     private Map<String, String> formatDefinitions;
 
-    public WorkspaceCfg getEditWorkspace() {
+    public PolicyModel getEditWorkspace() {
         return editWorkspace;
     }
 
-    public void setEditWorkspace(WorkspaceCfg editWorkspace) {
+    public void setEditWorkspace(PolicyModel editWorkspace) {
         this.editWorkspace = editWorkspace;
     }
 
-    public WorkspaceCfg getLiveWorkspace() {
+    public PolicyModel getLiveWorkspace() {
         return liveWorkspace;
     }
 
-    public void setLiveWorkspace(WorkspaceCfg liveWorkspace) {
+    public void setLiveWorkspace(PolicyModel liveWorkspace) {
         this.liveWorkspace = liveWorkspace;
     }
 
@@ -52,7 +52,7 @@ public class SiteCfg {
 
     @Override
     public String toString() {
-        return "SiteCfg{" +
+        return "ConfigModel{" +
                 "editWorkspace=" + editWorkspace +
                 ", liveWorkspace=" + liveWorkspace +
                 ", formatDefinitions=" + formatDefinitions +

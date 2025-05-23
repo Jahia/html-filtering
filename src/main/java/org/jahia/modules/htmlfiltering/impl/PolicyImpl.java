@@ -15,15 +15,8 @@
  */
 package org.jahia.modules.htmlfiltering.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jahia.modules.htmlfiltering.HtmlValidationResult;
-import org.jahia.modules.htmlfiltering.NodeValidationResult;
-import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.configuration.ElementCfg;
-import org.jahia.modules.htmlfiltering.configuration.RuleSetCfg;
-import org.jahia.modules.htmlfiltering.configuration.WorkspaceCfg;
+import org.jahia.modules.htmlfiltering.*;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.SelectorType;
@@ -33,17 +26,11 @@ import org.owasp.html.PolicyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
+import javax.jcr.*;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Implementation of the {@link Policy} interface for defining HTML filtering policies
@@ -52,7 +39,7 @@ import java.util.regex.Pattern;
  * It uses {@link HtmlPolicyBuilder} (OWASP Java HTML Sanitizer) to construct the filtering rules and applies them for sanitization
  * and validation operations.
  */
-final class PolicyImpl implements Policy {
+public final class PolicyImpl implements Policy {
     private static final Logger logger = LoggerFactory.getLogger(PolicyImpl.class);
     private final Strategy strategy;
     /**
@@ -73,147 +60,11 @@ final class PolicyImpl implements Policy {
     final Map<String, Set<String>> propsToSkipByNodeType;
     private final PolicyFactory policyFactory;
 
-    public PolicyImpl(Map<String, Pattern> formatPatterns, WorkspaceCfg workspace) {
-
-        HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
-        if (workspace == null) {
-            throw new IllegalArgumentException("Workspace configuration is not set");
-        }
-        this.strategy = readStrategy(workspace);
-
-        if (CollectionUtils.isEmpty(workspace.getProcess())) {
-            throw new IllegalArgumentException("'process' is not set");
-        }
-        propsToProcessByNodeType = createPropsByNodeType(workspace.getProcess(), "process");
-        if (CollectionUtils.isEmpty(workspace.getSkip())) {
-            workspace.setSkip(Collections.emptyList());
-        }
-        propsToSkipByNodeType = createPropsByNodeType(workspace.getSkip(), "skip");
-
-        if (workspace.getAllowedRuleSet() == null) {
-            throw new IllegalArgumentException("'allowedRuleSet' is not set");
-        }
-        processRuleSet(builder, workspace.getAllowedRuleSet(), formatPatterns,
-                HtmlPolicyBuilder::allowAttributes, HtmlPolicyBuilder::allowElements, HtmlPolicyBuilder::allowUrlProtocols);
-
-        processRuleSet(builder, workspace.getDisallowedRuleSet(), formatPatterns,
-                HtmlPolicyBuilder::disallowAttributes, HtmlPolicyBuilder::disallowElements, HtmlPolicyBuilder::disallowUrlProtocols);
-        this.policyFactory = builder.toFactory();
-    }
-
-    private static Map<String, Set<String>> createPropsByNodeType(List<String> propsByNodeType, String configSectionName) {
-        Map<String, Set<String>> result = new HashMap<>();
-        for (String nodeTypeProperty : propsByNodeType) {
-            if (StringUtils.isEmpty(nodeTypeProperty)) {
-                throw new IllegalArgumentException(String.format("Each item in '%s' must be set and not empty", configSectionName));
-            }
-            String[] parts = StringUtils.split(nodeTypeProperty, '.');
-            switch (parts.length) {
-                case 1:
-                    setWildcardEntryForNodeType(result, parts[0], configSectionName);
-                    break;
-                case 2:
-                    String nodeType = parts[0];
-                    String propertyPattern = parts[1];
-                    setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
-            }
-        }
-        return result;
-    }
-
-    private static void setPropertyPatternEntryForNodeType(String propertyPattern, Map<String, Set<String>> result, String nodeType, String configSectionName) {
-        if (propertyPattern.equals("*")) {
-            setWildcardEntryForNodeType(result, nodeType, configSectionName);
-        } else {
-            Set<String> properties = result.get(nodeType);
-            if (properties == null) {
-                if (result.containsKey(nodeType)) {
-                    logger.warn("There is already a wildcard entry for the node type {} under '{}'. Ignoring the property '{}'", nodeType, configSectionName, propertyPattern);
-                    return;
-                }
-                properties = new HashSet<>();
-                result.put(nodeType, properties);
-            }
-            properties.add(propertyPattern);
-        }
-    }
-
-    private static void setWildcardEntryForNodeType(Map<String, Set<String>> result, String nodeType, String configSectionName) {
-        if (result.containsKey(nodeType)) {
-            logger.warn("There is already an entry for the node type {} under '{}'. Overwriting it with the wildcard", nodeType, configSectionName);
-        }
-        // Wildcard pattern: all properties are to be processed for this node type
-        result.put(nodeType, null);
-    }
-
-    private static Strategy readStrategy(WorkspaceCfg workspace) {
-        if (workspace.getStrategy() == null) {
-            throw new IllegalArgumentException("'strategy' is not set");
-        }
-        switch (workspace.getStrategy()) {
-            case REJECT:
-                return Strategy.REJECT;
-            case SANITIZE:
-                return Strategy.SANITIZE;
-            default:
-                throw new IllegalArgumentException(String.format("Unknown 'strategy':%s ", workspace.getStrategy()));
-        }
-    }
-
-    private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetCfg ruleSet,
-                                       Map<String, Pattern> formatPatterns,
-                                       AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagHandler, BuilderHandlerFunction protocolHandler) {
-        if (ruleSet != null) {
-            if (CollectionUtils.isEmpty(ruleSet.getElements())) {
-                throw new IllegalArgumentException("At least one item in 'elements' must be defined");
-            }
-            // Apply element rules
-            for (ElementCfg element : ruleSet.getElements()) {
-                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, element);
-            }
-
-            // Apply protocol rules
-            if (ruleSet.getProtocols() != null) {
-                protocolHandler.handle(builder, ruleSet.getProtocols().toArray(new String[0]));
-            }
-        }
-    }
-
-    private static void processElement(HtmlPolicyBuilder builder, Map<String, Pattern> formatPatterns, AttributeBuilderHandlerFunction attributeBuilderHandlerFunction, BuilderHandlerFunction tagHandler, ElementCfg element) {
-        boolean noTags = CollectionUtils.isEmpty(element.getTags());
-        boolean noAttributes = CollectionUtils.isEmpty(element.getAttributes());
-        if (noTags && noAttributes) {
-            throw new IllegalArgumentException("Each item in 'elements' of 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element);
-        }
-        if (noAttributes) {
-            // Contains tags without attributes
-            if (element.getFormat() != null) {
-                throw new IllegalArgumentException("'format' can only be used with 'attributes'. Item: " + element);
-            }
-            tagHandler.handle(builder, element.getTags().toArray(new String[0]));
-        } else {
-            HtmlPolicyBuilder.AttributeBuilder attributeBuilder =
-                    attributeBuilderHandlerFunction.handle(builder, element.getAttributes().toArray(new String[0]));
-
-            // Handle format pattern for allowed attributes only
-            if (element.getFormat() != null) {
-                Pattern formatPattern = formatPatterns.get(element.getFormat());
-                if (formatPattern == null) {
-                    throw new IllegalArgumentException(String.format("Format '%s' not defined, check your configuration", element.getFormat()));
-                }
-                attributeBuilder.matching(formatPattern);
-            }
-
-            if (noTags) {
-                // The attributes are for all tags
-                attributeBuilder.globally();
-            } else {
-                attributeBuilder.onElements(element.getTags().toArray(new String[0]));
-            }
-        }
+    public PolicyImpl(Strategy strategy, Map<String, Set<String>> propsToProcessByNodeType, Map<String, Set<String>> propsToSkipByNodeType, PolicyFactory policyFactory) {
+        this.strategy = strategy;
+        this.propsToProcessByNodeType = propsToProcessByNodeType;
+        this.propsToSkipByNodeType = propsToSkipByNodeType;
+        this.policyFactory = policyFactory;
     }
 
     @Override
@@ -223,24 +74,43 @@ final class PolicyImpl implements Policy {
 
     @Override
     public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
-        return isRichTextStringProperty(propertyDefinition)
+        boolean result = isRichTextStringProperty(propertyDefinition)
                 && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
                 && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("The policy is{} applicable to the node: {}, property: {}, definition: {}.", result ? "" : " not",
+                    node.getPath(), propertyName, propertyDefinition);
+        }
+
+        return result;
     }
 
     @Override
-    public String sanitize(String htmlText) {
-        return policyFactory.sanitize(htmlText);
+    public PolicySanitizedHtmlResult sanitize(String htmlText) {
+        PolicySanitizedHtmlResultImpl result = new PolicySanitizedHtmlResultImpl();
+        String sanitized = policyFactory.sanitize(htmlText, new HtmlChangeListener<PolicySanitizedHtmlResultImpl>() {
+            @Override
+            public void discardedTag(PolicySanitizedHtmlResultImpl context, String elementName) {
+                context.addRejectedTag(elementName);
+            }
+
+            @Override
+            public void discardedAttributes(PolicySanitizedHtmlResultImpl context, String tagName, String... attributeNames) {
+                context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
+            }
+        }, result);
+
+        result.setSanitizedHtml(postProcessSanitizedHtml(sanitized));
+        return result;
     }
 
-
-    private static boolean isRichTextStringProperty(ExtendedPropertyDefinition definition) {
-        return
-                definition.getRequiredType() == PropertyType.STRING
-                        && definition.getSelector() == SelectorType.RICHTEXT;
+    private boolean isRichTextStringProperty(ExtendedPropertyDefinition definition) {
+        return definition.getRequiredType() == PropertyType.STRING
+                && definition.getSelector() == SelectorType.RICHTEXT;
     }
 
-    private static boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) {
+    private boolean isPropertyConfigured(JCRNodeWrapper node, String propertyName, Map<String, Set<String>> propsByNodeType) {
         for (Map.Entry<String, Set<String>> entry : propsByNodeType.entrySet()) {
             String nodeType = entry.getKey();
             if (safeIsNodeType(node, nodeType)) {
@@ -252,81 +122,24 @@ final class PolicyImpl implements Policy {
         return false; // no match found for any node type
     }
 
-    private static boolean safeIsNodeType(JCRNodeWrapper node, String nodeType) {
+    private boolean safeIsNodeType(JCRNodeWrapper node, String nodeType) {
         try {
             return node.isNodeType(nodeType);
         } catch (RepositoryException e) {
-            logger.debug("Unable to check if the node {} is of type {}", node, nodeType, e);
+            logger.warn("Unable to check if the node {} is of type {}, " +
+                    "please review your html-filtering configured skip/process node types declarations", node, nodeType);
         }
         return false;
     }
 
-
-    @Override
-    public HtmlValidationResult validate(String htmlText) {
-        HtmlValidationResultImpl result = new HtmlValidationResultImpl();
-        String SanitizedText = policyFactory.sanitize(htmlText, new HtmlChangeListener<HtmlValidationResultImpl>() {
-            @Override
-            public void discardedTag(HtmlValidationResultImpl context, String elementName) {
-                context.addRejectedTag(elementName);
-            }
-
-            @Override
-            public void discardedAttributes(HtmlValidationResultImpl context, String tagName, String... attributeNames) {
-                context.addRejectedAttributeByTag(tagName, new HashSet<>(Arrays.asList(attributeNames)));
-            }
-        }, result);
-
-        result.setSanitizedHtml(SanitizedText);
-        return result;
-    }
-
-    @Override
-    public NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException {
-        NodeValidationResultImpl validationResult = new NodeValidationResultImpl();
-        for (Map.Entry<String, String> propertyEntry : node.getPropertiesAsString().entrySet()) {
-            validate(node, propertyEntry.getKey(), propertyEntry.getValue(), validationResult);
+    private String postProcessSanitizedHtml(String sanitizedHtml) {
+        if (StringUtils.isAllBlank(sanitizedHtml)) {
+            return sanitizedHtml;
         }
-        return validationResult;
-    }
-
-    private void validate(JCRNodeWrapper node, String propertyName, String value, NodeValidationResultImpl validationResult) throws RepositoryException {
-        if (isApplicableToProperty(node, propertyName, node.getApplicablePropertyDefinition(propertyName))) {
-            String sanitized = policyFactory.sanitize(value, new Listener(propertyName), validationResult);
-            validationResult.addSanitizedProperty(propertyName, sanitized);
-        }
-    }
-
-    @FunctionalInterface
-    private interface AttributeBuilderHandlerFunction {
-        HtmlPolicyBuilder.AttributeBuilder handle(HtmlPolicyBuilder builder, String[] attributes);
-    }
-
-    @FunctionalInterface
-    private interface BuilderHandlerFunction {
-        void handle(HtmlPolicyBuilder builder, String[] items);
-    }
-
-    private static class Listener implements HtmlChangeListener<NodeValidationResultImpl> {
-
-        private final String propertyName;
-
-        public Listener(String name) {
-            propertyName = name;
-        }
-
-        @Override
-        public void discardedTag(@Nullable NodeValidationResultImpl context, String elementName) {
-            if (context != null) {
-                context.rejectTag(propertyName, elementName);
-            }
-        }
-
-        @Override
-        public void discardedAttributes(@Nullable NodeValidationResultImpl context, String tagName, String... attributeNames) {
-            if (context != null) {
-                context.rejectAttributes(propertyName, tagName, attributeNames);
-            }
-        }
+        // post process the sanitized HTML to replace the Jahia rich text editors placeholders
+        // todo make this configurable/extendable ?
+        String result = sanitizedHtml.replace("%7bmode%7d", "{mode}");
+        result = result.replace("%7blang%7d", "{lang}");
+        return result.replace("%7bworkspace%7d", "{workspace}");
     }
 }

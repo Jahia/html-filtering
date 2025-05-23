@@ -14,7 +14,7 @@ import java.util.Map;
 @Component(immediate = true, service = JCRNodeValidatorDefinition.class)
 public class HtmlFilteringValidatorDefinition extends JCRNodeValidatorDefinition {
 
-    private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringValidatorDefinition.class);
+    private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringValidatorDefinition.class);
 
     @Override
     public Map<String, Class> getValidators() {

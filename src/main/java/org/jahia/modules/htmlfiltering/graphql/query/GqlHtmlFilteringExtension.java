@@ -13,38 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.graphql.query.impl.html_filtering;
+package org.jahia.modules.htmlfiltering.graphql.query;
 
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
+import graphql.annotations.annotationTypes.GraphQLName;
+import graphql.annotations.annotationTypes.GraphQLTypeExtension;
+import org.jahia.modules.graphql.provider.dxm.DXGraphQLProvider;
 
-import java.util.Set;
-
-/**
- * Graphql representation of a removed attribute.
- */
-public class GqlRemovedAttributes {
-
-    private String tag;
-    private Set<String> attributes;
+@GraphQLTypeExtension(DXGraphQLProvider.Query.class)
+@SuppressWarnings("java:S1118") // ignore "Utility classes should not have public constructors"
+public class GqlHtmlFilteringExtension {
 
     @GraphQLField
-    @GraphQLDescription("Tag on witch the attribute has been removed")
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    @GraphQLField
-    @GraphQLDescription("Name of the removed attribute")
-    public Set<String> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Set<String> attributes) {
-        this.attributes = attributes;
+    @GraphQLName("htmlFiltering")
+    @GraphQLDescription("Main access to html filtering API")
+    public static GqlHtmlFilteringQuery getHtmlFiltering() {
+        return new GqlHtmlFilteringQuery();
     }
 }

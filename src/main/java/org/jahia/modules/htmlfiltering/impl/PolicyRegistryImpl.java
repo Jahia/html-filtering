@@ -18,7 +18,11 @@ package org.jahia.modules.htmlfiltering.impl;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.RegistryService;
+import org.jahia.modules.htmlfiltering.PolicyRegistry;
+import org.jahia.modules.htmlfiltering.Strategy;
+import org.jahia.modules.htmlfiltering.impl.config.ConfigBuilder;
+import org.jahia.modules.htmlfiltering.impl.config.GlobalAbstractConfig;
+import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.component.annotations.Component;
@@ -31,20 +35,20 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(immediate = true, service = {RegistryService.class, ManagedServiceFactory.class},
+@Component(immediate = true, service = {PolicyRegistry.class, ManagedServiceFactory.class},
         property = {
                 "service.pid=org.jahia.modules.htmlfiltering.site",
-                "service.description=HTML filtering registry service to retrieve the policy to use for a given workspace of a given site",
+                "service.description=HTML filtering config registry service to retrieve the policy to use for a given workspace of a given site",
                 "service.vendor=Jahia Solutions Group SA"
         })
-public final class RegistryServiceImpl implements RegistryService, ManagedServiceFactory {
+public final class PolicyRegistryImpl implements PolicyRegistry, ManagedServiceFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegistryServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(PolicyRegistryImpl.class);
 
     /**
-     * Maps site keys to their corresponding {@link SitePolicy} configurations.
+     * Maps site keys to their corresponding {@link Config} configurations.
      */
-    private final Map<String, SitePolicy> policiesBySiteKey = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, Config> configsPerSiteKey = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Maps persistent identities (PIDs) to their corresponding site keys.
@@ -52,10 +56,10 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
     private final Map<String, String> sitesByPid = Collections.synchronizedMap(new HashMap<>());
 
     @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.global.custom)")
-    private AbstractSitePolicyService globalCustomSitePolicyService;
+    private GlobalAbstractConfig globalCustomConfig;
 
     @Reference(target = "(service.pid=org.jahia.modules.htmlfiltering.global.default)")
-    private AbstractSitePolicyService globalDefaultSitePolicyService;
+    private GlobalAbstractConfig globalDefaultConfig;
 
     @Override
     public String getName() {
@@ -72,47 +76,58 @@ public final class RegistryServiceImpl implements RegistryService, ManagedServic
         String configurationName = FilenameUtils.getBaseName(configurationPath.toString());
         String siteKey = StringUtils.substringAfter(configurationName, "-");
 
-        // build the site policy for the site
-        SitePolicy sitePolicy = SitePolicy.SitePolicyBuilder.build(properties);
+        // build the config for the site
+        Config config = ConfigBuilder.build(properties);
 
         // update the maps
-        policiesBySiteKey.put(siteKey, sitePolicy);
+        configsPerSiteKey.put(siteKey, config);
         sitesByPid.put(pid, siteKey);
 
-        logger.info("Site policy for {} (pid: {}) updated.", siteKey, pid);
+        logger.info("html-filtering config for {} (pid: {}) updated.", siteKey, pid);
     }
 
     @Override
     public void deleted(String pid) {
         String siteKey = sitesByPid.remove(pid);
-        policiesBySiteKey.remove(siteKey);
+        configsPerSiteKey.remove(siteKey);
 
-        logger.info("Site policy for {} (pid: {}) deleted.", siteKey, pid);
+        logger.info("html-filtering config for {} (pid: {}) deleted.", siteKey, pid);
     }
 
     @Override
-    public Policy getPolicy(String siteKey, String workspaceName) {
+    public Policy resolvePolicy(String siteKey, String workspaceName) {
         // 1) site-specific configuration
-        SitePolicy sitePolicy = policiesBySiteKey.get(siteKey);
-        if (sitePolicy != null) {
-            logger.debug("Site policy found for siteKey: {}", siteKey);
-            return sitePolicy.getPolicy(workspaceName);
+        Config config = configsPerSiteKey.get(siteKey);
+        if (config != null) {
+            logger.debug("Site specific html-filtering config resolved for siteKey: {}", siteKey);
+            return config.getPolicy(workspaceName);
         }
 
         // 2) global custom configuration
-        sitePolicy = globalCustomSitePolicyService.getSitePolicy();
-        if (sitePolicy != null) {
-            logger.debug("Global custom site policy found");
-            return sitePolicy.getPolicy(workspaceName);
+        config = globalCustomConfig.getHtmlFilteringConfig();
+        if (config != null) {
+            logger.debug("Global custom html-filtering config resolved for siteKey: {}", siteKey);
+            return config.getPolicy(workspaceName);
         }
 
         // 3) global default configuration
-        sitePolicy = globalDefaultSitePolicyService.getSitePolicy();
-        if (sitePolicy != null) {
-            logger.debug("Global default site policy found");
-            return sitePolicy.getPolicy(workspaceName);
+        config = globalDefaultConfig.getHtmlFilteringConfig();
+        if (config != null) {
+            logger.debug("Global default html-filtering config resolved for siteKey: {}", siteKey);
+            return config.getPolicy(workspaceName);
         }
-        logger.debug("No site policy found for siteKey: {}, workspaceName: {}", siteKey, workspaceName);
+        logger.debug("No html-filtering config resolved for siteKey: {}, workspaceName: {}", siteKey, workspaceName);
+        return null;
+    }
+
+    @Override
+    public Policy resolvePolicy(String siteKey, String workspaceName, Strategy strategy) {
+        Policy policy = resolvePolicy(siteKey, workspaceName);
+        if (policy != null && policy.getStrategy() == strategy) {
+            return policy;
+        }
+
+        logger.debug("No html-filtering config resolved for siteKey: {}, workspaceName: {}, strategy: {}", siteKey, workspaceName, strategy.name());
         return null;
     }
 }

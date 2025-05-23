@@ -13,43 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jahia.modules.htmlfiltering.configuration;
+package org.jahia.modules.htmlfiltering.model;
 
 import org.jahia.modules.htmlfiltering.interceptor.HtmlFilteringInterceptor;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.Value;
+import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-public class WorkspaceCfg {
-    private RuleSetCfg allowedRuleSet;
-    private RuleSetCfg disallowedRuleSet;
-    private StrategyCfg strategy;
+public class PolicyModel {
+    private RuleSetModel allowedRuleSet;
+    private RuleSetModel disallowedRuleSet;
+    private PolicyStrategy strategy;
     private List<String> process;
     private List<String> skip;
 
-    public RuleSetCfg getAllowedRuleSet() {
+    public RuleSetModel getAllowedRuleSet() {
         return allowedRuleSet;
     }
 
-    public void setAllowedRuleSet(RuleSetCfg allowedRuleSet) {
+    public void setAllowedRuleSet(RuleSetModel allowedRuleSet) {
         this.allowedRuleSet = allowedRuleSet;
     }
 
-    public RuleSetCfg getDisallowedRuleSet() {
+    public RuleSetModel getDisallowedRuleSet() {
         return disallowedRuleSet;
     }
 
-    public void setDisallowedRuleSet(RuleSetCfg disallowedRuleSet) {
+    public void setDisallowedRuleSet(RuleSetModel disallowedRuleSet) {
         this.disallowedRuleSet = disallowedRuleSet;
     }
 
-    public StrategyCfg getStrategy() {
+    public PolicyStrategy getStrategy() {
         return strategy;
     }
 
-    public void setStrategy(StrategyCfg strategy) {
+    public void setStrategy(PolicyStrategy strategy) {
         this.strategy = strategy;
     }
 
@@ -73,19 +74,18 @@ public class WorkspaceCfg {
      * Defines the strategy for handling HTML content that does not adhere
      * to the allowed rule set.
      */
-    public enum StrategyCfg {
+    public enum PolicyStrategy {
         /**
          * Strategy to reject HTML content that does not adhere to the allowed rule set.
          * Any content that violates the defined rules will be deemed invalid and not accepted.
          *
-         * @see org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)
+         * @see org.jahia.modules.htmlfiltering.validation.HtmlValidator#isValid(JCRNodeWrapper, ConstraintValidatorContext)
          */
         REJECT,
         /**
          * Strategy to sanitize the HTML content by removing all tags and attributes that
          * are not part of the allowed rule set.
-         * This cleanup is performed automatically before storing the value of a node property in the JCR, in  {@link HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)}.
-         * When this strategy is used, the validation in ({@link org.jahia.modules.htmlfiltering.Policy#validate(JCRNodeWrapper)}) is disabled.
+         * This cleanup is performed automatically before storing the value of a node property in the JCR.
          *
          * @see HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
          */
@@ -94,7 +94,7 @@ public class WorkspaceCfg {
 
     @Override
     public String toString() {
-        return "WorkspaceCfg{" +
+        return "PolicyModel{" +
                 "allowedRuleSet=" + allowedRuleSet +
                 ", disallowedRuleSet=" + disallowedRuleSet +
                 ", strategy=" + strategy +

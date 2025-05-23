@@ -21,11 +21,10 @@ import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.SelectorType;
 
 import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
 
 /**
  * Defines the HTML filtering policy for a given site and workspace.
- * The policies can be retrieved using {@link RegistryService#getPolicy(String, String)}.
+ * The policies can be retrieved using {@link PolicyRegistry#resolvePolicy(String, String)}.
  */
 public interface Policy {
 
@@ -58,27 +57,12 @@ public interface Policy {
                                    ExtendedPropertyDefinition propertyDefinition);
 
     /**
-     * Sanitizes the given HTML text as per the HTML filtering policy.
+     * A policy is capable of processing HTML String input and:
+     * - filter unwanted tags/attributes based on the configured rules
+     * - provide information on the filtered tags/attributes
      *
-     * @param htmlText the HTML text to sanitize
-     * @return the sanitized HTML text
+     * @param htmlText the HTML text to be sanitized
+     * @return the result of the sanitize operation, including the filtered HTML and any changes made
      */
-    String sanitize(String htmlText);
-
-    /**
-     * Sanitizes the given HTML text
-     *
-     * @param htmlText the HTML text to sanitize
-     * @return a {@link HtmlValidationResult} containing the sanitized HTML and additional information such as removed tags or attributes.
-     */
-    HtmlValidationResult validate(String htmlText);
-
-    /**
-     * Validates the properties of a given JCR node as per the HTML filtering policy.
-     *
-     * @param node the JCR node to validate.
-     * @return a {@link NodeValidationResult} object containing the validation result. The result can be used to retrieve the list of rejected tags and attributes.
-     * @throws RepositoryException if an error occurs while retrieving the node properties
-     */
-    NodeValidationResult validate(JCRNodeWrapper node) throws RepositoryException;
+    PolicySanitizedHtmlResult sanitize(String htmlText);
 }

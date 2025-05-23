@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HtmlFilteringValidator implements JCRNodeValidator {
 
-    private final static Logger logger = LoggerFactory.getLogger(HtmlFilteringValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringValidator.class);
     private final JCRNodeWrapper node;
 
     public HtmlFilteringValidator(JCRNodeWrapper node) {
@@ -25,5 +25,4 @@ public class HtmlFilteringValidator implements JCRNodeValidator {
     public JCRNodeWrapper getNode() {
         return node;
     }
-
 }

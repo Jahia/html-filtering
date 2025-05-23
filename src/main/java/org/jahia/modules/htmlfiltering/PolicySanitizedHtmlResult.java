@@ -4,19 +4,23 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Contains information about elements that failed validation.
- * This interface tracks two types of rejected elements:
- * <ul>
- *   <li>Rejected HTML tags not allowed in the content ({@link #getRejectedTags()})</li>
- *   <li>Rejected attributes ({@link #getRejectedAttributesByTag()})</li>
- * </ul>
- * The interface provides methods to access details about these rejected elements to help identify
- * validation failures.
+ * This represents the result of a sanitized HTML.
+ * It contains the sanitized HTML and information about any rejected elements.
  */
-public interface RejectionResult {
+public interface PolicySanitizedHtmlResult {
 
     /**
-     * Retrieves the set of tags that were rejected during the validation process.
+     * @return <code>true</code> if no tags, attributes were rejected during sanitization process. <code>false</code> otherwise.
+     */
+    boolean isValid();
+
+    /**
+     * @return - The sanitized HTML
+     */
+    String getSanitizedHtml();
+
+    /**
+     * Retrieves the set of tags that were rejected during the sanitization process.
      *
      * @return a set of strings representing the names of the rejected tags
      */

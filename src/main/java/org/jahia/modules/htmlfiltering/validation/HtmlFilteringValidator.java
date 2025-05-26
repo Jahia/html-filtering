@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Html filtering Bean to be validated
  */
+@HtmlFilteringConstraint
 public class HtmlFilteringValidator implements JCRNodeValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringValidator.class);
@@ -18,10 +19,6 @@ public class HtmlFilteringValidator implements JCRNodeValidator {
         this.node = node;
     }
 
-    /**
-     * This method is called at the validation time. it fills the validation context with the constraint validation results
-     */
-    @HtmlFilteringConstraint
     public JCRNodeWrapper getNode() {
         return node;
     }

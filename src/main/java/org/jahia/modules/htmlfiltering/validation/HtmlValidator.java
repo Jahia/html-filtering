@@ -1,10 +1,11 @@
 package org.jahia.modules.htmlfiltering.validation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.*;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
+import org.jahia.utils.i18n.JahiaLocaleContextHolder;
+import org.jahia.utils.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +15,14 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.stream.Collectors;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Custom constraint validator
  */
-public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstraint, JCRNodeWrapper> {
+public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstraint, HtmlFilteringValidator> {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlValidator.class);
 
@@ -29,9 +32,9 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
     }
 
     @Override
-    public boolean isValid(JCRNodeWrapper node, ConstraintValidatorContext context) {
+    public boolean isValid(HtmlFilteringValidator nodeValidator, ConstraintValidatorContext context) {
         PolicyRegistry policyRegistry = BundleUtils.getOsgiService(PolicyRegistry.class, null);
-
+        JCRNodeWrapper node = nodeValidator.getNode();
         boolean isValid;
         try {
             // Resolve policy with strategy: REJECT
@@ -42,13 +45,7 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
             }
 
             // Validate properties
-            StringBuilder errors = new StringBuilder();
-            isValid = validateNodeProperties(node, policy, errors);
-
-            // If there are any errors, add them to the context
-            if (StringUtils.isNotEmpty(errors)) {
-                context.buildConstraintViolationWithTemplate(errors.toString()).addConstraintViolation();
-            }
+            isValid = validateNodeProperties(node, policy, context);
         } catch (RepositoryException e) {
             logger.warn("Error while validating node {}, node will be considered invalid", node.getPath(), e);
             isValid = false;
@@ -57,7 +54,7 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
         return isValid;
     }
 
-    private boolean validateNodeProperties(JCRNodeWrapper node, Policy policy, StringBuilder errors) throws RepositoryException {
+    private boolean validateNodeProperties(JCRNodeWrapper node, Policy policy, ConstraintValidatorContext context) throws RepositoryException {
         boolean isValid = true;
         PropertyIterator properties = node.getProperties();
         while (properties.hasNext()) {
@@ -69,33 +66,33 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
                 if (property.isMultiple()) {
                     Value[] values = property.getValues();
                     for (Value value : values) {
-                        isValid = isValid && validatePropertyValue(propertyName, value, policy, errors);
+                        isValid = isValid && validatePropertyValue(propertyName, value, policy, context);
                     }
                 } else {
-                    isValid = isValid && validatePropertyValue(propertyName, property.getValue(), policy, errors);
+                    isValid = isValid && validatePropertyValue(propertyName, property.getValue(), policy, context);
                 }
             }
         }
         return isValid;
     }
 
-    private boolean validatePropertyValue(String propertyName, Value value, Policy policy, StringBuilder errors) throws RepositoryException {
+    private boolean validatePropertyValue(String propertyName, Value value, Policy policy, ConstraintValidatorContext context) throws RepositoryException {
         PolicySanitizedHtmlResult policyExecutionResult = policy.sanitize(value.getString());
         if (!policyExecutionResult.isValid()) {
-            collectError(propertyName, errors, policyExecutionResult);
+            Locale locale = JahiaLocaleContextHolder.getLocale();
+            for (String tag : policyExecutionResult.getRejectedTags()) {
+                String errorMessage = Messages.getWithArgs("resources.html-filtering", "htmlFiltering.invalid.tags", locale,  tag);
+                context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(propertyName).addConstraintViolation();
+            }
+            for (Map.Entry<String, Set<String>> entry : policyExecutionResult.getRejectedAttributesByTag().entrySet()) {
+                for (String tag : entry.getValue()) {
+                    String errorMessage = Messages.getWithArgs("resources.html-filtering", "htmlFiltering.invalid.attributes", locale, tag, entry.getKey());
+                    context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(propertyName).addConstraintViolation();
+                }
+            }
+            // If there are any errors, add them to the context
             return false;
         }
         return true;
-    }
-
-    private void collectError(String propertyName, StringBuilder errors, PolicySanitizedHtmlResult propertyRejectionResult) {
-        // TODO nicer error messages ?
-        errors.append(propertyRejectionResult.getRejectedTags().isEmpty() ? "" : " [" + propertyName + "] Not allowed tags: " +
-                String.join(", ", propertyRejectionResult.getRejectedTags()));
-        String rejectedAttributesSummary = propertyRejectionResult.getRejectedAttributesByTag().entrySet().stream()
-                .map(entryRA -> entryRA.getKey() + ": " + String.join(", ", entryRA.getValue()))
-                .collect(Collectors.joining("; "));
-        errors.append(propertyRejectionResult.getRejectedAttributesByTag().isEmpty() ? "" : " [" + propertyName + "] Not allowed attributes:" +
-                String.join(", ", rejectedAttributesSummary));
     }
 }

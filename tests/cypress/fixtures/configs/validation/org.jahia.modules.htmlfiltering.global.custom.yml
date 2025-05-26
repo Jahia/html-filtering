@@ -1,0 +1,15 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: REJECT
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - attributes: [id]
+        - tags: [p]
+  liveWorkspace:
+    strategy: REJECT
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - attributes: [id]
+        - tags: [p]

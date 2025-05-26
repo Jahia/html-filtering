@@ -24,3 +24,11 @@
 
 [htmlFilteringTestModule:testNodeTypesAndSelectorsD] > htmlFilteringTestModule:testNodeTypesAndSelectorsC, htmlFilteringTestModuleMix:testNodeTypesAndSelectorsMixin
     - prop7 (string, richtext)
+
+[htmlFilteringTestModule:testValidation] > jnt:content, jmix:droppableContent
+    - textA (string, richtext)
+    - textB (string, richtext)
+    - textC (string, richtext)
+
+[htmlFilteringTestModule:testValidationMultiple] > jnt:content, jmix:droppableContent
+    - textA (string, richtext) multiple

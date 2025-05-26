@@ -10,11 +10,11 @@ import java.lang.annotation.Target;
 /**
  * Custom constraint to validate html
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = HtmlValidator.class)
 public @interface HtmlFilteringConstraint {
-    String message() default "Error validating html";
+    String message() default "{htmlFiltering.invalid}";
 
     Class<?>[] groups() default {};
 

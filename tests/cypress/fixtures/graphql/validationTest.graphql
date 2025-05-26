@@ -1,6 +1,11 @@
-mutation addNode($text: String!) {
+mutation addNode($nodeName: String!, $text: String!) {
     jcr {
-        addNode(name: "testNode", parentPathOrId:  "/sites/systemsite/contents", primaryNodeType: "jnt:bigText", properties: [{language: "en", value: $text, name: "text"}]) {
+        addNode(
+            name: $nodeName
+            parentPathOrId: "/sites/testValidation/contents"
+            primaryNodeType: "jnt:bigText"
+            properties: [{language: "en", value: $text, name: "text"}]
+        ) {
             uuid
         }
     }

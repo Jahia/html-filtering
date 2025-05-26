@@ -66,10 +66,12 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
                 if (property.isMultiple()) {
                     Value[] values = property.getValues();
                     for (Value value : values) {
-                        isValid = isValid && validatePropertyValue(propertyName, value, policy, context);
+                        // Do the evaluation for each value, return the whole result
+                        isValid = validatePropertyValue(propertyName, value, policy, context) && isValid;
                     }
                 } else {
-                    isValid = isValid && validatePropertyValue(propertyName, property.getValue(), policy, context);
+                    // Do the evaluation for each property, return the whole result
+                    isValid =validatePropertyValue(propertyName, property.getValue(), policy, context) && isValid;
                 }
             }
         }

@@ -1,0 +1,16 @@
+mutation addNode($nodeName: String!, $textA: String!, $textB: String!, $textC: String!) {
+    jcr {
+        addNode(
+            name: $nodeName
+            parentPathOrId: "/sites/testValidation/contents"
+            primaryNodeType: "htmlFilteringTestModule:testValidation"
+            properties: [
+                {language: "en", value: $textA, name: "textA"},
+                {language: "en", value: $textB, name: "textB"},
+                {language: "en", value: $textC, name: "textC"},
+            ]
+        ) {
+            uuid
+        }
+    }
+}

@@ -25,13 +25,13 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
  * @param text new value of the property
  * @param language language of the property, default to 'en'
  */
-export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, language: string = 'en') => {
+export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string) => {
     const modifyNodeGql = gql`
-        mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!, $language: String!) {
+        mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!) {
             jcr {
                 mutateNode(pathOrId: $pathOrId) {
                     mutateProperty(name:$propertyName) {
-                        setValue(value: $text, language: $language)
+                        setValue(value: $text)
                         property {
                             value
                         }
@@ -42,7 +42,7 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
     `;
     return cy.apollo({
         mutation: modifyNodeGql,
-        variables: {pathOrId, propertyName, text, language}
+        variables: {pathOrId, propertyName, text}
     }).then(response => {
         return response.data.jcr.mutateNode.mutateProperty.property.value;
     });

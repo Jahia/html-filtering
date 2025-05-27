@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.PolicyRegistry;
 import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.impl.config.ConfigBuilder;
 import org.jahia.modules.htmlfiltering.impl.config.GlobalAbstractConfig;
 import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.osgi.service.cm.ConfigurationException;

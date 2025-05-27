@@ -15,6 +15,7 @@
  */
 package org.jahia.modules.htmlfiltering.impl.config;
 
+import org.jahia.modules.htmlfiltering.impl.ConfigBuilder;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;

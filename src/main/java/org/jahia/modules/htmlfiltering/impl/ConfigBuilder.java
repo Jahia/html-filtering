@@ -1,4 +1,4 @@
-package org.jahia.modules.htmlfiltering.impl.config;
+package org.jahia.modules.htmlfiltering.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -7,7 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.Strategy;
-import org.jahia.modules.htmlfiltering.impl.PolicyImpl;
+import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.ElementModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
@@ -17,7 +17,13 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -30,7 +36,8 @@ public class ConfigBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigBuilder.class);
 
-    private ConfigBuilder() {}
+    private ConfigBuilder() {
+    }
 
     private static final JavaPropsMapper javaPropsMapper = JavaPropsMapper.builder()
             .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
@@ -38,7 +45,7 @@ public class ConfigBuilder {
             .build();
 
     /**
-     * Builds an {@link Config} object from the given properties.
+     * Builds a {@link Config} object from the given properties.
      *
      * @param properties the properties to build the configuration from
      * @return the built configuration
@@ -74,14 +81,14 @@ public class ConfigBuilder {
             });
         }
 
-        return new Config(buildPolicy(formatPatterns, configModel.getEditWorkspace()),
-                buildPolicy(formatPatterns, configModel.getLiveWorkspace()));
+        return new Config(buildPolicy(formatPatterns, configModel.getEditWorkspace(), "editWorkspace"),
+                buildPolicy(formatPatterns, configModel.getLiveWorkspace(), "liveWorkspace"));
     }
 
-    public static Policy buildPolicy(Map<String, Pattern> formatPatterns, PolicyModel policyModel) {
+    static Policy buildPolicy(Map<String, Pattern> formatPatterns, PolicyModel policyModel, String configPolicyName) {
         // validate policy model
         if (policyModel == null) {
-            throw new IllegalArgumentException("Workspace policy configuration is not set");
+            throw new IllegalArgumentException(String.format("'%s' is not set", configPolicyName));
         }
         if (policyModel.getStrategy() == null) {
             throw new IllegalArgumentException("'strategy' is not set");
@@ -180,7 +187,7 @@ public class ConfigBuilder {
             }
             // Apply element rules
             for (ElementModel element : ruleSet.getElements()) {
-                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler,textContentHandler, element);
+                processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, textContentHandler, element);
             }
 
             // Apply protocol rules

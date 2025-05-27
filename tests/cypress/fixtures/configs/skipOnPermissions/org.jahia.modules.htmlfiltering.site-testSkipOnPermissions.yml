@@ -1,0 +1,15 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: SANITIZE
+    skipOnPermissions: ['view-full-wysiwyg-editor']
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p, h1]
+  liveWorkspace:
+    strategy: SANITIZE
+    skipOnPermissions: []
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p, h1]

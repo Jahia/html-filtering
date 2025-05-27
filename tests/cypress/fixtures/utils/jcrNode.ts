@@ -24,8 +24,9 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
  * @param propertyName name of the property to modify
  * @param text new value of the property
  * @param language language of the property, default to 'en'
+ * @param apolloClient optional Apollo Client instance to use, if not provided the default one will be used
  */
-export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, language: string = 'en') => {
+export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, language: string = 'en', apolloClient = undefined) => {
     const modifyNodeGql = gql`
         mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!, $language: String!) {
             jcr {
@@ -40,7 +41,8 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
             }
         }
     `;
-    return cy.apollo({
+    const client = apolloClient || cy.apolloClient();
+    return client.apollo({
         mutation: modifyNodeGql,
         variables: {pathOrId, propertyName, text, language}
     }).then(response => {

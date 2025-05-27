@@ -16,6 +16,7 @@
 package org.jahia.modules.htmlfiltering.model;
 
 import org.jahia.modules.htmlfiltering.interceptor.HtmlFilteringInterceptor;
+import org.jahia.modules.htmlfiltering.validation.HtmlFilteringValidator;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
@@ -29,6 +30,7 @@ public class PolicyModel {
     private PolicyStrategy strategy;
     private List<String> process;
     private List<String> skip;
+    private List<String> skipOnPermissions;
 
     public RuleSetModel getAllowedRuleSet() {
         return allowedRuleSet;
@@ -70,6 +72,14 @@ public class PolicyModel {
         this.skip = skip;
     }
 
+    public List<String> getSkipOnPermissions() {
+        return skipOnPermissions;
+    }
+
+    public void setSkipOnPermissions(List<String> skipOnPermissions) {
+        this.skipOnPermissions = skipOnPermissions;
+    }
+
     /**
      * Defines the strategy for handling HTML content that does not adhere
      * to the allowed rule set.
@@ -79,7 +89,7 @@ public class PolicyModel {
          * Strategy to reject HTML content that does not adhere to the allowed rule set.
          * Any content that violates the defined rules will be deemed invalid and not accepted.
          *
-         * @see org.jahia.modules.htmlfiltering.validation.HtmlValidator#isValid(JCRNodeWrapper, ConstraintValidatorContext)
+         * @see org.jahia.modules.htmlfiltering.validation.HtmlValidator#isValid(HtmlFilteringValidator, ConstraintValidatorContext)
          */
         REJECT,
         /**

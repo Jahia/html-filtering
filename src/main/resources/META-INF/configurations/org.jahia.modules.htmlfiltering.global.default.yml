@@ -14,18 +14,6 @@ htmlFiltering:
       # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # inline formatting tags:
-        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
-
-        # block tags:
-        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
-
-        # form tags:
-        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
-
-        # other common tags:
-        - tags: [ a, abbr, address, article, aside, audio, button, canvas, caption, cite, col, colgroup, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, table, tbody, td, tfoot, th, thead, time, tr, track, var, video, wbr ]
-
         # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
         #   - the event handlers (onclick, etc.)
         #   - the generic data-* that can potentially be misused by malicious JavaScript
@@ -33,10 +21,46 @@ htmlFiltering:
         #   - potentially risky ones: contenteditable, is,
         #   - id that is restricted with a pattern
         - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
-        # allow id attribute but with format validation
+
+        # allow id attribute on all tags but with format validation
         - attributes:
             - id
           format: HTML_ID
+
+        # inline formatting:
+        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
+
+        # blocks:
+        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
+
+        # forms:
+        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
+        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
+          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
+        - attributes: [ type ]
+          tags: [ input ]
+        - attributes: [ cols, rows ]
+          tags: [ textarea ]
+        - attributes: [ low, high, optimum ]
+          tags: [ meter ]
+
+        # table-related tags and attributes
+        # table tags:
+        - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ colspan, rowspan ]
+          tags: [ td, th ]
+        - attributes: [ align ]
+          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ border, cellpadding, cellspacing, summary ]
+          tags: [ table ]
+        - attributes: [ headers ]
+          tags: [ td, th ]
+        - attributes: [ height, width ]
+          tags: [  table, td, th, col, colgroup, video ]
+          format: NUMBER_OR_PERCENT
+
+        # other common tags:
+        - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
 
         # common attributes on image and media tags
         - attributes: [ alt ]
@@ -54,20 +78,6 @@ htmlFiltering:
           tags: [ audio, img, source, video ]
         - attributes: [ kind, label ]
           tags: [ track ]
-
-        # table-related attributes
-        - attributes: [ colspan, rowspan ]
-          tags: [ td, th ]
-        - attributes: [ align ]
-          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
-        - attributes: [ border, cellpadding, cellspacing, summary ]
-          tags: [ table ]
-        - attributes: [ headers ]
-          tags: [ td, th ]
-
-        # Form-specific attributes
-        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
-          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
 
         # Link attributes
         - attributes: [ href ]
@@ -95,18 +105,6 @@ htmlFiltering:
       # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # inline formatting tags:
-        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
-
-        # block tags:
-        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
-
-        # form tags:
-        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
-
-        # other common tags:
-        - tags: [ a, abbr, address, article, aside, audio, button, canvas, caption, cite, col, colgroup, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, table, tbody, td, tfoot, th, thead, time, tr, track, var, video, wbr ]
-
         # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
         #   - the event handlers (onclick, etc.)
         #   - the generic data-* that can potentially be misused by malicious JavaScript
@@ -114,10 +112,46 @@ htmlFiltering:
         #   - potentially risky ones: contenteditable, is,
         #   - id that is restricted with a pattern
         - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
-        # allow id attribute but with format validation
+
+        # allow id attribute on all tags but with format validation
         - attributes:
             - id
           format: HTML_ID
+
+        # inline formatting:
+        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
+
+        # blocks:
+        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
+
+        # forms:
+        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
+        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
+          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
+        - attributes: [ type ]
+          tags: [ input ]
+        - attributes: [ cols, rows ]
+          tags: [ textarea ]
+        - attributes: [ low, high, optimum ]
+          tags: [ meter ]
+
+        # table-related tags and attributes
+        # table tags:
+        - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ colspan, rowspan ]
+          tags: [ td, th ]
+        - attributes: [ align ]
+          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ border, cellpadding, cellspacing, summary ]
+          tags: [ table ]
+        - attributes: [ headers ]
+          tags: [ td, th ]
+        - attributes: [ height, width ]
+          tags: [ table, td, th, col, colgroup, video ]
+          format: NUMBER_OR_PERCENT
+
+        # other common tags:
+        - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
 
         # common attributes on image and media tags
         - attributes: [ alt ]
@@ -135,20 +169,6 @@ htmlFiltering:
           tags: [ audio, img, source, video ]
         - attributes: [ kind, label ]
           tags: [ track ]
-
-        # table-related attributes
-        - attributes: [ colspan, rowspan ]
-          tags: [ td, th ]
-        - attributes: [ align ]
-          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
-        - attributes: [ border, cellpadding, cellspacing, summary ]
-          tags: [ table ]
-        - attributes: [ headers ]
-          tags: [ td, th ]
-
-        # Form-specific attributes
-        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
-          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
 
         # Link attributes
         - attributes: [ href ]

@@ -2,7 +2,7 @@ import {addNode, createSite, deleteSite} from '@jahia/cypress';
 import {installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtures/utils';
 import gql from 'graphql-tag';
 
-describe('Test the fitering on node types and selectors', () => {
+describe('Test the filtering on node types and selectors', () => {
     const SITE_KEY = 'testNodeTypesAndSelectors';
     const PATH = `/sites/${SITE_KEY}/home/pagecontent`;
     const ORIGINAL_HTML_TEXT = '<h1 id="myid">my title</h1><h2>sub-title</h2><p class="myClass">my text</p>';

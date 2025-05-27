@@ -76,14 +76,18 @@ public final class PolicyRegistryImpl implements PolicyRegistry, ManagedServiceF
         String configurationName = FilenameUtils.getBaseName(configurationPath.toString());
         String siteKey = StringUtils.substringAfter(configurationName, "-");
 
+        logger.info("Updating html filtering configuration for {} (pid: {})", siteKey, pid);
         // build the config for the site
-        Config config = ConfigBuilder.build(properties);
+        Config config = null;
+        try {
+            config = ConfigBuilder.build(properties);
+        } catch (ConfigurationException e) {
+            logger.error("Unable to read the configuration for the site {}, unregistering it...", siteKey, e);
+        }
 
         // update the maps
         configsPerSiteKey.put(siteKey, config);
         sitesByPid.put(pid, siteKey);
-
-        logger.info("html-filtering config for {} (pid: {}) updated.", siteKey, pid);
     }
 
     @Override

@@ -35,13 +35,18 @@ public abstract class GlobalAbstractConfig implements ManagedService {
     }
 
     @Override
-    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+    public void updated(Dictionary<String, ?> properties) {
         if (properties == null) {
             htmlFilteringConfigRef.set(null);
             logger.info("Resetting [{}] html filtering configuration", getClass().getSimpleName());
         } else {
             logger.info("Updating [{}] html filtering configuration", getClass().getSimpleName());
-            Config config = ConfigBuilder.build(properties);
+            Config config = null;
+            try {
+                config = ConfigBuilder.build(properties);
+            } catch (ConfigurationException e) {
+                logger.error("Unable to read the html filtering configuration [{}], unregistering it...", getClass().getSimpleName(), e);
+            }
             htmlFilteringConfigRef.set(config);
         }
     }

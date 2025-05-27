@@ -103,4 +103,18 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         removeSiteConfig(OTHER_SITE);
         removeGlobalCustomConfig();
     });
+
+    it('when only an invalid per-site configuration is provided after installing a valid one, the HTML text is sanitized using the global default strategy (the config is ignored)', () => {
+        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Valid
+        installConfig(`configs/configurationStrategy/invalid/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Invalid
+
+        modifyContent(PATH, HTML_TEXT);
+        getContent(PATH).then(result => {
+            const value = result.data.jcr.nodeByPath.property.value;
+            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+        });
+
+        removeSiteConfig(OTHER_SITE);
+        removeGlobalCustomConfig();
+    });
 });

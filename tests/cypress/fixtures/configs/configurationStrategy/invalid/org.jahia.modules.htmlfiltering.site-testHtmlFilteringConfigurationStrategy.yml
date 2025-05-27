@@ -1,0 +1,9 @@
+# invalid configuration file: invalid workspace, missing liveWorkspace, unknown strategy
+htmlFiltering:
+  unknownWorkspace:
+    strategy: FOO
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [h1, h2]
+

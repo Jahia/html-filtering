@@ -114,7 +114,6 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
             expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
         });
 
-        removeSiteConfig(OTHER_SITE);
-        removeGlobalCustomConfig();
+        removeSiteConfig(SITE_KEY);
     });
 });

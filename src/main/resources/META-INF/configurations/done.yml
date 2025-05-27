@@ -1,0 +1,80 @@
+# global default configuration that is not meant to be updated.
+# To create a global configuration for multiple sites, use a configuration file named org.jahia.modules.htmlfiltering.global.custom.yml
+# To create a site-specific configuration, use a configuration file named org.jahia.modules.htmlfiltering.site-<site key>.yml
+htmlFiltering:
+  formatDefinitions:
+    HTML_ID: '[a-zA-Z][a-zA-Z0-9\:\-_\.]*'  # IDs must start with a letter and can contain letters, digits, colons, hyphens, underscores, or dots
+    NUMBER_OR_PERCENT: '([0-9]+|[0-9]+\.[0-9]+|[0-9]+%|auto)' # Examples: "123", "123.45", "25%", "auto"
+    LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
+  editWorkspace:
+    strategy: SANITIZE
+    process: [ 'nt:base.*' ]
+    skip: [ ]
+    allowedRuleSet:
+      # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
+      elements:
+
+
+        # form tags:
+        - tags: [ optgroup,  datalist, ]
+
+        # other common tags:
+        - tags: [ a, abbr, address, article, aside, audio, button, canvas, caption, cite, col, colgroup, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, table, tbody, td, tfoot, th, thead, time, tr, track, var, video, wbr ]
+
+
+
+        # common attributes on image and media tags
+        - attributes: [ alt ]
+          tags: [ img ]
+        - attributes: [ src ]
+          tags: [ audio, img, source, track, video ]
+        - attributes: [ height, width ]
+          tags: [ canvas, img, table, td, th, col, colgroup, video ]
+          format: NUMBER_OR_PERCENT
+        - attributes: [ srcset ]
+          tags: [ img, source ]
+        - attributes: [ autoplay, controls, loop, muted, preload ]
+          tags: [ audio, video ]
+        - attributes: [ crossorigin ]
+          tags: [ audio, img, source, video ]
+        - attributes: [ kind, label ]
+          tags: [ track ]
+
+        # table-related attributes
+        - attributes: [ colspan, rowspan ]
+          tags: [ td, th ]
+        - attributes: [ align ]
+          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ border, cellpadding, cellspacing, summary ]
+          tags: [ table ]
+        - attributes: [ headers ]
+          tags: [ td, th ]
+
+        # Form-specific attributes
+        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
+          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
+        - attributes: [ type ]
+          tags: [ input ]
+        - attributes: [ cols, rows ]
+          tags: [ textarea ]
+        - attributes: [ low, high, optimum ]
+          tags: [ meter ]
+
+        # Link attributes
+        - attributes: [ href ]
+          tags: [ a ]
+          format: LINKS_URL
+        - attributes: [ hreflang, media, rel, target, download ]
+          tags: [ a ]
+
+        # Other useful element-specific attributes
+        - attributes: [ cite ]
+          tags: [ blockquote, del, ins, q ]
+        - attributes: [ datetime ]
+          tags: [ del, ins, time ]
+        - attributes: [ disabled ]
+          tags: [ button ]
+        - attributes: [ type ]
+          tags: [ ol, ul, button ]
+        - attributes: [ value ]
+          tags: [ li ]

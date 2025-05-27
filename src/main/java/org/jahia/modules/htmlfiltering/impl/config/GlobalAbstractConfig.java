@@ -38,14 +38,14 @@ public abstract class GlobalAbstractConfig implements ManagedService {
     public void updated(Dictionary<String, ?> properties) {
         if (properties == null) {
             htmlFilteringConfigRef.set(null);
-            logger.info("Resetting [{}] html filtering configuration", getClass().getSimpleName());
+            logger.info("Resetting html filtering configuration");
         } else {
-            logger.info("Updating [{}] html filtering configuration", getClass().getSimpleName());
+            logger.info("Updating html filtering configuration");
             Config config = null;
             try {
                 config = ConfigBuilder.build(properties);
             } catch (ConfigurationException e) {
-                logger.error("Unable to read the html filtering configuration [{}], unregistering it...", getClass().getSimpleName(), e);
+                logger.error("Unable to read the html filtering configuration, unregistering it...", e);
             }
             htmlFilteringConfigRef.set(config);
         }

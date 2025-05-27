@@ -15,15 +15,27 @@
  */
 package org.jahia.modules.htmlfiltering.model;
 
+import org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatDefinitions;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatReference;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
  * Represents the HTML filtering configuration for a given site.
  * A configuration can be defined for a given site by creating a file named <code>org.jahia.modules.htmlfiltering.site-&lt;siteKey&gt;.yml</code> in the <code>META-INF/configurations/</code> folder of a bundle.
  */
+@ValidFormatReference
 public class ConfigModel {
+
+    @NotNull
+    @Valid
     private PolicyModel editWorkspace;
+    @NotNull
+    @Valid
     private PolicyModel liveWorkspace;
+    @ValidFormatDefinitions
     private Map<String, String> formatDefinitions;
 
     public PolicyModel getEditWorkspace() {

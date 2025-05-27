@@ -22,14 +22,24 @@ import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 
 import javax.jcr.Value;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 public class PolicyModel {
+    private static final String NODE_TYPES_PROPS_MSG = "{org.jahia.modules.htmlfiltering.model.PolicyModel.nodeTypesProperties.invalidFormat.message}";
+    private static final String NODE_TYPES_PROPS_REGEX = "^[\\w:_-]+(\\.\\*|\\.[\\w:_-]+)?$"; // Examples: "mynt:mynode", "mynt:mynode.*", "mynt:mynode.myProp"
+    @NotNull
+    @Valid
     private RuleSetModel allowedRuleSet;
     private RuleSetModel disallowedRuleSet;
+    @NotNull
     private PolicyStrategy strategy;
-    private List<String> process;
-    private List<String> skip;
+    @NotEmpty
+    private List<@Pattern(regexp = NODE_TYPES_PROPS_REGEX, message = NODE_TYPES_PROPS_MSG) String> process;
+    private List<@Pattern(regexp = NODE_TYPES_PROPS_REGEX, message = NODE_TYPES_PROPS_MSG) String> skip;
     private List<String> skipOnPermissions;
 
     public RuleSetModel getAllowedRuleSet() {
@@ -110,6 +120,7 @@ public class PolicyModel {
                 ", strategy=" + strategy +
                 ", process=" + process +
                 ", skip=" + skip +
+                ", skipOnPermissions=" + skipOnPermissions +
                 '}';
     }
 }

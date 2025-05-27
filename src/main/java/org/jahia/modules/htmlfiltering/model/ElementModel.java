@@ -15,8 +15,13 @@
  */
 package org.jahia.modules.htmlfiltering.model;
 
+import org.jahia.modules.htmlfiltering.model.validation.constraints.FormatRequiresAttributes;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.RequiresTagsOrAttributes;
+
 import java.util.List;
 
+@RequiresTagsOrAttributes
+@FormatRequiresAttributes
 public class ElementModel {
     private List<String> tags;
     private List<String> attributes;

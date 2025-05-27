@@ -17,6 +17,10 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -71,7 +75,17 @@ public class ConfigBuilder {
         }
     }
 
-    private static Config buildFromModel(ConfigModel configModel) {
+    /**
+     * Builds a valid {@link Config} object from the given {@link ConfigModel}. This method validates the
+     * provided {@link ConfigModel}, compiles format definitions into regex patterns, and generates
+     * policies for the edit and live workspaces.
+     *
+     * @param configModel the {@link ConfigModel} containing the configuration details used to build the {@link Config}
+     * @return a {@link Config} instance populated with the policies derived from the provided {@link ConfigModel}
+     * @throws ConfigurationException if validation of the {@link ConfigModel} fails or an error occurs during configuration building
+     */
+    static Config buildFromModel(ConfigModel configModel) throws ConfigurationException {
+        validate(configModel);
         // compile the regex patterns for the allowed and disallowed rule sets (shared for both workspaces)
         Map<String, Pattern> formatPatterns = new HashMap<>();
         if (configModel.getFormatDefinitions() != null) {
@@ -81,24 +95,21 @@ public class ConfigBuilder {
             });
         }
 
-        return new Config(buildPolicy(formatPatterns, configModel.getEditWorkspace(), "editWorkspace"),
-                buildPolicy(formatPatterns, configModel.getLiveWorkspace(), "liveWorkspace"));
+        return new Config(buildPolicy(formatPatterns, configModel.getEditWorkspace()),
+                buildPolicy(formatPatterns, configModel.getLiveWorkspace()));
     }
 
-    static Policy buildPolicy(Map<String, Pattern> formatPatterns, PolicyModel policyModel, String configPolicyName) {
-        // validate policy model
-        if (policyModel == null) {
-            throw new IllegalArgumentException(String.format("'%s' is not set", configPolicyName));
+    private static void validate(ConfigModel configModel) throws ConfigurationException {
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = validatorFactory.getValidator();
+            Set<ConstraintViolation<ConfigModel>> violations = validator.validate(configModel);
+            if (!violations.isEmpty()) {
+                throw new ValidationConfigurationException(violations);
+            }
         }
-        if (policyModel.getStrategy() == null) {
-            throw new IllegalArgumentException("'strategy' is not set");
-        }
-        if (CollectionUtils.isEmpty(policyModel.getProcess())) {
-            throw new IllegalArgumentException("'process' is not set");
-        }
-        if (policyModel.getAllowedRuleSet() == null) {
-            throw new IllegalArgumentException("'allowedRuleSet' is not set");
-        }
+    }
+
+    static Policy buildPolicy(Map<String, Pattern> formatPatterns, PolicyModel policyModel) {
 
         // Configure OWASP
         HtmlPolicyBuilder builder = new HtmlPolicyBuilder();
@@ -118,9 +129,6 @@ public class ConfigBuilder {
         Map<String, Set<String>> result = new HashMap<>();
         if (propsByNodeType != null) {
             for (String nodeTypeProperty : propsByNodeType) {
-                if (StringUtils.isEmpty(nodeTypeProperty)) {
-                    throw new IllegalArgumentException(String.format("Each item in '%s' must be set and not empty", configSectionName));
-                }
                 String[] parts = StringUtils.split(nodeTypeProperty, '.');
                 switch (parts.length) {
                     case 1:
@@ -132,7 +140,8 @@ public class ConfigBuilder {
                         setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
                         break;
                     default:
-                        throw new IllegalArgumentException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
+                        // should not happen as the configuration is validated beforehand
+                        throw new IllegalStateException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
                 }
             }
         }
@@ -174,7 +183,8 @@ public class ConfigBuilder {
             case SANITIZE:
                 return Strategy.SANITIZE;
             default:
-                throw new IllegalArgumentException(String.format("Unknown 'strategy':%s ", policyModel.getStrategy()));
+                // should not happen as the configuration is validated beforehand
+                throw new IllegalStateException(String.format("Unknown 'strategy':%s ", policyModel.getStrategy()));
         }
     }
 
@@ -183,9 +193,6 @@ public class ConfigBuilder {
                                        AttributeBuilderHandlerFunction attributeBuilderHandlerFunction,
                                        BuilderHandlerFunction tagHandler, BuilderHandlerFunction textContentHandler, BuilderHandlerFunction protocolHandler) {
         if (ruleSet != null) {
-            if (CollectionUtils.isEmpty(ruleSet.getElements())) {
-                throw new IllegalArgumentException("At least one item in 'elements' must be defined");
-            }
             // Apply element rules
             for (ElementModel element : ruleSet.getElements()) {
                 processElement(builder, formatPatterns, attributeBuilderHandlerFunction, tagHandler, textContentHandler, element);
@@ -203,14 +210,7 @@ public class ConfigBuilder {
                                        BuilderHandlerFunction tagHandler, BuilderHandlerFunction textContentHandler, ElementModel element) {
         boolean noTags = CollectionUtils.isEmpty(element.getTags());
         boolean noAttributes = CollectionUtils.isEmpty(element.getAttributes());
-        if (noTags && noAttributes) {
-            throw new IllegalArgumentException("Each item in 'elements' of 'allowedRuleSet' / 'disallowedRuleSet' must contain 'tags' and/or 'attributes'. Item: " + element);
-        }
         if (noAttributes) {
-            // Contains tags without attributes
-            if (element.getFormat() != null) {
-                throw new IllegalArgumentException("'format' can only be used with 'attributes'. Item: " + element);
-            }
             tagHandler.handle(builder, element.getTags().toArray(new String[0]));
             textContentHandler.handle(builder, element.getTags().toArray(new String[0]));
         } else {
@@ -220,9 +220,6 @@ public class ConfigBuilder {
             // Handle format pattern for allowed attributes only
             if (element.getFormat() != null) {
                 Pattern formatPattern = formatPatterns.get(element.getFormat());
-                if (formatPattern == null) {
-                    throw new IllegalArgumentException(String.format("Format '%s' not defined, check your configuration", element.getFormat()));
-                }
                 attributeBuilder.matching(formatPattern);
             }
 

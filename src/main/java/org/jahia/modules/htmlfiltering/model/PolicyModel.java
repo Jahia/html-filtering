@@ -29,7 +29,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 public class PolicyModel {
-    private static final String NODE_TYPES_PROPS_MSG = "{org.jahia.modules.htmlfiltering.model.PolicyModel.nodeTypesProperties.invalidFormat.message}";
+    private static final String NODE_TYPES_PROPS_MSG = "must be in format 'nodeType', 'nodeType.*', or 'nodeType.property'";
     private static final String NODE_TYPES_PROPS_REGEX = "^[\\w:_-]+(\\.\\*|\\.[\\w:_-]+)?$"; // Examples: "mynt:mynode", "mynt:mynode.*", "mynt:mynode.myProp"
     @NotNull
     @Valid

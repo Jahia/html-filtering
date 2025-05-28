@@ -171,12 +171,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate.validator.version}</version>
-<!--            <scope>provided</scope>--> <!-- TODO temp -->
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-jsp</artifactId>
             <version>${pax.web.jsp.version}</version>
@@ -192,6 +186,13 @@
         <dependency>
             <groupId>pl.pragmatists</groupId>
             <artifactId>JUnitParams</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- for unit tests, a validator must be present in the classpath -->
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -289,6 +290,7 @@
                                 <ignoredUnusedDeclaredDependency>javax.servlet:javax.servlet-api</ignoredUnusedDeclaredDependency>
                                 <!-- dependencies used at runtime to perform validation, without direct imports: -->
                                 <ignoredUnusedDeclaredDependency>org.ops4j.pax.web:pax-web-jsp</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.hibernate.validator:hibernate-validator</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>

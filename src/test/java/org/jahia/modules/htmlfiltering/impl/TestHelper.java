@@ -4,7 +4,6 @@ import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.ElementModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.jahia.modules.htmlfiltering.model.RuleSetModel;
-import org.osgi.service.cm.ConfigurationException;
 
 import javax.validation.ConstraintViolation;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TestHelper {
 
@@ -64,23 +62,23 @@ public class TestHelper {
     /**
      * Build a configuration model that is valid but with minimal content.
      *
-     * @return a configuration model with minimal content
+     * @return a valid configuration model with minimal content
      */
-    public static ConfigModel buildBasicConfigModel() {
-        return buildBasicConfigModel("p");
+    public static ConfigModel buildConfigModel() {
+        return buildConfigModel("p");
     }
 
-    public static ConfigModel buildBasicConfigModel(String... tags) {
+    public static ConfigModel buildConfigModel(String... allowedTags) {
         ConfigModel configModel = new ConfigModel();
-        configModel.setEditWorkspace(buildMinimalPolicyModel(tags));
-        configModel.setLiveWorkspace(buildMinimalPolicyModel(tags));
+        configModel.setEditWorkspace(buildPolicyModel(allowedTags));
+        configModel.setLiveWorkspace(buildPolicyModel(allowedTags));
         return configModel;
     }
 
-    private static PolicyModel buildMinimalPolicyModel(String... tags) {
+    private static PolicyModel buildPolicyModel(String... allowedTags) {
         PolicyModel policyModel = new PolicyModel();
         RuleSetModel allowedRuleSet = new RuleSetModel();
-        allowedRuleSet.setElements(of(buildElement(Arrays.asList(tags), null, null)));
+        allowedRuleSet.setElements(of(buildElement(Arrays.asList(allowedTags), null, null)));
         policyModel.setAllowedRuleSet(allowedRuleSet);
         policyModel.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         policyModel.setProcess(of("nt:base.*"));
@@ -105,18 +103,10 @@ public class TestHelper {
         return new HashSet<>(Arrays.asList(items));
     }
 
-    // TODO review signature
-    public static void assertContainsValidationError(ConfigurationException configurationException, String fieldName, String error) {
-        String message = configurationException.getMessage();
-        // TODO review based on final impl
-        assertTrue(String.format("Expected '%s' to contain the error '%s' for the field '%s'", message, error, fieldName), message.contains(String.format("- %s: %s", fieldName, error)));
-    }
-
-    public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, String template, String message) {
+    public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
         assertEquals("Only one violation is expected ", 1, configurationException.getViolations().size());
         ConstraintViolation<ConfigModel> violation = configurationException.getViolations().iterator().next();
         assertEquals(fieldName, violation.getPropertyPath().toString());
-        assertEquals(template, violation.getMessageTemplate());
         assertEquals(message, violation.getMessage());
 
     }

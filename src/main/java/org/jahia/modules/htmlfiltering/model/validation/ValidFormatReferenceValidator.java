@@ -31,13 +31,13 @@ import java.util.Set;
 public class ValidFormatReferenceValidator implements ConstraintValidator<ValidFormatReference, ConfigModel> {
     @Override
     public void initialize(ValidFormatReference constraintAnnotation) {
-        // No initialization needed
+        // Do nothing
     }
 
     @Override
     public boolean isValid(ConfigModel configModel, ConstraintValidatorContext context) {
         if (configModel == null) {
-            return true; // Let @NotNull handle null values
+            return true;
         }
 
         Map<String, String> formatDefinitions = configModel.getFormatDefinitions();
@@ -82,10 +82,10 @@ public class ValidFormatReferenceValidator implements ConstraintValidator<ValidF
         for (int i = 0; i < ruleSet.getElements().size(); i++) {
             ElementModel element = ruleSet.getElements().get(i);
             if (element != null && element.getFormat() != null && !formatNames.contains(element.getFormat())) {
-                ValidatorUtils.addMessageParameter(context, "formatKey", element.getFormat());
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                                "{org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatReference.undefined.message}")
+                                String.format("Format '%s' not defined under 'formatDefinitions'", element.getFormat())
+                        )
                         .addPropertyNode(path)
                         .addPropertyNode("elements")
                         .addPropertyNode("[" + i + "].format")

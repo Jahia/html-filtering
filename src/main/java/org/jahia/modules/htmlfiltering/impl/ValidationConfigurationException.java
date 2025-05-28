@@ -25,12 +25,12 @@ public class ValidationConfigurationException extends ConfigurationException {
     private final Set<ConstraintViolation<ConfigModel>> violations;
 
     public ValidationConfigurationException(Set<ConstraintViolation<ConfigModel>> violations) {
-        super(null, "Validation failed: " + buildErrorMessage(violations));
+        super(null, "Invalid configuration: " + buildErrorMessage(violations));
         this.violations = violations;
     }
 
     private static String buildErrorMessage(Set<ConstraintViolation<ConfigModel>> violations) {
-        StringBuilder errorMessages = new StringBuilder("Configuration validation errors:\n");
+        StringBuilder errorMessages = new StringBuilder("\n");
         for (ConstraintViolation<ConfigModel> violation : violations) {
             errorMessages.append(" - ").append(violation.getPropertyPath())
                     .append(": ").append(violation.getMessage()).append("\n");

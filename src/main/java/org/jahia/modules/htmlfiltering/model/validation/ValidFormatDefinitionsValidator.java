@@ -34,15 +34,14 @@ public class ValidFormatDefinitionsValidator implements ConstraintValidator<Vali
     @Override
     public boolean isValid(Map<String, String> map, ConstraintValidatorContext context) {
         if (map == null) {
-            return true; // @NotNull should handle null values if needed
+            return true;
         }
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String regex = entry.getValue();
             if (StringUtils.isBlank(regex)) {
-                ValidatorUtils.addMessageParameter(context, "formatKey", entry.getKey());
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatDefinitions.blank.message}")
+                context.buildConstraintViolationWithTemplate(String.format("the value for the format definition of '%s' must not be blank", entry.getKey()))
                         .addConstraintViolation();
                 return false;
             }
@@ -50,11 +49,9 @@ public class ValidFormatDefinitionsValidator implements ConstraintValidator<Vali
             try {
                 Pattern.compile(regex);
             } catch (PatternSyntaxException e) {
-                ValidatorUtils.addMessageParameter(context, "formatKey", entry.getKey());
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                                "{org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatDefinitions.invalid.message}")
-                        .addConstraintViolation();
+                        String.format("the value for the format definition of '%s' must be a valid regular expression", entry.getKey())).addConstraintViolation();
                 return false;
             }
         }

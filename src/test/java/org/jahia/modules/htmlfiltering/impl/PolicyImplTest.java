@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildBasicConfigModel;
+import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildConfigModel;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildCompleteConfigModel;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildElement;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.of;
@@ -37,7 +37,7 @@ public class PolicyImplTest {
     })
     @Test
     public void GIVEN_a_configuration_that_allows_tags_WHEN_sanitizing_THEN_its_text_content_is_kept(String tag, String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel(tag);
+        ConfigModel configModel = buildConfigModel(tag);
         Config config = ConfigBuilder.buildFromModel(configModel);
         Policy policy = config.getEditWorkspacePolicy();
 
@@ -56,7 +56,7 @@ public class PolicyImplTest {
             "<p>my text<h1>title</h6>, my texttitle"
     })
     public void GIVEN_minimal_configuration_with_unknown_tag_WHEN_sanitizing_THEN_only_content_is_kept(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel("basicTag");
+        ConfigModel configModel = buildConfigModel("basicTag");
         Config config = ConfigBuilder.buildFromModel(configModel);
         Policy policy = config.getEditWorkspacePolicy();
 
@@ -67,7 +67,7 @@ public class PolicyImplTest {
 
     @Test
     public void GIVEN_minimal_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel("basicTag");
+        ConfigModel configModel = buildConfigModel("basicTag");
         Config config = ConfigBuilder.buildFromModel(configModel);
         Policy policy = config.getEditWorkspacePolicy();
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
@@ -97,7 +97,7 @@ public class PolicyImplTest {
             "<h1 class=\"test\" invalid=\"unknown\">title</h1>, <h1>title</h1>"
     })
     public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel("h1", "p");
+        ConfigModel configModel = buildConfigModel("h1", "p");
         Config config = ConfigBuilder.buildFromModel(configModel);
         Policy policy = config.getEditWorkspacePolicy();
 
@@ -116,7 +116,7 @@ public class PolicyImplTest {
             "<h1 id=\"myid\">title</h1><h2 id=\"myotherid\">sub-title</h2>, <h1 id=\"myid\">title</h1><h2>sub-title</h2>",
     })
     public void GIVEN_configuration_with_allowed_attributes_on_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel();
+        ConfigModel configModel = TestHelper.buildConfigModel();
         configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("h1", "p"), of("class", "id"), null),
                 buildElement(of("h1", "h2", "p"), null, null) // the tags must also be allowed "globally"
@@ -139,7 +139,7 @@ public class PolicyImplTest {
             "<h1 id=\"myid\">title</h1><h2>sub-title</h2>, <h1 id=\"myid\">title</h1>sub-title",
     })
     public void GIVEN_configuration_with_allowed_attributes_and_allowed_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel();
+        ConfigModel configModel = TestHelper.buildConfigModel();
         configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("h1", "p"), null, null),
                 buildElement(null, of("class", "id"), null)
@@ -163,7 +163,7 @@ public class PolicyImplTest {
             "<p>text:<img alt=\"myimage\" src=\"ftp://example.com/image.gif\" /></p>, <p>text:</p>",
     })
     public void GIVEN_configuration_with_allowed_protocols_on_a_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel();
+        ConfigModel configModel = TestHelper.buildConfigModel();
         configModel.getEditWorkspace().getAllowedRuleSet().setProtocols(of("http", "https"));
         configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(null, of("href", "src"), null),
@@ -193,7 +193,7 @@ public class PolicyImplTest {
 
     })
     public void GIVEN_configuration_with_formats_defined_WHEN_sanitizing_THEN_string_is_sanitized_with_the_format(String html, String expectedHtml) throws ConfigurationException {
-        ConfigModel configModel = buildBasicConfigModel();
+        ConfigModel configModel = TestHelper.buildConfigModel();
         configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("p"), of("id"), "LOWERCASE_LETTERS"),
                 buildElement(of("p"), of("class"), "DIGITS"),

@@ -71,7 +71,8 @@ public class ConfigBuilder {
             return buildFromModel(configModel);
         } catch (Exception e) {
             // Globally catch any exceptions happening during the building process
-            throw new ConfigurationException(null, "Unable to build html-filtering configuration: " + properties, e);
+            logger.debug("Unable to build html-filtering configuration due to an exception. Properties: {}", properties);
+            throw new ConfigurationException(null, "Unable to build html-filtering configuration", e);
         }
     }
 

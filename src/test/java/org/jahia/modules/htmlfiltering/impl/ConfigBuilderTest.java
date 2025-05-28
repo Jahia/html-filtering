@@ -7,10 +7,12 @@ import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
+import org.jahia.modules.htmlfiltering.model.RuleSetModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -18,6 +20,8 @@ import java.util.Map;
 
 import static org.jahia.modules.htmlfiltering.impl.ConfigBuilder.buildFromModel;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.assertContainsExactValidationError;
+import static org.jahia.modules.htmlfiltering.impl.TestHelper.assertContainsValidationError;
+import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildElement;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.of;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -531,4 +535,33 @@ public class ConfigBuilderTest {
         assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements.[0].format", "Format 'UNDEFINED_FORMAT' not defined under 'formatDefinitions'");
     }
 
+    //---------------------
+    // complete validation
+    //---------------------
+
+    @Test
+    public void GIVEN_a_configuration_with_multiple_errors_WHEN_building_THEN_validation_errors() {
+        ConfigModel configModel = new ConfigModel();
+        configModel.setFormatDefinitions(new HashMap<>());
+        configModel.getFormatDefinitions().put("SAMPLE_FORMAT", "[a-z]*");
+        configModel.getFormatDefinitions().put("INVALID_FORMAT", "(*"); // invalid
+        configModel.setEditWorkspace(null); // invalid
+        configModel.setLiveWorkspace(new PolicyModel());
+        configModel.getLiveWorkspace().setStrategy(null); // invalid
+        configModel.getLiveWorkspace().setProcess(null); // invalid
+        configModel.getLiveWorkspace().setAllowedRuleSet(new RuleSetModel());
+        configModel.getLiveWorkspace().getAllowedRuleSet().setElements(new ArrayList<>());
+        configModel.getLiveWorkspace().getAllowedRuleSet().getElements().add(buildElement(of("p", "h3"), null, null));
+        configModel.getLiveWorkspace().getAllowedRuleSet().getElements().add(buildElement(of("h6"), null, "SAMPLE_FORMAT")); // invalid
+
+
+        ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
+
+        assertEquals(5, exception.getViolations().size());
+        assertContainsValidationError(exception, "formatDefinitions", "the value for the format definition of 'INVALID_FORMAT' must be a valid regular expression");
+        assertContainsValidationError(exception, "editWorkspace", "must not be null");
+        assertContainsValidationError(exception, "liveWorkspace.strategy", "must not be null");
+        assertContainsValidationError(exception, "liveWorkspace.process", "must not be empty");
+        assertContainsValidationError(exception, "liveWorkspace.allowedRuleSet.elements[1]", "'format' must be used with 'attributes'");
+    }
 }

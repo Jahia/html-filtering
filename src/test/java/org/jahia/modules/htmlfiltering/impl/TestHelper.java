@@ -11,9 +11,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestHelper {
 
@@ -105,9 +107,16 @@ public class TestHelper {
 
     public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
         assertEquals("Only one violation is expected ", 1, configurationException.getViolations().size());
-        ConstraintViolation<ConfigModel> violation = configurationException.getViolations().iterator().next();
-        assertEquals(fieldName, violation.getPropertyPath().toString());
-        assertEquals(message, violation.getMessage());
+        assertContainsValidationError(configurationException, fieldName, message);
+    }
 
+    public static void assertContainsValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
+        long matchingViolationsCount = configurationException.getViolations().stream()
+                .filter(violation -> violation.getPropertyPath().toString().equals(fieldName))
+                .filter(violation -> violation.getMessage().equals(message))
+                .count();
+        assertTrue("No violation found for field " + fieldName + " with message " + message, matchingViolationsCount > 0);
+        assertEquals("Expected exactly one violation for field " + fieldName + " with message " + message,
+                1, matchingViolationsCount);
     }
 }

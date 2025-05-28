@@ -27,10 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of the {@link Policy} interface for defining HTML filtering policies
@@ -58,12 +55,19 @@ public final class PolicyImpl implements Policy {
      * The value can be <code>null</code> in case all properties of the node type are to be skipped.
      */
     final Map<String, Set<String>> propsToSkipByNodeType;
+    /**
+     * A list of permissions that, if current user has one of them, will cause the policy to be skipped.
+     * This is useful for cases where certain permissions should bypass the HTML filtering policy.
+     */
+    final List<String> skipOnPermissions;
     private final PolicyFactory policyFactory;
 
-    public PolicyImpl(Strategy strategy, Map<String, Set<String>> propsToProcessByNodeType, Map<String, Set<String>> propsToSkipByNodeType, PolicyFactory policyFactory) {
+    public PolicyImpl(Strategy strategy, Map<String, Set<String>> propsToProcessByNodeType, Map<String, Set<String>> propsToSkipByNodeType,
+                      List<String> skipOnPermissions, PolicyFactory policyFactory) {
         this.strategy = strategy;
         this.propsToProcessByNodeType = propsToProcessByNodeType;
         this.propsToSkipByNodeType = propsToSkipByNodeType;
+        this.skipOnPermissions = skipOnPermissions;
         this.policyFactory = policyFactory;
     }
 
@@ -74,7 +78,8 @@ public final class PolicyImpl implements Policy {
 
     @Override
     public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
-        boolean result = isRichTextStringProperty(propertyDefinition)
+        boolean result = skipOnPermissions.stream().noneMatch(node::hasPermission) &&
+                isRichTextStringProperty(propertyDefinition)
                 && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
                 && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
 

@@ -110,6 +110,7 @@ public class ConfigBuilder {
         return new PolicyImpl(readStrategy(policyModel),
                 createPropsByNodeType(policyModel.getProcess(), "process"),
                 createPropsByNodeType(policyModel.getSkip(), "skip"),
+                policyModel.getSkipOnPermissions() != null ? policyModel.getSkipOnPermissions() : Collections.emptyList(),
                 builder.toFactory());
     }
 

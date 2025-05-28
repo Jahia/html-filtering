@@ -78,7 +78,8 @@ public final class PolicyImpl implements Policy {
 
     @Override
     public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
-        boolean result = isRichTextStringProperty(propertyDefinition)
+        boolean result = skipOnPermissions.stream().noneMatch(node::hasPermission) &&
+                isRichTextStringProperty(propertyDefinition)
                 && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
                 && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
 

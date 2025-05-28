@@ -4,18 +4,18 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.PolicySanitizedHtmlResult;
-import org.jahia.modules.htmlfiltering.model.PolicyModel;
-import org.jahia.modules.htmlfiltering.model.RuleSetModel;
+import org.jahia.modules.htmlfiltering.impl.config.Config;
+import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.osgi.service.cm.ConfigurationException;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildCompletePolicy;
+import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildConfigModel;
+import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildCompleteConfigModel;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.buildElement;
 import static org.jahia.modules.htmlfiltering.impl.TestHelper.of;
 import static org.junit.Assert.assertEquals;
@@ -36,16 +36,10 @@ public class PolicyImplTest {
             "script,<p>text</p><script>alert('hello')</script>,text<script>alert('hello')</script>",
     })
     @Test
-    public void GIVEN__a_configuration_that_allows_tags_WHEN_sanitizing_THEN_its_text_content_is_kept(String tag, String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        policyModel.setAllowedRuleSet(new RuleSetModel());
-        policyModel.getAllowedRuleSet().setElements(of(
-                buildElement(of(tag), null, null)
-        ));
-
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+    public void GIVEN_a_configuration_that_allows_tags_WHEN_sanitizing_THEN_its_text_content_is_kept(String tag, String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = buildConfigModel(tag);
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -61,15 +55,10 @@ public class PolicyImplTest {
             // invalid HTML content is removed but content is kept:
             "<p>my text<h1>title</h6>, my texttitle"
     })
-    public void GIVEN_minimal_configuration_WHEN_sanitizing_THEN_only_content_is_kept(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        policyModel.setAllowedRuleSet(new RuleSetModel());
-        policyModel.getAllowedRuleSet().setElements(of(
-                buildElement(of("basicTag"), null, null)
-        ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+    public void GIVEN_minimal_configuration_with_unknown_tag_WHEN_sanitizing_THEN_only_content_is_kept(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = buildConfigModel("basicTag");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -77,15 +66,10 @@ public class PolicyImplTest {
     }
 
     @Test
-    public void GIVEN_minimal_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        policyModel.setAllowedRuleSet(new RuleSetModel());
-        policyModel.getAllowedRuleSet().setElements(of(
-                buildElement(of("basicTag"), null, null)
-        ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+    public void GIVEN_minimal_configuration_WHEN_validating_THEN_tags_and_attributes_are_rejected() throws ConfigurationException {
+        ConfigModel configModel = buildConfigModel("basicTag");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
         String html = "<p>Hello World</p><script>alert('Javascript')</script>";
 
         PolicySanitizedHtmlResult validationResult = policy.sanitize(html);
@@ -112,16 +96,10 @@ public class PolicyImplTest {
             // all attributes of <h1> are removed:
             "<h1 class=\"test\" invalid=\"unknown\">title</h1>, <h1>title</h1>"
     })
-    public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        RuleSetModel allowedRuleSet = new RuleSetModel();
-        policyModel.setAllowedRuleSet(allowedRuleSet);
-        allowedRuleSet.setElements(of(
-                buildElement(of("h1", "p"), null, null)
-        ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+    public void GIVEN_configuration_with_allowed_tags_without_attributes_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = buildConfigModel("h1", "p");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -137,17 +115,14 @@ public class PolicyImplTest {
             // allowed attributes on <h1> are kept, but not on <h2>:
             "<h1 id=\"myid\">title</h1><h2 id=\"myotherid\">sub-title</h2>, <h1 id=\"myid\">title</h1><h2>sub-title</h2>",
     })
-    public void GIVEN_configuration_with_allowed_attributes_on_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        RuleSetModel allowedRuleSet = new RuleSetModel();
-        policyModel.setAllowedRuleSet(allowedRuleSet);
-        allowedRuleSet.setElements(of(
+    public void GIVEN_configuration_with_allowed_attributes_on_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = TestHelper.buildConfigModel();
+        configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("h1", "p"), of("class", "id"), null),
                 buildElement(of("h1", "h2", "p"), null, null) // the tags must also be allowed "globally"
         ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -163,17 +138,14 @@ public class PolicyImplTest {
             // not allowed tags are removed:
             "<h1 id=\"myid\">title</h1><h2>sub-title</h2>, <h1 id=\"myid\">title</h1>sub-title",
     })
-    public void GIVEN_configuration_with_allowed_attributes_and_allowed_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        RuleSetModel allowedRuleSet = new RuleSetModel();
-        policyModel.setAllowedRuleSet(allowedRuleSet);
-        allowedRuleSet.setElements(of(
+    public void GIVEN_configuration_with_allowed_attributes_and_allowed_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = TestHelper.buildConfigModel();
+        configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("h1", "p"), null, null),
                 buildElement(null, of("class", "id"), null)
         ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -190,18 +162,15 @@ public class PolicyImplTest {
             // invalid protocols for <img> are removed and the whole tag is removed:
             "<p>text:<img alt=\"myimage\" src=\"ftp://example.com/image.gif\" /></p>, <p>text:</p>",
     })
-    public void GIVEN_configuration_with_allowed_protocols_on_a_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        RuleSetModel allowedRuleSet = new RuleSetModel();
-        allowedRuleSet.setProtocols(of("http", "https"));
-        policyModel.setAllowedRuleSet(allowedRuleSet);
-        allowedRuleSet.setElements(of(
+    public void GIVEN_configuration_with_allowed_protocols_on_a_tags_WHEN_sanitizing_THEN_string_is_sanitized(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = TestHelper.buildConfigModel();
+        configModel.getEditWorkspace().getAllowedRuleSet().setProtocols(of("http", "https"));
+        configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(null, of("href", "src"), null),
                 buildElement(of("a", "p", "img"), null, null)
         ));
-        Policy policy = ConfigBuilder.buildPolicy(Collections.emptyMap(), policyModel, "myPolicy");
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -223,23 +192,21 @@ public class PolicyImplTest {
             "<p id=\"abc\" class=\"123\">text</p>, <p id=\"abc\" class=\"123\">text</p>",
 
     })
-    public void GIVEN_configuration_with_formats_defined_WHEN_sanitizing_THEN_string_is_sanitized_with_the_format(String html, String expectedHtml) {
-        PolicyModel policyModel = new PolicyModel();
-        policyModel.setStrategy(PolicyModel.PolicyStrategy.SANITIZE);
-        policyModel.setProcess(of("nt:base.*"));
-        RuleSetModel allowedRuleSet = new RuleSetModel();
-        allowedRuleSet.setElements(of(
+    public void GIVEN_configuration_with_formats_defined_WHEN_sanitizing_THEN_string_is_sanitized_with_the_format(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = TestHelper.buildConfigModel();
+        configModel.getEditWorkspace().getAllowedRuleSet().setElements(of(
                 buildElement(of("p"), of("id"), "LOWERCASE_LETTERS"),
                 buildElement(of("p"), of("class"), "DIGITS"),
                 buildElement(of("pre"), of("id"), "DIGITS"),
                 buildElement(of("textarea"), of("id"), null),
                 buildElement(of("p", "pre", "textarea"), null, null)
         ));
-        policyModel.setAllowedRuleSet(allowedRuleSet);
-        Map<String, Pattern> formatPatterns = new HashMap<>();
-        formatPatterns.put("LOWERCASE_LETTERS", Pattern.compile("^[a-z]+$"));
-        formatPatterns.put("DIGITS", Pattern.compile("^[0-9]+$"));
-        Policy policy = ConfigBuilder.buildPolicy(formatPatterns, policyModel, "myPolicy");
+        Map<String, String> formatPatterns = new HashMap<>();
+        formatPatterns.put("LOWERCASE_LETTERS","^[a-z]+$");
+        formatPatterns.put("DIGITS", "^[0-9]+$");
+        configModel.setFormatDefinitions(formatPatterns);
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 
@@ -264,12 +231,13 @@ public class PolicyImplTest {
             // editor post processing should not keep unknown placeholders: {unknown} should replaced with %7bunknown%7d in href
             "<a href=\"##cms-context##/{unknown}/##ref:link1##.html\">link</a>, <a href=\"##cms-context##/%7bunknown%7d/##ref:link1##.html\">link</a>",
             // TODO not working for now, should be fixed or the behaviour properly explained to customers
-            // 'src' attribute if <img> matching the disallowed format are removed:
+            // 'src' attribute of <img> matching the disallowed format are removed:
             // "<img src=\"ftps://example.com/foo.jpg\"/><img src=\"ftps://example.com/other.gif\"/>, <img src=\"ftps://example.com/foo.jpg\"/>",
-
     })
-    public void GIVEN_a_complete_configuration_WHEN_sanitizing_THEN_string_matches_expected_output(String html, String expectedHtml) {
-        Policy policy = buildCompletePolicy();
+    public void GIVEN_a_complete_configuration_WHEN_sanitizing_THEN_string_matches_expected_output(String html, String expectedHtml) throws ConfigurationException {
+        ConfigModel configModel = buildCompleteConfigModel();
+        Config config = ConfigBuilder.buildFromModel(configModel);
+        Policy policy = config.getEditWorkspacePolicy();
 
         String sanitized = policy.sanitize(html).getSanitizedHtml();
 

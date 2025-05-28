@@ -15,10 +15,14 @@
  */
 package org.jahia.modules.htmlfiltering.model;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 public class RuleSetModel {
     private List<String> protocols;
+    @NotEmpty
+    @Valid
     private List<ElementModel> elements;
 
     public List<String> getProtocols() {

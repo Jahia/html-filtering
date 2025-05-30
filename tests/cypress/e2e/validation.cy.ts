@@ -80,7 +80,7 @@ describe('Ensure node validation is returning translated messages', () => {
         setSiteLanguage('en');
     });
 
-    // TODO: figure out why reporting language is not switched to FR
+    // FIX: figure out why reporting language is not switched to FR
     it('Should return invalid tag message according to the language set', () => {
         cy.step('Change site language to French', () => {
             setSiteLanguage('fr');

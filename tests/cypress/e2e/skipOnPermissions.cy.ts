@@ -1,4 +1,4 @@
-import {addNode, createSite, createUser, deleteSite, deleteUser, grantRoles, Log} from '@jahia/cypress';
+import {addNode, createSite, createUser, deleteSite, deleteUser, grantRoles} from '@jahia/cypress';
 import {installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtures/utils';
 
 describe('Test the skipOnPermissions configuration', () => {

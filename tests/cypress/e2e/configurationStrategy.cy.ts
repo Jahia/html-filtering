@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
+import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig, mutateNodeTextProperty} from '../fixtures/utils';
 // NB: this is not intended to be a comprehensive tests suite for the sanitization, but rather a quick sanity check
 //     to ensure that the right policy is used for a given site, depending on the configuration in place.
 //     For comprehensive tests, see PolicyImplTest.
@@ -105,15 +105,21 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
     });
 
     it('when only an invalid per-site configuration is provided after installing a valid one, the HTML text is sanitized using the global default strategy (the config is ignored)', () => {
-        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Valid
-        installConfig(`configs/configurationStrategy/invalid/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Invalid
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+        cy.step('Install configs', () => {
+            installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Valid
+            installConfig(`configs/configurationStrategy/invalid/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Invalid
         });
 
-        removeSiteConfig(SITE_KEY);
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            });
+        });
+
+        cy.step('Remove configs', () => {
+            removeSiteConfig(SITE_KEY);
+        });
     });
 });

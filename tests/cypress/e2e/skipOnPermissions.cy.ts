@@ -39,8 +39,6 @@ describe('Test the skipOnPermissions configuration', () => {
         // it's a permission that is granted to the editor-in-chief role by default in Jahia.
         // So bob (editor) should not be able to bypass the HTML filtering.
         mutateNodeTextProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, 'en', cy.apolloClient({username: 'bob', password: 'password'})).then(updatedTextProperty => {
-            Log.info('Updated text property:' + updatedTextProperty);
-            Log.info('Expected sanitized text property:' + SANITIZED_HTML_TEXT);
             expect(updatedTextProperty).to.be.equal(SANITIZED_HTML_TEXT);
         });
     });

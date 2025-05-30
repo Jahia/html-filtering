@@ -3,7 +3,6 @@ import {installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtur
 
 describe('Test the skipOnPermissions configuration', () => {
     const SITE_KEY = 'testSkipOnPermissions';
-    const NODE_NAME = 'testSkipOnPermissionsNode';
     const ORIGINAL_HTML_TEXT = '<h1 id="myid">my title</h1><h2>sub-title</h2><p class="myClass">my text</p>';
     const SANITIZED_HTML_TEXT = '<h1>my title</h1>sub-title<p>my text</p>'; // Only <h1> and <p> tags are allowed as per the configuration
 

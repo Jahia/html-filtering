@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig, mutateNodeTextProperty} from '../fixtures/utils';
+import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
 // NB: this is not intended to be a comprehensive tests suite for the sanitization, but rather a quick sanity check
 //     to ensure that the right policy is used for a given site, depending on the configuration in place.
 //     For comprehensive tests, see PolicyImplTest.
@@ -42,70 +42,101 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
     });
 
     it('when only a global custom configuration is provided, the HTML text is sanitized using the global custom strategy', () => {
-        installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
+        cy.step('Install config(s)', () => {
+            installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
         });
-        removeGlobalCustomConfig();
+
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
+            });
+        });
+
+        cy.step('Remove config(s)', () => {
+            removeGlobalCustomConfig();
+        });
     });
 
     it('when only a per-site configuration is provided, the HTML text is sanitized using the per-site strategy', () => {
-        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+        cy.step('Install config(s)', () => {
+            installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
         });
 
-        removeSiteConfig(SITE_KEY);
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+            });
+        });
+
+        cy.step('Remove config(s)', () => {
+            removeSiteConfig(SITE_KEY);
+        });
     });
 
     it('when a global custom and a per-site configuration is provided, the HTML text is sanitized using the per-site strategy', () => {
-        installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
-        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+        cy.step('Install config(s)', () => {
+            installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
+            installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
         });
 
-        removeSiteConfig(SITE_KEY);
-        removeGlobalCustomConfig();
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
+            });
+        });
+
+        cy.step('Remove config(s)', () => {
+            removeSiteConfig(SITE_KEY);
+            removeGlobalCustomConfig();
+        });
     });
 
     it('when only a per-site configuration for another site is provided, the HTML text is sanitized using the global default strategy', () => {
-        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${OTHER_SITE}.yml`);
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+        cy.step('Install config(s)', () => {
+            installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${OTHER_SITE}.yml`);
         });
 
-        removeSiteConfig(OTHER_SITE);
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            });
+        });
+
+        cy.step('Remove config(s)', () => {
+            removeSiteConfig(OTHER_SITE);
+        });
     });
 
     it('when a global custom and a per-site configuration for another site is provided, the HTML text is sanitized using the global custom strategy', () => {
-        installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
-        installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${OTHER_SITE}.yml`);
-
-        modifyContent(PATH, HTML_TEXT);
-        getContent(PATH).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
+        cy.step('Install config(s)', () => {
+            installConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml');
+            installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${OTHER_SITE}.yml`);
         });
 
-        removeSiteConfig(OTHER_SITE);
-        removeGlobalCustomConfig();
+        cy.step('Modify and validate content', () => {
+            modifyContent(PATH, HTML_TEXT);
+            getContent(PATH).then(result => {
+                const value = result.data.jcr.nodeByPath.property.value;
+                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
+            });
+        });
+
+        cy.step('Remove config(s)', () => {
+            removeSiteConfig(OTHER_SITE);
+            removeGlobalCustomConfig();
+        });
     });
 
     it('when only an invalid per-site configuration is provided after installing a valid one, the HTML text is sanitized using the global default strategy (the config is ignored)', () => {
-        cy.step('Install configs', () => {
+        cy.step('Install config(s)', () => {
             installConfig(`configs/configurationStrategy/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Valid
             installConfig(`configs/configurationStrategy/invalid/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`); // Invalid
         });

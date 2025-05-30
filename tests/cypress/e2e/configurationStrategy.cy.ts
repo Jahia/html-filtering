@@ -31,6 +31,9 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
     });
     after(() => {
         deleteSite(SITE_KEY);
+        removeGlobalCustomConfig();
+        removeSiteConfig(SITE_KEY);
+        removeSiteConfig(OTHER_SITE);
     });
 
     it('when no configuration is provided, the HTML text is sanitized using the global default strategy', () => {

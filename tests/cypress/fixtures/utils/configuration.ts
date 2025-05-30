@@ -1,13 +1,16 @@
 import gql from 'graphql-tag';
 import {executeGroovy} from '@jahia/cypress';
+import {load, dump} from 'js-yaml';
+import {join} from 'path';
 
 const pid = 'org.jahia.modules.htmlfiltering.config';
 
 export const installConfig = configFilePath => {
     return cy.runProvisioningScript(
-        {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-        [{fileName: `${configFilePath}`, type: 'text/plain'}]
-    );
+        {
+            script: {fileContent: `- installConfiguration: "${configFilePath}"`, fileName: `${configFilePath}`, type: 'application/yaml'},
+            files: [{fileName: `${configFilePath}`, type: 'text/plain'}]
+        });
 };
 
 export const removeGlobalCustomConfig = () => {
@@ -52,4 +55,44 @@ export const editConfig = (key, value, siteKey = 'default') => {
         mutation: editConfigGql,
         variables: {pid, identifier: siteKey, key, value}
     });
+};
+
+/**
+ * Reads a configuration file from the fixtures folder and parses it as YAML.
+ * @param pathName - path to the configuration file to read (relative to the fixtures folder)
+ * @returns The parsed configuration data
+ * @example
+ *      readYAMLConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml').then(data => {
+ *           data.htmlFiltering.editWorkspace.strategy = 'REJECT';
+ *           installYAMLConfig('org.jahia.modules.htmlfiltering.global.custom.yml', data);
+ *       });
+ */
+export const readYAMLConfig = (pathName: string) => {
+    return cy.fixture(pathName).then(str => {
+        cy.wrap(load(str)).then(data => {
+            return data;
+        });
+    });
+};
+
+/**
+ * Saves the provided configuration data to a file in the `cypress/fixtures/tmp` folder
+ * and installs it using the `installConfig` function.
+ * @param name - file name to save the configuration as
+ * @param data - configuration data to save
+ * @returns Cypress chainable that installs the configuration
+ * @example
+ *      readYAMLConfig('configs/configurationStrategy/org.jahia.modules.htmlfiltering.global.custom.yml').then(data => {
+ *           data.htmlFiltering.editWorkspace.strategy = 'REJECT';
+ *           installYAMLConfig('org.jahia.modules.htmlfiltering.global.custom.yml', data);
+ *       });
+ */
+export const installYAMLConfig = (name: string, data: object) => {
+    const yamlContent = dump(data);
+    // Path relative to the /tests folder
+    const filePath = join('cypress/fixtures/tmp', name);
+    cy.writeFile(filePath, yamlContent);
+
+    // Path relative to the fixtures folder
+    return installConfig(join('tmp', name));
 };

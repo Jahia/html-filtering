@@ -11,5 +11,8 @@
 # Maven
 target
 
+# Temporary dynamic fixtures
+/tests/cypress/fixtures/tmp
+
 # Jahia DX Studio
 repository.xml.generated

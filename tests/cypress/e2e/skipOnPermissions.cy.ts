@@ -20,8 +20,8 @@ describe('Test the skipOnPermissions configuration', () => {
                 }
             ]
         });
-        createUser('billy', 'password');
         createUser('bob', 'password');
+        createUser('billy', 'password');
         grantRoles(`/sites/${SITE_KEY}`, ['editor'], 'bob', 'USER');
         grantRoles(`/sites/${SITE_KEY}`, ['editor-in-chief'], 'billy', 'USER');
     });
@@ -33,7 +33,7 @@ describe('Test the skipOnPermissions configuration', () => {
         deleteSite(SITE_KEY);
     });
 
-    it('When user has the permission HTML-filtering bypassed', () => {
+    it('When user does not have the permission - HTML-filtering is applied', () => {
         // The configuration used for this test is using:
         // - skipOnPermissions: ['view-full-wysiwyg-editor']
         // it's a permission that is granted to the editor-in-chief role by default in Jahia.
@@ -41,7 +41,12 @@ describe('Test the skipOnPermissions configuration', () => {
         mutateNodeTextProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, 'en', cy.apolloClient({username: 'bob', password: 'password'})).then(updatedTextProperty => {
             expect(updatedTextProperty).to.be.equal(SANITIZED_HTML_TEXT);
         });
+    });
 
+    it('When user has the permission - HTML-filtering bypassed', () => {
+        // The configuration used for this test is using:
+        // - skipOnPermissions: ['view-full-wysiwyg-editor']
+        // it's a permission that is granted to the editor-in-chief role by default in Jahia.
         // But billy (editor-in-chief) should be able to bypass the HTML filtering.
         mutateNodeTextProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, 'en', cy.apolloClient({username: 'billy', password: 'password'})).then(updatedTextProperty => {
             expect(updatedTextProperty).to.be.equal(ORIGINAL_HTML_TEXT);

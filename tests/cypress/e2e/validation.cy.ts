@@ -20,6 +20,11 @@ const INVALID_ATTRIBUTE = '<p invalidAttribute>invalid attribute content</p>';
 const INVALID_ATTRIBUTE_SANITIZED = '<p>invalid attribute content</p>';
 const INVALID_ATTRIBUTE_MESSAGE = 'Unauthorized attribute "invalidattribute" for tag <p>.';
 
+/**
+ * Sets the site and user language to the specified value.
+ * @param language Language to set for the site and user
+ * @returns {void}
+ */
 const setSiteLanguage = (language: string) => {
     Log.info(`Switch site language to: "${language}"`);
     cy.apollo({
@@ -53,6 +58,16 @@ const setSiteLanguage = (language: string) => {
     });
 };
 
+/**
+ * Collects constraint violation messages from the errors array-of-maps.
+ * @note added to avoid linter's warnings about nested callbacks
+ * @param errors Array of validation errors
+ * @returns string[] Array of constraint violation messages
+ */
+const collectConstraintViolations = errors => {
+    return errors.map(v => v.constraintMessage);
+};
+
 describe('Ensure node validation is returning translated messages', () => {
     before(() => {
         deleteSite(SITE_KEY);
@@ -65,6 +80,7 @@ describe('Ensure node validation is returning translated messages', () => {
         setSiteLanguage('en');
     });
 
+    // TODO: figure out why reporting language is not switched to FR
     it('Should return invalid tag message according to the language set', () => {
         cy.step('Change site language to French', () => {
             setSiteLanguage('fr');
@@ -80,7 +96,7 @@ describe('Ensure node validation is returning translated messages', () => {
             }).then(errors => {
                 expect(errors.graphQLErrors.length).to.equal(1);
                 expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(2);
-                const actualMessages = errors.graphQLErrors[0].extensions.constraintViolations.map(v => v.constraintMessage);
+                const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
                 expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE_FR);
                 expect(actualMessages).to.include(INVALID_TAG_MESSAGE_FR);
             });
@@ -97,7 +113,7 @@ describe('Ensure node validation is returning translated messages', () => {
         }).then(errors => {
             expect(errors.graphQLErrors.length).to.equal(1);
             expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(2);
-            const actualMessages = errors.graphQLErrors[0].extensions.constraintViolations.map(v => v.constraintMessage);
+            const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
             expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
             expect(actualMessages).to.include(INVALID_ATTRIBUTE_MESSAGE);
         });
@@ -113,7 +129,7 @@ describe('Ensure node validation is returning translated messages', () => {
         }).then(errors => {
             expect(errors.graphQLErrors.length).to.equal(1);
             expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(3);
-            const actualMessages = errors.graphQLErrors[0].extensions.constraintViolations.map(v => v.constraintMessage);
+            const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
             expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
             expect(actualMessages).to.include(INVALID_ATTRIBUTE_MESSAGE);
             expect(actualMessages).to.include(INVALID_TAG_MESSAGE);
@@ -156,7 +172,7 @@ describe('Ensure node validation is returning translated messages', () => {
             }).then(errors => {
                 expect(errors.graphQLErrors.length).to.equal(1);
                 expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(3);
-                const actualMessages = errors.graphQLErrors[0].extensions.constraintViolations.map(v => v.constraintMessage);
+                const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
                 expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
                 expect(actualMessages).to.include(INVALID_TAG_MESSAGE);
                 expect(actualMessages).to.include(INVALID_ATTRIBUTE_MESSAGE);

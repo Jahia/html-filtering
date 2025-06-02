@@ -1,21 +1,25 @@
 package org.jahia.modules.htmlfiltering.impl;
 
-import org.jahia.modules.htmlfiltering.Policy;
+import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.ElementModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.jahia.modules.htmlfiltering.model.RuleSetModel;
 
+import javax.validation.ConstraintViolation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestHelper {
 
-    public static Policy buildCompletePolicy() {
+    public static ConfigModel buildCompleteConfigModel() {
         PolicyModel policyModel = new PolicyModel();
         policyModel.setStrategy(PolicyModel.PolicyStrategy.REJECT);
         policyModel.setProcess(of("nt:base.*"));
@@ -45,10 +49,42 @@ public class TestHelper {
         ));
         disallowedRuleSet.setProtocols(of("https"));
         policyModel.setDisallowedRuleSet(disallowedRuleSet);
-        Map<String, Pattern> formatPatterns = new HashMap<>();
-        formatPatterns.put("HTML_ID", Pattern.compile("^[a-zA-Z0-9_]+$"));
-        formatPatterns.put("NO_GIF", Pattern.compile(".*\\.gif"));
-        return ConfigBuilder.buildPolicy(formatPatterns, policyModel, "myPolicy");
+        Map<String, String> formatPatterns = new HashMap<>();
+        formatPatterns.put("HTML_ID", "^[a-zA-Z0-9_]+$");
+        formatPatterns.put("NO_GIF", ".*\\.gif");
+
+        // config model with the same policy for edit and live workspaces
+        ConfigModel configModel = new ConfigModel();
+        configModel.setFormatDefinitions(formatPatterns);
+        configModel.setEditWorkspace(policyModel);
+        configModel.setLiveWorkspace(policyModel);
+        return configModel;
+    }
+
+    /**
+     * Build a configuration model that is valid but with minimal content.
+     *
+     * @return a valid configuration model with minimal content
+     */
+    public static ConfigModel buildConfigModel() {
+        return buildConfigModel("p");
+    }
+
+    public static ConfigModel buildConfigModel(String... allowedTags) {
+        ConfigModel configModel = new ConfigModel();
+        configModel.setEditWorkspace(buildPolicyModel(allowedTags));
+        configModel.setLiveWorkspace(buildPolicyModel(allowedTags));
+        return configModel;
+    }
+
+    private static PolicyModel buildPolicyModel(String... allowedTags) {
+        PolicyModel policyModel = new PolicyModel();
+        RuleSetModel allowedRuleSet = new RuleSetModel();
+        allowedRuleSet.setElements(of(buildElement(Arrays.asList(allowedTags), null, null)));
+        policyModel.setAllowedRuleSet(allowedRuleSet);
+        policyModel.setStrategy(PolicyModel.PolicyStrategy.REJECT);
+        policyModel.setProcess(of("nt:base.*"));
+        return policyModel;
     }
 
     public static ElementModel buildElement(List<String> tags, List<String> attributes, String format) {
@@ -67,5 +103,20 @@ public class TestHelper {
     // equivalent of Set.of(...) only available in Java 9+
     public static <T> Set<T> setOf(T... items) {
         return new HashSet<>(Arrays.asList(items));
+    }
+
+    public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
+        assertEquals("Only one violation is expected ", 1, configurationException.getViolations().size());
+        assertContainsValidationError(configurationException, fieldName, message);
+    }
+
+    public static void assertContainsValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
+        long matchingViolationsCount = configurationException.getViolations().stream()
+                .filter(violation -> violation.getPropertyPath().toString().equals(fieldName))
+                .filter(violation -> violation.getMessage().equals(message))
+                .count();
+        assertTrue("No violation found for field " + fieldName + " with message " + message, matchingViolationsCount > 0);
+        assertEquals("Expected exactly one violation for field " + fieldName + " with message " + message,
+                1, matchingViolationsCount);
     }
 }

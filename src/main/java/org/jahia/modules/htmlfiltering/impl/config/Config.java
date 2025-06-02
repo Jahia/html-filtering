@@ -37,4 +37,12 @@ public final class Config {
         }
         return liveWorkspacePolicy;
     }
+
+    public Policy getEditWorkspacePolicy() {
+        return editWorkspacePolicy;
+    }
+
+    public Policy getLiveWorkspacePolicy() {
+        return liveWorkspacePolicy;
+    }
 }

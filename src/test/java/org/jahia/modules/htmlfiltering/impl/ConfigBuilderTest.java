@@ -8,6 +8,8 @@ import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.jahia.modules.htmlfiltering.model.RuleSetModel;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.FormatRequiresAttributes;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.RequiresTagsOrAttributes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationException;
@@ -470,7 +472,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", "must contain 'tags' and/or 'attributes'");
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", RequiresTagsOrAttributes.class);
     }
 
     @Test
@@ -481,7 +483,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", "must contain 'tags' and/or 'attributes'");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", RequiresTagsOrAttributes.class);
     }
 
     @Test
@@ -496,7 +498,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", "'format' must be used with 'attributes'"); // add format value pas param
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", FormatRequiresAttributes.class);
     }
 
     @Test
@@ -511,7 +513,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", "'format' must be used with 'attributes'");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", FormatRequiresAttributes.class);
     }
 
     @Test
@@ -564,6 +566,6 @@ public class ConfigBuilderTest {
         assertContainsValidationError(exception, "editWorkspace", NotNull.class);
         assertContainsValidationError(exception, "liveWorkspace.strategy", NotNull.class);
         assertContainsValidationError(exception, "liveWorkspace.process", NotEmpty.class);
-        assertContainsValidationError(exception, "liveWorkspace.allowedRuleSet.elements[1]", "'format' must be used with 'attributes'");
+        assertContainsValidationError(exception, "liveWorkspace.allowedRuleSet.elements[1]", FormatRequiresAttributes.class);
     }
 }

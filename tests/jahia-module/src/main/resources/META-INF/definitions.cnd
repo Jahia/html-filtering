@@ -3,6 +3,9 @@
 <htmlFilteringTestModule = 'http://www.example.org/html-filtering-test-module/nt/1.0'>
 <htmlFilteringTestModuleMix = 'http://www.example.org/html-filtering-test-module/mix/1.0'>
 
+[htmlFilteringTestModule:testGlobalDefaultConfiguration] > jnt:content, jmix:droppableContent
+    - prop (string, richtext)
+
 [htmlFilteringTestModule:testNodeTypesAndSelectorsA] > jnt:content, jmix:droppableContent
     - areaSelectorTextProp (string, textarea)
     - noSelectorTextProp (string)

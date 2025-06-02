@@ -23,17 +23,16 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
  * @param pathOrId path or id of the node to modify
  * @param propertyName name of the property to modify
  * @param text new value of the property
- * @param language language of the property, default to 'en'
  * @param apolloClient optional Apollo Client instance to use, if not provided the default one will be used
  */
 /* eslint-disable max-params */
-export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, language: string = 'en', apolloClient = undefined) => {
+export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, apolloClient = undefined) => {
     const modifyNodeGql = gql`
-        mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!, $language: String!) {
+        mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!) {
             jcr {
                 mutateNode(pathOrId: $pathOrId) {
                     mutateProperty(name:$propertyName) {
-                        setValue(value: $text, language: $language)
+                        setValue(value: $text)
                         property {
                             value
                         }
@@ -45,7 +44,7 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
     const client = apolloClient || cy.apolloClient();
     return client.apollo({
         mutation: modifyNodeGql,
-        variables: {pathOrId, propertyName, text, language}
+        variables: {pathOrId, propertyName, text}
     }).then(response => {
         return response.data.jcr.mutateNode.mutateProperty.property.value;
     });

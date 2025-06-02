@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 public class ConfigBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigBuilder.class);
+    private static final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
 
     private ConfigBuilder() {
     }
@@ -101,12 +102,10 @@ public class ConfigBuilder {
     }
 
     private static void validate(ConfigModel configModel) throws ConfigurationException {
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = validatorFactory.getValidator();
-            Set<ConstraintViolation<ConfigModel>> violations = validator.validate(configModel);
-            if (!violations.isEmpty()) {
-                throw new ValidationConfigurationException(violations);
-            }
+        Validator validator = VALIDATOR_FACTORY.getValidator();
+        Set<ConstraintViolation<ConfigModel>> violations = validator.validate(configModel);
+        if (!violations.isEmpty()) {
+            throw new ValidationConfigurationException(violations);
         }
     }
 
@@ -140,9 +139,6 @@ public class ConfigBuilder {
                         String propertyPattern = parts[1];
                         setPropertyPatternEntryForNodeType(propertyPattern, result, nodeType, configSectionName);
                         break;
-                    default:
-                        // should not happen as the configuration is validated beforehand
-                        throw new IllegalStateException(String.format("Invalid format for item '%s' in '%s'. Expected format is 'nodeType.property' or 'nodeType.*'", nodeTypeProperty, configSectionName));
                 }
             }
         }
@@ -183,10 +179,8 @@ public class ConfigBuilder {
                 return Strategy.REJECT;
             case SANITIZE:
                 return Strategy.SANITIZE;
-            default:
-                // should not happen as the configuration is validated beforehand
-                throw new IllegalStateException(String.format("Unknown 'strategy':%s ", policyModel.getStrategy()));
         }
+        return null; // should not happen as the configuration is validated beforehand
     }
 
     private static void processRuleSet(HtmlPolicyBuilder builder, RuleSetModel ruleSet,

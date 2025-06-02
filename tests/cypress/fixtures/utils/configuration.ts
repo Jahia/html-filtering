@@ -10,7 +10,12 @@ export const installConfig = configFilePath => {
         {
             script: {fileContent: `- installConfiguration: "${configFilePath}"`, fileName: `${configFilePath}`, type: 'application/yaml'},
             files: [{fileName: `${configFilePath}`, type: 'text/plain'}]
-        });
+        }).then(() => {
+        // Wait for the configuration to be applied
+        cy.log('Wait for the configuration to be applied...');
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(3000);
+    });
 };
 
 export const removeGlobalCustomConfig = () => {

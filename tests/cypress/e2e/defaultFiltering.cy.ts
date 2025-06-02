@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, modifyContent} from '../fixtures/utils';
+import {getContent, modifyContent, removeGlobalCustomConfig} from '../fixtures/utils';
 
 /**
  * Test scenarios for default filtering cases
@@ -10,6 +10,10 @@ describe('Default HTML filtering', () => {
     const path = `/sites/${SITE_KEY}/home/pagecontent/${RICH_TEXT_NODE}`;
 
     before(() => {
+        // Clean up any previous configurations
+        removeGlobalCustomConfig();
+        deleteSite(SITE_KEY);
+
         // Create a site with an empty rich text component on the home page
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
         addNode({
@@ -24,10 +28,6 @@ describe('Default HTML filtering', () => {
                 }
             ]
         });
-    });
-
-    after(() => {
-        deleteSite(SITE_KEY);
     });
 
     it('allows internal links - files', () => {

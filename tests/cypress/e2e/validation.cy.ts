@@ -1,4 +1,4 @@
-import {installConfig, removeSiteConfig} from '../fixtures/utils';
+import {installConfig, removeSiteConfig, removeGlobalCustomConfig} from '../fixtures/utils';
 import {createSite, deleteSite, getNodeByPath} from '@jahia/cypress';
 
 const SITE_KEY = 'testValidation';
@@ -26,7 +26,12 @@ const collectConstraintViolations = errors => {
 
 describe('Ensure node validation is returning translated messages', () => {
     before(() => {
+        // Clean up any previous configurations
+        removeGlobalCustomConfig();
+        removeSiteConfig(SITE_KEY);
         deleteSite(SITE_KEY);
+
+        // Create a site to be used for testing
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
     });
 
@@ -35,10 +40,6 @@ describe('Ensure node validation is returning translated messages', () => {
     // and we want to ensure the next test is using the correct one
     beforeEach(() => {
         installConfig(CONFIG_SITE_PATH_REJECT);
-    });
-
-    after(() => {
-        removeSiteConfig(SITE_KEY);
     });
 
     it('Should return <invalid attribute> error', () => {

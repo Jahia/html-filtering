@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {installConfig, mutateNodeTextProperty, removeSiteConfig} from '../fixtures/utils';
+import {installConfig, mutateNodeTextProperty, removeSiteConfig, removeGlobalCustomConfig} from '../fixtures/utils';
 import gql from 'graphql-tag';
 
 describe('Test the filtering on node types and selectors', () => {
@@ -90,6 +90,11 @@ describe('Test the filtering on node types and selectors', () => {
     ];
 
     before(() => {
+        // Clean up any previous state
+        removeGlobalCustomConfig();
+        deleteSite(SITE_KEY);
+
+        // Create a site with multiple node types and selectors
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
         addNode({
             parentPathOrId: `/sites/${SITE_KEY}/home`,
@@ -115,12 +120,11 @@ describe('Test the filtering on node types and selectors', () => {
             ]
         });
     });
-    after(() => {
-        deleteSite(SITE_KEY);
-    });
+
     beforeEach(() => {
         installConfig(`configs/nodeTypesAndSelectors/org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`);
     });
+
     afterEach(() => {
         removeSiteConfig(SITE_KEY);
     });

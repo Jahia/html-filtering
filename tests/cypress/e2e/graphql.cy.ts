@@ -1,7 +1,15 @@
+import {removeGlobalCustomConfig} from '../fixtures/utils';
+
 describe('Graphql test', () => {
     const safeHTML = '<p>value</p>';
     const unsafeHTML = '<badTag badTagAttribute>value</badTag><p class="myClass" badPAttribute>test</p><script>alert(document.location)</script>';
     const sanitizedUnsafeHTML = 'value<p class="myClass">test</p>';
+
+    before(() => {
+        // Clean up any previous configurations
+        removeGlobalCustomConfig();
+    });
+
     it('Should return a safe content', () => {
         cy.apollo({
             queryFile: 'graphql/graphqlTest.graphql',

@@ -5,9 +5,15 @@ const pid = 'org.jahia.modules.htmlfiltering.config';
 
 export const installConfig = configFilePath => {
     return cy.runProvisioningScript(
-        {fileContent: `- installConfiguration: "${configFilePath}"`, type: 'application/yaml'},
-        [{fileName: `${configFilePath}`, type: 'text/plain'}]
-    );
+        {
+            script: {fileContent: `- installConfiguration: "${configFilePath}"`, fileName: `${configFilePath}`, type: 'application/yaml'},
+            files: [{fileName: `${configFilePath}`, type: 'text/plain'}]
+        }).then(() => {
+        // Wait for the configuration to be applied
+        cy.log('Wait for the configuration to be applied...');
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(3000);
+    });
 };
 
 export const removeGlobalCustomConfig = () => {

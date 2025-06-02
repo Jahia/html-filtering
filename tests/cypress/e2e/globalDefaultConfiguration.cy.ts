@@ -221,4 +221,23 @@ describe('Test global default configuration', () => {
         // TODO add it once the library is fixed. See https://github.com/OWASP/java-html-sanitizer/issues/358
         modifyAndCheck(text);
     });
+
+    // --------------------------
+    // NUMBER_OR_PERCENT format :
+    // --------------------------
+
+    const validHeightValues = ['123', '123.45', '25%', 'auto'];
+    validHeightValues.forEach(value => {
+        it(`height value "${value}" is allowed`, () => {
+            const text = `<table><tbody><tr><td height="${value}">sample</td></tr></tbody></table>`;
+            modifyAndCheck(text);
+        });
+    });
+    const invalidHeightValues = ['abc', '1a'];
+    invalidHeightValues.forEach(value => {
+        it(`height value "${value}" is not allowed`, () => {
+            const text = '<table><tbody><tr><td>sample</td></tr></tbody></table>';
+            modifyAndCheck(text);
+        });
+    });
 });

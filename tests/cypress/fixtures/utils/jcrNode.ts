@@ -25,7 +25,7 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
  * @param text new value of the property
  * @param apolloClient optional Apollo Client instance to use, if not provided the default one will be used
  */
-/* eslint-disable max-params */
+
 export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, apolloClient = undefined) => {
     const modifyNodeGql = gql`
         mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!) {

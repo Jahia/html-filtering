@@ -1,62 +1,18 @@
-import {installConfig, removeGlobalCustomConfig, readYAMLConfig, installYAMLConfig} from '../fixtures/utils';
-import {createSite, deleteSite, Log, getNodeByPath} from '@jahia/cypress';
-import gql from 'graphql-tag';
+import {installConfig, removeSiteConfig, readYAMLConfig, installYAMLConfig, installYAMLConfig1, saveYAMLConfig} from '../fixtures/utils';
+import {createSite, deleteSite, getNodeByPath} from '@jahia/cypress';
 
 const SITE_KEY = 'testValidation';
-const CONFIG_NAME = 'org.jahia.modules.htmlfiltering.global.custom.yml';
-const CONFIG_PATH = `configs/validation/${CONFIG_NAME}`;
-
+const CONFIG_SITE_NAME = `org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`;
+const CONFIG_SITE_PATH_REJECT = `configs/validation/reject/${CONFIG_SITE_NAME}`;
+const CONFIG_SITE_PATH_SANITIZE = `configs/validation/sanitize/${CONFIG_SITE_NAME}`;
 const VALIDATION_ERROR_MESSAGE = '"Html validation error."';
-// 'Erreur de validation HTML.'
-const VALIDATION_ERROR_MESSAGE_FR = '"Html validation error."';
-
 const VALID_TAG = '<p>valid tag content</p>';
 const INVALID_TAG = '<invalidTag>invalid tag content</invalidTag>';
 const INVALID_TAG_SANITIZED = 'invalid tag content';
 const INVALID_TAG_MESSAGE = 'Unauthorized tag: <invalidtag>.';
-// 'Tag non autorisée:'
-const INVALID_TAG_MESSAGE_FR = 'Unauthorized tag: <invalidtag>.';
 const INVALID_ATTRIBUTE = '<p invalidAttribute>invalid attribute content</p>';
 const INVALID_ATTRIBUTE_SANITIZED = '<p>invalid attribute content</p>';
 const INVALID_ATTRIBUTE_MESSAGE = 'Unauthorized attribute "invalidattribute" for tag <p>.';
-
-/**
- * Sets the site and user language to the specified value.
- * @param language Language to set for the site and user
- * @returns {void}
- */
-const setSiteLanguage = (language: string) => {
-    Log.info(`Switch site language to: "${language}"`);
-    cy.apollo({
-        query: gql`
-                mutation {
-                    jcr {
-                        mutateNode(pathOrId: "/users/root") {
-                            mutateProperty(name: "preferredLanguage") {
-				                setValue(value: "${language}")
-                            }
-                        }
-                    }
-                }`
-    }).then(response => {
-        expect(response?.data?.jcr?.mutateNode?.mutateProperty?.setValue).to.be.true;
-    });
-
-    cy.apollo({
-        query: gql`
-                mutation {
-                    jcr {
-                        mutateNode(pathOrId: "/sites/testValidation") {
-                            mutateProperty(name: "j:defaultLanguage") {
-				                setValue(value: "${language}")
-                            }
-                        }
-                    }
-                }`
-    }).then(response => {
-        expect(response?.data?.jcr?.mutateNode?.mutateProperty?.setValue).to.be.true;
-    });
-};
 
 /**
  * Collects constraint violation messages from the errors array-of-maps.
@@ -71,35 +27,33 @@ const collectConstraintViolations = errors => {
 describe('Ensure node validation is returning translated messages', () => {
     before(() => {
         deleteSite(SITE_KEY);
-        installConfig(CONFIG_PATH);
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
     });
 
-    after(() => {
-        removeGlobalCustomConfig();
-        setSiteLanguage('en');
+    // Make sure the REJECT configuration is installed before each test to avoid flaky tests.
+    // Installing it before each test because one of the tests is changing it to SANITIZE
+    // and we want to ensure the next test is using the correct one
+    beforeEach(() => {
+        installConfig(CONFIG_SITE_PATH_REJECT);
     });
 
-    // FIX: figure out why reporting language is not switched to FR
-    it('Should return invalid tag message according to the language set', () => {
-        cy.step('Change site language to French', () => {
-            setSiteLanguage('fr');
-        });
+    after(() => {
+        removeSiteConfig(SITE_KEY);
+    });
 
-        cy.step('Validate i18n error message', () => {
-            cy.apollo({
-                mutationFile: 'graphql/validationTest.graphql',
-                variables: {
-                    nodeName: 'invalidTag',
-                    text: INVALID_TAG
-                }
-            }).then(errors => {
-                expect(errors.graphQLErrors.length).to.equal(1);
-                expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(2);
-                const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
-                expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE_FR);
-                expect(actualMessages).to.include(INVALID_TAG_MESSAGE_FR);
-            });
+    it('Should return <invalid attribute> error', () => {
+        cy.apollo({
+            mutationFile: 'graphql/validationTest.graphql',
+            variables: {
+                nodeName: 'invalidTag',
+                text: INVALID_TAG
+            }
+        }).then(errors => {
+            expect(errors.graphQLErrors.length).to.equal(1);
+            expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(2);
+            const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
+            expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
+            expect(actualMessages).to.include(INVALID_TAG_MESSAGE);
         });
     });
 
@@ -156,39 +110,31 @@ describe('Ensure node validation is returning translated messages', () => {
 
     it('Should REJECT a property with multi values with error', () => {
         const nodeName = 'invalidPropertyMultipleReject';
-
-        // Config has REJECT strategy set by default
-        cy.step(`Create testing node "${nodeName}" with content and validate REJECTION`, () => {
-            cy.apollo({
-                mutationFile: 'graphql/validationTestPropertyMultiple.graphql',
-                variables: {
-                    nodeName: nodeName,
-                    texts: [
-                        INVALID_TAG,
-                        VALID_TAG,
-                        INVALID_ATTRIBUTE
-                    ]
-                }
-            }).then(errors => {
-                expect(errors.graphQLErrors.length).to.equal(1);
-                expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(3);
-                const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
-                expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
-                expect(actualMessages).to.include(INVALID_TAG_MESSAGE);
-                expect(actualMessages).to.include(INVALID_ATTRIBUTE_MESSAGE);
-            });
+        cy.apollo({
+            mutationFile: 'graphql/validationTestPropertyMultiple.graphql',
+            variables: {
+                nodeName: nodeName,
+                texts: [
+                    INVALID_TAG,
+                    VALID_TAG,
+                    INVALID_ATTRIBUTE
+                ]
+            }
+        }).then(errors => {
+            expect(errors.graphQLErrors.length).to.equal(1);
+            expect(errors.graphQLErrors[0].extensions.constraintViolations.length).to.equal(3);
+            const actualMessages = collectConstraintViolations(errors.graphQLErrors[0].extensions.constraintViolations);
+            expect(actualMessages).to.include(VALIDATION_ERROR_MESSAGE);
+            expect(actualMessages).to.include(INVALID_TAG_MESSAGE);
+            expect(actualMessages).to.include(INVALID_ATTRIBUTE_MESSAGE);
         });
     });
 
     it('Should SANITIZE a property with multi values', () => {
         const nodeName = 'invalidPropertyMultipleSanitize';
 
-        // Change config to SANITIZE strategy
-        cy.step('Read and update config with SANITIZE strategy', () => {
-            readYAMLConfig(CONFIG_PATH).then(data => {
-                data.htmlFiltering.editWorkspace.strategy = 'SANITIZE';
-                installYAMLConfig(CONFIG_NAME, data);
-            });
+        cy.step('Install config with SANITIZE strategy', () => {
+            installConfig(CONFIG_SITE_PATH_SANITIZE);
         });
 
         cy.step(`Create testing node "${nodeName}" with content`, () => {

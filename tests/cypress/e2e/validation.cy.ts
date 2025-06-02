@@ -1,4 +1,4 @@
-import {installConfig, removeSiteConfig, readYAMLConfig, installYAMLConfig, installYAMLConfig1, saveYAMLConfig} from '../fixtures/utils';
+import {installConfig, removeSiteConfig} from '../fixtures/utils';
 import {createSite, deleteSite, getNodeByPath} from '@jahia/cypress';
 
 const SITE_KEY = 'testValidation';

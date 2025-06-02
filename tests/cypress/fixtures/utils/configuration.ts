@@ -1,7 +1,5 @@
 import gql from 'graphql-tag';
 import {executeGroovy} from '@jahia/cypress';
-import {load, dump} from 'js-yaml';
-import {join} from 'path';
 
 const pid = 'org.jahia.modules.htmlfiltering.config';
 

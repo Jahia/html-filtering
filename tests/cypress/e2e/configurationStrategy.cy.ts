@@ -131,9 +131,6 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
 
     it('when only an invalid per-site configuration is provided after installing a valid one, the HTML text is sanitized using the global default strategy (the config is ignored)', () => {
         cy.step('Install config(s)', () => {
-            // Temporary workaround until https://github.com/Jahia/html-filtering/issues/105 is fixed
-            // otherwise previously used configuration is used and test fails
-            removeSiteConfig(SITE_KEY);
             installConfig(CONFIG_SITE_PATH); // Valid
             installConfig(CONFIG_SITE_PATH_INVALID); // Invalid
         });

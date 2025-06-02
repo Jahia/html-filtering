@@ -42,7 +42,7 @@ describe('Ensure node validation is returning translated messages', () => {
         installConfig(CONFIG_SITE_PATH_REJECT);
     });
 
-    it('Should return <invalid attribute> error', () => {
+    it('Should return <invalid tag> error', () => {
         cy.apollo({
             mutationFile: 'graphql/validationTest.graphql',
             variables: {

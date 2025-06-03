@@ -18,7 +18,7 @@ package org.jahia.modules.htmlfiltering.impl;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.PolicyRegistry;
+import org.jahia.modules.htmlfiltering.PolicyResolver;
 import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.modules.htmlfiltering.impl.config.GlobalAbstractConfig;
 import org.jahia.modules.htmlfiltering.impl.config.Config;
@@ -34,15 +34,15 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(immediate = true, service = {PolicyRegistry.class, ManagedServiceFactory.class},
+@Component(immediate = true, service = {PolicyResolver.class, ManagedServiceFactory.class},
         property = {
                 "service.pid=org.jahia.modules.htmlfiltering.site",
-                "service.description=HTML filtering config registry service to retrieve the policy to use for a given workspace of a given site",
+                "service.description=HTML filtering policy resolver service to resolve a policy to use for a given workspace, site and strategy (optional)",
                 "service.vendor=Jahia Solutions Group SA"
         })
-public final class PolicyRegistryImpl implements PolicyRegistry, ManagedServiceFactory {
+public final class PolicyResolverImpl implements PolicyResolver, ManagedServiceFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(PolicyRegistryImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(PolicyResolverImpl.class);
 
     /**
      * Maps site keys to their corresponding {@link Config} configurations.

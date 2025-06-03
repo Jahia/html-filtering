@@ -16,7 +16,7 @@
 package org.jahia.modules.htmlfiltering.interceptor;
 
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.PolicyRegistry;
+import org.jahia.modules.htmlfiltering.PolicyResolver;
 import org.jahia.modules.htmlfiltering.Strategy;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRStoreService;
@@ -40,7 +40,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private static final Logger logger = LoggerFactory.getLogger(HtmlFilteringInterceptor.class);
 
     private JCRStoreService jcrStoreService;
-    private PolicyRegistry policyRegistry;
+    private PolicyResolver policyResolver;
 
     @Activate
     public void start() {
@@ -58,8 +58,8 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     }
 
     @Reference
-    public void setPolicyRegistry(PolicyRegistry policyRegistry) {
-        this.policyRegistry = policyRegistry;
+    public void setPolicyResolver(PolicyResolver policyResolver) {
+        this.policyResolver = policyResolver;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class HtmlFilteringInterceptor extends BaseInterceptor {
     private Policy getPolicyForInterceptor(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition definition, Object originalValue) throws RepositoryException {
         if (originalValue != null) {
             // Resolve policy with strategy: SANITIZE
-            Policy policy = policyRegistry.resolvePolicy(node.getResolveSite().getSiteKey(),
+            Policy policy = policyResolver.resolvePolicy(node.getResolveSite().getSiteKey(),
                     node.getSession().getWorkspace().getName(), Strategy.SANITIZE);
             if (policy != null && policy.isApplicableToProperty(node, propertyName, definition)) {
                 return policy;

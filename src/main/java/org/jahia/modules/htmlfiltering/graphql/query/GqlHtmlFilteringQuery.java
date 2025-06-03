@@ -21,7 +21,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import org.jahia.modules.graphql.provider.dxm.node.NodeQueryExtensions;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
 import org.jahia.modules.htmlfiltering.Policy;
-import org.jahia.modules.htmlfiltering.PolicyRegistry;
+import org.jahia.modules.htmlfiltering.PolicyResolver;
 
 import javax.inject.Inject;
 
@@ -30,11 +30,11 @@ import javax.inject.Inject;
 public class GqlHtmlFilteringQuery {
 
 
-    private PolicyRegistry registry;
+    private PolicyResolver registry;
 
     @Inject
     @GraphQLOsgiService
-    public void setRegistry(PolicyRegistry registry) {
+    public void setRegistry(PolicyResolver registry) {
         this.registry = registry;
     }
 

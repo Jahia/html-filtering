@@ -33,12 +33,12 @@ public class HtmlValidator implements ConstraintValidator<HtmlFilteringConstrain
 
     @Override
     public boolean isValid(HtmlFilteringValidator nodeValidator, ConstraintValidatorContext context) {
-        PolicyRegistry policyRegistry = BundleUtils.getOsgiService(PolicyRegistry.class, null);
+        PolicyResolver policyResolver = BundleUtils.getOsgiService(PolicyResolver.class, null);
         JCRNodeWrapper node = nodeValidator.getNode();
         boolean isValid;
         try {
             // Resolve policy with strategy: REJECT
-            Policy policy = policyRegistry.resolvePolicy(node.getResolveSite().getSiteKey(),
+            Policy policy = policyResolver.resolvePolicy(node.getResolveSite().getSiteKey(),
                     node.getSession().getWorkspace().getName(), Strategy.REJECT);
             if (policy == null) {
                 return true;

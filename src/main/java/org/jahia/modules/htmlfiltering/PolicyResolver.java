@@ -16,13 +16,13 @@
 package org.jahia.modules.htmlfiltering;
 
 /**
- * The PolicyRegistry interface provides a mechanism to manage and retrieve
+ * The {@link PolicyResolver} interface provides a mechanism to manage and retrieve
  * HTML filtering policies for specific sites, workspaces, strategies.
  * <p>
  * This service allows retrieving a {@link Policy} for a specific site and workspace,
  * enabling tailored HTML content filtering and validation based on the given context.
  */
-public interface PolicyRegistry {
+public interface PolicyResolver {
 
 
     /**

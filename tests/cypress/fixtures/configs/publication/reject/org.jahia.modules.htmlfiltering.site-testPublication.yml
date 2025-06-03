@@ -1,0 +1,15 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: SANITIZE
+    skipOnPermissions: []
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [h1]
+  liveWorkspace:
+    strategy: REJECT
+    skipOnPermissions: []
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p]

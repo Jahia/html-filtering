@@ -6,13 +6,14 @@ import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.jahia.modules.htmlfiltering.model.RuleSetModel;
 
 import javax.validation.ConstraintViolation;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -105,18 +106,64 @@ public class TestHelper {
         return new HashSet<>(Arrays.asList(items));
     }
 
+    /**
+     * Verifies that the provided {@code ValidationConfigurationException} contains exactly one validation error
+     * for the specified field and constraint type. This is particularly useful
+     * when testing validation failures for built-in constraints with localized error messages.
+     *
+     * @param configurationException the exception containing the validation errors to be checked
+     * @param fieldName              the name of the field expected to have a validation error
+     * @param constraintType         the constraint type of the validation error expected for the specified field
+     */
+    public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, Class<? extends Annotation> constraintType) {
+        assertEquals("Only one violation is expected ", 1, configurationException.getViolations().size());
+        assertContainsValidationError(configurationException, fieldName, constraintType);
+    }
+
+    /**
+     * Verifies that the provided {@code ValidationConfigurationException} contains exactly one validation error
+     * for the specified field and error message. Ensures that there is only one violation in total
+     * and that it matches the given field name and error message. This method is intended for custom constraints
+     * that do not have localized error messages.
+     *
+     * @param configurationException the exception containing the validation errors to be checked
+     * @param fieldName              the name of the field expected to have a validation error
+     * @param message                the error message expected for the specified field
+     */
     public static void assertContainsExactValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
         assertEquals("Only one violation is expected ", 1, configurationException.getViolations().size());
         assertContainsValidationError(configurationException, fieldName, message);
     }
 
-    public static void assertContainsValidationError(ValidationConfigurationException configurationException, String fieldName, String message) {
-        long matchingViolationsCount = configurationException.getViolations().stream()
+    public static void assertContainsValidationError(ValidationConfigurationException exception, String fieldName, String message) {
+        assertContainsValidationError(
+                exception,
+                fieldName,
+                violation -> violation.getMessage().equals(message),
+                String.format("with message '%s'", message)
+        );
+    }
+
+    public static void assertContainsValidationError(ValidationConfigurationException exception, String fieldName,
+                                                     Class<? extends Annotation> constraintType) {
+        assertContainsValidationError(
+                exception,
+                fieldName,
+                violation -> violation.getConstraintDescriptor().getAnnotation().annotationType().equals(constraintType),
+                String.format("of type '%s'", constraintType)
+        );
+    }
+
+    private static void assertContainsValidationError(ValidationConfigurationException exception, String fieldName,
+                                                      Predicate<ConstraintViolation<?>> violationPredicate, String violationDescription) {
+        long matchingViolations = exception.getViolations().stream()
                 .filter(violation -> violation.getPropertyPath().toString().equals(fieldName))
-                .filter(violation -> violation.getMessage().equals(message))
+                .filter(violationPredicate)
                 .count();
-        assertTrue("No violation found for field " + fieldName + " with message " + message, matchingViolationsCount > 0);
-        assertEquals("Expected exactly one violation for field " + fieldName + " with message " + message,
-                1, matchingViolationsCount);
+
+        assertTrue(String.format("No violation found for field '%s' %s", fieldName, violationDescription),
+                matchingViolations > 0);
+        assertEquals(String.format("Expected exactly one violation for field '%s' %s", fieldName, violationDescription),
+                1, matchingViolations);
     }
 }

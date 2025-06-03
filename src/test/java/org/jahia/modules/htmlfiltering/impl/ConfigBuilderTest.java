@@ -8,10 +8,14 @@ import org.jahia.modules.htmlfiltering.impl.config.Config;
 import org.jahia.modules.htmlfiltering.model.ConfigModel;
 import org.jahia.modules.htmlfiltering.model.PolicyModel;
 import org.jahia.modules.htmlfiltering.model.RuleSetModel;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.FormatRequiresAttributes;
+import org.jahia.modules.htmlfiltering.model.validation.constraints.RequiresTagsOrAttributes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationException;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -57,7 +61,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace", "must not be null");
+        assertContainsExactValidationError(exception, "editWorkspace", NotNull.class);
     }
 
     @Test
@@ -67,7 +71,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace", "must not be null");
+        assertContainsExactValidationError(exception, "liveWorkspace", NotNull.class);
     }
 
     @Test
@@ -133,7 +137,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.strategy", "must not be null");
+        assertContainsExactValidationError(exception, "editWorkspace.strategy", NotNull.class);
     }
 
     @Test
@@ -143,7 +147,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.strategy", "must not be null");
+        assertContainsExactValidationError(exception, "liveWorkspace.strategy", NotNull.class);
     }
 
 
@@ -185,7 +189,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.process", "must not be empty");
+        assertContainsExactValidationError(exception, "editWorkspace.process", NotEmpty.class);
     }
 
     @Test
@@ -195,7 +199,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.process", "must not be empty");
+        assertContainsExactValidationError(exception, "liveWorkspace.process", NotEmpty.class);
     }
 
     @Test
@@ -205,7 +209,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.process", "must not be empty");
+        assertContainsExactValidationError(exception, "editWorkspace.process", NotEmpty.class);
     }
 
     @Test
@@ -215,7 +219,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.process", "must not be empty");
+        assertContainsExactValidationError(exception, "liveWorkspace.process", NotEmpty.class);
     }
 
     @Test
@@ -225,7 +229,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet", "must not be null");
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet", NotNull.class);
     }
 
     @Test
@@ -235,7 +239,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet", "must not be null");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet", NotNull.class);
     }
 
 
@@ -423,7 +427,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements", "must not be empty");
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements", NotEmpty.class);
     }
 
     @Test
@@ -433,7 +437,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements", "must not be empty");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements", NotEmpty.class);
     }
 
     @Test
@@ -443,7 +447,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements", "must not be empty");
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements", NotEmpty.class);
     }
 
     @Test
@@ -453,7 +457,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements", "must not be empty");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements", NotEmpty.class);
     }
 
     //--------------------------------
@@ -468,7 +472,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", "must contain 'tags' and/or 'attributes'");
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", RequiresTagsOrAttributes.class);
     }
 
     @Test
@@ -479,7 +483,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", "must contain 'tags' and/or 'attributes'");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", RequiresTagsOrAttributes.class);
     }
 
     @Test
@@ -494,7 +498,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", "'format' must be used with 'attributes'"); // add format value pas param
+        assertContainsExactValidationError(exception, "editWorkspace.allowedRuleSet.elements[0]", FormatRequiresAttributes.class);
     }
 
     @Test
@@ -509,7 +513,7 @@ public class ConfigBuilderTest {
 
         ValidationConfigurationException exception = assertThrows(ValidationConfigurationException.class, () -> buildFromModel(configModel));
 
-        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", "'format' must be used with 'attributes'");
+        assertContainsExactValidationError(exception, "liveWorkspace.allowedRuleSet.elements[0]", FormatRequiresAttributes.class);
     }
 
     @Test
@@ -559,9 +563,9 @@ public class ConfigBuilderTest {
 
         assertEquals(5, exception.getViolations().size());
         assertContainsValidationError(exception, "formatDefinitions", "the value for the format definition of 'INVALID_FORMAT' must be a valid regular expression");
-        assertContainsValidationError(exception, "editWorkspace", "must not be null");
-        assertContainsValidationError(exception, "liveWorkspace.strategy", "must not be null");
-        assertContainsValidationError(exception, "liveWorkspace.process", "must not be empty");
-        assertContainsValidationError(exception, "liveWorkspace.allowedRuleSet.elements[1]", "'format' must be used with 'attributes'");
+        assertContainsValidationError(exception, "editWorkspace", NotNull.class);
+        assertContainsValidationError(exception, "liveWorkspace.strategy", NotNull.class);
+        assertContainsValidationError(exception, "liveWorkspace.process", NotEmpty.class);
+        assertContainsValidationError(exception, "liveWorkspace.allowedRuleSet.elements[1]", FormatRequiresAttributes.class);
     }
 }

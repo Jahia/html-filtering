@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = RequiresTagsOrAttributesValidator.class)
 public @interface RequiresTagsOrAttributes {
-    String message() default "{org.jahia.modules.htmlfiltering.model.validation.constraints.RequiresTagsOrAttributes.message}";
+    String message() default "must contain 'tags' and/or 'attributes'";
 
     Class<?>[] groups() default {};
 

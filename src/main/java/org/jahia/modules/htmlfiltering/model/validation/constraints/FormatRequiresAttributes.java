@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FormatRequiresAttributesValidator.class)
 public @interface FormatRequiresAttributes {
-    String message() default "{org.jahia.modules.htmlfiltering.model.validation.constraints.FormatRequiresAttributes.message}";
+    String message() default "'format' must be used with 'attributes'";
 
     Class<?>[] groups() default {};
 

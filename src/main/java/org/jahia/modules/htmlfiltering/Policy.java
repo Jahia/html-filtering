@@ -24,7 +24,7 @@ import javax.jcr.PropertyType;
 
 /**
  * Defines the HTML filtering policy for a given site and workspace.
- * The policies can be retrieved using {@link PolicyRegistry#resolvePolicy(String, String)}.
+ * The policies can be retrieved using {@link PolicyResolver#resolvePolicy(String, String)}.
  */
 public interface Policy {
 

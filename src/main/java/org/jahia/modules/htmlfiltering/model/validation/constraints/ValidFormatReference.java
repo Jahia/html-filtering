@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ValidFormatReferenceValidator.class)
 public @interface ValidFormatReference {
-    String message() default "{org.jahia.modules.htmlfiltering.model.validation.constraints.ValidFormatReference.invalid.message}";
+    String message() default "Format references must be defined in 'formatDefinitions'";
 
     Class<?>[] groups() default {};
 

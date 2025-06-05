@@ -79,7 +79,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -93,7 +93,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -106,7 +106,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -119,7 +119,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -132,7 +132,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -145,7 +145,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -158,7 +158,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -176,7 +176,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             });
         });
@@ -189,7 +189,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             });
         });
@@ -202,7 +202,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             });
         });
@@ -215,7 +215,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             });
         });
@@ -228,7 +228,7 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             });
         });
@@ -257,11 +257,11 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content in site-1 and make sure global.custom config is applied', () => {
+            cy.step('Modify RichText content in site-1 and make sure global.custom config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
             });
 
-            cy.step('Modify ReachText content in site-2 and make sure global.custom config is applied', () => {
+            cy.step('Modify RichText content in site-2 and make sure global.custom config is applied', () => {
                 modifyAndValidate(SITES[1].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
             });
         });
@@ -281,11 +281,11 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify ReachText content in site-1 and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content in site-1 and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
 
-            cy.step('Modify ReachText content in site-2 and make sure global.default config is applied', () => {
+            cy.step('Modify RichText content in site-2 and make sure global.default config is applied', () => {
                 modifyAndValidate(SITES[1].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
             });
         });
@@ -299,12 +299,12 @@ describe('Test explicit properties declaration', () => {
                 installConfig(CONFIG_CUSTOM_PATH);
             });
 
-            cy.step('Modify ReachText content in site-1 and make sure per-site config is applied', () => {
+            cy.step('Modify RichText content in site-1 and make sure per-site config is applied', () => {
                 modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_PER_SITE);
             }
             );
 
-            cy.step('Modify ReachText content in site-2 and make sure global.custom config is applied', () => {
+            cy.step('Modify RichText content in site-2 and make sure global.custom config is applied', () => {
                 modifyAndValidate(SITES[1].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
             });
         });

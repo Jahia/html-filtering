@@ -21,11 +21,13 @@ export const installConfig = configFilePath => {
 
 export const removeGlobalCustomConfig = () => {
     executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.global.custom', IDENTIFIER: ''});
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
 };
 
 export const removeSiteConfig = siteKey => {
     executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.site', IDENTIFIER: siteKey});
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
 };
 

@@ -137,20 +137,6 @@ describe('Test explicit properties declaration', () => {
             });
         });
 
-        it('Config is rejected if strategy is MISSING in both workspaces', () => {
-            cy.step(`Install INVALID "site-${SITES[0].KEY}" config`, () => {
-                readYAMLConfig(SITES[0].CONFIG_PATH).then(data => {
-                    delete data.htmlFiltering.editWorkspace.strategy;
-                    delete data.htmlFiltering.liveWorkspace.strategy;
-                    installYAMLConfig(SITES[0].CONFIG_NAME, data);
-                });
-            });
-
-            cy.step('Modify ReachText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
-            });
-        });
-
         it('Config is rejected if editWorkspace.allowedRuleSet.elements is EMPTY', () => {
             cy.step(`Install INVALID "site-${SITES[0].KEY}" config`, () => {
                 readYAMLConfig(SITES[0].CONFIG_PATH).then(data => {

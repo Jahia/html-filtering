@@ -42,6 +42,7 @@
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFEvlCD6n9ezEqx/OZeCuTE7abVbiAhRpalNBQ1hT1Z4MjHgHbhHEMB88hQ==</jahia-module-signature>
+        <!-- include both the default JaCoCo report (resulting of the unit tests execution) and the JaCoCo report generated after the Cypress tests -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml,${project.reporting.outputDirectory}/jacoco-cypress/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 

@@ -17,7 +17,6 @@ services:
     jahia:
         image: '${JAHIA_IMAGE}'
         container_name: jahia
-        #user: root  # Run as root to ensure write permissions
         depends_on:
             - jacoco-downloader
         volumes:

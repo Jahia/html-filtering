@@ -18,6 +18,7 @@ package org.jahia.modules.htmlfiltering.graphql.query;
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
+import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.jahia.modules.graphql.provider.dxm.node.NodeQueryExtensions;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
 import org.jahia.modules.htmlfiltering.Policy;
@@ -40,8 +41,11 @@ public class GqlHtmlFilteringQuery {
 
     @GraphQLField
     @GraphQLName("validate")
-    @GraphQLDescription("Validate a given html from a resolved policy from a provided worskpace and site from its OSGi configuration, then returns sanitized HTML, removed tags and attributes")
-    public GqlValidationResult validate(@GraphQLName("html") String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace, @GraphQLName("siteKey") String siteKey) {
+    @GraphQLDescription("Validate or sanitize an HTML string for a given workspace and site. It returns the sanitized HTML string, the potential removed tags/attributes and whether the provided HTML string is safe or not.")
+    public GqlValidationResult validate(@GraphQLName("html") @GraphQLNonNull String html, @GraphQLName("workspace") NodeQueryExtensions.Workspace workspace, @GraphQLName("siteKey") String siteKey) {
+        if (workspace == null) {
+            workspace = NodeQueryExtensions.Workspace.EDIT;
+        }
         Policy policy = registry.resolvePolicy(siteKey, workspace.getValue());
         if (policy != null) {
             return new GqlValidationResult(policy.sanitize(html));

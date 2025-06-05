@@ -1,4 +1,4 @@
-query HtmlFiltering($html: String!, $workspace: Workspace = EDIT, $siteKey: String) {
+query validate($html: String!, $workspace: Workspace, $siteKey: String) {
     htmlFiltering {
         validate(html: $html, workspace: $workspace, siteKey: $siteKey) {
             removedTags

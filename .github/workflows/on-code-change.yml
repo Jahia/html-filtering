@@ -137,6 +137,7 @@ jobs:
         with:
           name: jacoco-cypress-report
           path: target/site/jacoco-cypress/
+
   sonar-analysis:
     name: Sonar Analysis
     needs: integration-tests-jacoco-report

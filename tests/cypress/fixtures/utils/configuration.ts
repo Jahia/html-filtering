@@ -96,15 +96,16 @@ export const readYAMLConfig = (pathName: string) => {
  *           data.htmlFiltering.editWorkspace.strategy = 'REJECT';
  *           installYAMLConfig('org.jahia.modules.htmlfiltering.global.custom.yml', data);
  *       });
+ * @note uses 'downloads' folder since it is being cleaned up automatically (when trashAssetsBeforeRuns: true)
  */
 export const installYAMLConfig = (name: string, data: object) => {
+    // Dump YAML object to string
     const yamlContent = dump(data);
+    // Use random uuid to avoid files caching issues
     const myuuid = uuidv4();
-
     // Path relative to the /tests folder
-    const filePath = join('cypress/fixtures/tmp', myuuid, name);
+    const filePath = join('cypress/downloads', myuuid, name);
     cy.writeFile(filePath, yamlContent);
-
     // Path relative to the fixtures folder
-    return installConfig(join('tmp', myuuid, name));
+    return installConfig(join('../downloads', myuuid, name));
 };

@@ -178,7 +178,7 @@ describe('Test explicit properties declaration', () => {
         });
     });
 
-    describe('If OPTIONAL properties are either INVALID or MISSING in per-site, they are ignored and config is still being processed', () => {
+    describe('If OPTIONAL properties are either INVALID or MISSING in per-site config, they are ignored and config is still being processed', () => {
         before(() => initializeSite(SITES[0].KEY));
         beforeEach(() => removeSiteConfig(SITES[0].KEY));
 

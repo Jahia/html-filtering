@@ -5,30 +5,31 @@ import {join} from 'path';
 import {v4 as uuidv4} from 'uuid';
 
 const pid = 'org.jahia.modules.htmlfiltering.config';
+const configProvisioningDelayMs = 3000;
+
+// Wait for the configuration to be applied
+const waitForConfigProvisioning = () => {
+    cy.log('Waiting for configuration provisioning...');
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(configProvisioningDelayMs);
+};
 
 export const installConfig = configFilePath => {
     return cy.runProvisioningScript(
         {
             script: {fileContent: `- installConfiguration: "${configFilePath}"`, fileName: `${configFilePath}`, type: 'application/yaml'},
             files: [{fileName: `${configFilePath}`, type: 'text/plain'}]
-        }).then(() => {
-        // Wait for the configuration to be applied
-        cy.log('Wait for the configuration to be applied...');
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(3000);
-    });
+        }).then(() => waitForConfigProvisioning());
 };
 
 export const removeGlobalCustomConfig = () => {
     executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.global.custom', IDENTIFIER: ''});
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
+    waitForConfigProvisioning();
 };
 
 export const removeSiteConfig = siteKey => {
     executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.site', IDENTIFIER: siteKey});
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
+    waitForConfigProvisioning();
 };
 
 export const editSiteConfig = (key, value, siteKey) => {

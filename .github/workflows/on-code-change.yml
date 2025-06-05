@@ -59,6 +59,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
+      - name: Create JaCoCo data volume with proper permissions
+        run: |
+            docker volume create jacoco-data
+            # Create a temporary container to set permissions
+            docker run --rm -v jacoco-data:/jacoco-data alpine sh -c "mkdir -p /jacoco-data && chmod -R 777 /jacoco-data"
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: html-filtering
@@ -86,6 +91,16 @@ jobs:
           incident_google_client_email: ${{ secrets.INCIDENT_GOOGLE_CLIENT_EMAIL }}
           incident_google_api_key_base64: ${{ secrets.INCIDENT_GOOGLE_API_KEY_BASE64 }}
           zencrepes_secret: ${{ secrets.ZENCREPES_WEBHOOK_SECRET }}
+      - name: Upload JaCoCo data
+        run: |
+          # Create target directory
+          mkdir -p ${{ github.workspace }}/target
+          # Copy the JaCoCo data from the Docker volume to the local filesystem
+          docker run --rm -v jacoco-data:/jacoco-data -v ${{ github.workspace }}/target:/target alpine sh -c "cp /jacoco-data/jacoco-cypress.exec /target/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-cypress-execution-data
+          path: target/jacoco-cypress.exec
       - name: Test Report
         uses: phoenix-actions/test-reporting@v12
         if: success() || failure()
@@ -96,11 +111,41 @@ jobs:
           fail-on-error: 'false'
           output-to: 'checks'
 
+  integration-tests-jacoco-report:
+    name: Integration tests JaCoCo report
+    needs: integration-tests
+    runs-on: ubuntu-latest
+    container:
+      image: jahia/cimg-mvn-cache:ga_cimg_openjdk_8.0.312-node
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    steps:
+      - name: Download JaCoCo Cypress execution data
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-cypress-execution-data
+#          path: tests/artifacts
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Generate JaCoCo Cypress report
+        run: mvn org.jacoco:jacoco-maven-plugin:report -Djacoco.dataFile=target/jacoco-cypress.exec
+      - name: Rename JaCoCo report directory
+        run: mv target/site/jacoco target/site/jacoco-cypress
+      - name: Upload JaCoCo Cypress report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-cypress-report
+          path: target/site/jacoco-cypress/
   sonar-analysis:
     name: Sonar Analysis
-    needs: build
+    needs: integration-tests
     runs-on: ubuntu-latest
     steps:
+      - name: Download JaCoCo Cypress report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-cypress-report
       - uses: actions/checkout@v4
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:

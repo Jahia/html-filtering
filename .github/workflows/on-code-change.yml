@@ -132,7 +132,7 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Generate JaCoCo Cypress report
-        run: mvn org.jacoco:jacoco-maven-plugin:report -Djacoco.dataFile=target/jacoco-cypress.exec
+        run: mvn compile org.jacoco:jacoco-maven-plugin:report -Djacoco.dataFile=target/jacoco-cypress.exec
       - name: Rename JaCoCo report directory
         run: mv target/site/jacoco target/site/jacoco-cypress
       - name: Upload JaCoCo Cypress report
@@ -142,7 +142,7 @@ jobs:
           path: target/site/jacoco-cypress/
   sonar-analysis:
     name: Sonar Analysis
-    needs: integration-tests
+    needs: integration-tests-jacoco-report
     runs-on: ubuntu-latest
     steps:
       - name: Download JaCoCo Cypress report

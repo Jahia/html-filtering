@@ -1,4 +1,5 @@
 import {removeGlobalCustomConfig} from '../fixtures/utils';
+import {graphqlValidate} from '../fixtures/utils/graphql';
 
 describe('Graphql test', () => {
     const safeHTML = '<p>value</p>';
@@ -10,13 +11,17 @@ describe('Graphql test', () => {
         removeGlobalCustomConfig();
     });
 
+    it('Should throw a validation error if no html parameter is passed', () => {
+        graphqlValidate(null).then(result => {
+            expect(result.graphQLErrors).to.exist;
+            expect(result.graphQLErrors).to.have.length(1);
+            expect(result.graphQLErrors[0].extensions.classification).to.equal('ValidationError');
+            expect(result.graphQLErrors[0].message).to.include('Variable \'html\' has an invalid value');
+        });
+    });
+
     it('Should return a safe content', () => {
-        cy.apollo({
-            queryFile: 'graphql/graphqlTest.graphql',
-            variables: {
-                html: safeHTML
-            }
-        }).its('data.htmlFiltering.validate').should(res => {
+        graphqlValidate(safeHTML).its('data.htmlFiltering.validate').should(res => {
             expect(res.removedTags).to.be.empty;
             expect(res.removedAttributes).to.be.empty;
             expect(res.sanitizedHtml).to.equal(safeHTML);
@@ -25,12 +30,7 @@ describe('Graphql test', () => {
     });
 
     it('Should return sanitized unsafe content', () => {
-        cy.apollo({
-            queryFile: 'graphql/graphqlTest.graphql',
-            variables: {
-                html: unsafeHTML
-            }
-        }).its('data.htmlFiltering.validate').should(res => {
+        graphqlValidate(unsafeHTML).its('data.htmlFiltering.validate').should(res => {
             expect(res.removedTags.length).to.equal(2);
             expect(res.removedTags).to.contain('badtag');
             expect(res.removedTags).to.contain('script');

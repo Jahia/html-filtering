@@ -1,4 +1,4 @@
-import {installConfig, removeSiteConfig, removeGlobalCustomConfig} from '../fixtures/utils';
+import {installConfig, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
 import {createSite, deleteSite, getNodeByPath} from '@jahia/cypress';
 
 const SITE_KEY = 'testValidation';
@@ -44,10 +44,10 @@ describe('Ensure node validation is returning translated messages', () => {
 
     it('Should return <invalid tag> error', () => {
         cy.apollo({
-            mutationFile: 'graphql/validationTest.graphql',
+            mutationFile: 'graphql/validationTestSingleProperty.graphql',
             variables: {
                 nodeName: 'invalidTag',
-                text: INVALID_TAG
+                textA: INVALID_TAG
             }
         }).then(errors => {
             expect(errors.graphQLErrors.length).to.equal(1);
@@ -60,10 +60,10 @@ describe('Ensure node validation is returning translated messages', () => {
 
     it('Should return <invalid attribute> error', () => {
         cy.apollo({
-            mutationFile: 'graphql/validationTest.graphql',
+            mutationFile: 'graphql/validationTestSingleProperty.graphql',
             variables: {
                 nodeName: 'invalidAttribute',
-                text: INVALID_ATTRIBUTE
+                textA: INVALID_ATTRIBUTE
             }
         }).then(errors => {
             expect(errors.graphQLErrors.length).to.equal(1);
@@ -76,10 +76,10 @@ describe('Ensure node validation is returning translated messages', () => {
 
     it('Should return <invalid tag and attribute> errors', () => {
         cy.apollo({
-            mutationFile: 'graphql/validationTest.graphql',
+            mutationFile: 'graphql/validationTestSingleProperty.graphql',
             variables: {
                 nodeName: 'invalidAttributeAndTag',
-                text: `${INVALID_ATTRIBUTE} ${INVALID_TAG}`
+                textA: `${INVALID_ATTRIBUTE} ${INVALID_TAG}`
             }
         }).then(errors => {
             expect(errors.graphQLErrors.length).to.equal(1);
@@ -112,7 +112,7 @@ describe('Ensure node validation is returning translated messages', () => {
     it('Should REJECT a property with multi values with error', () => {
         const nodeName = 'invalidPropertyMultipleReject';
         cy.apollo({
-            mutationFile: 'graphql/validationTestPropertyMultiple.graphql',
+            mutationFile: 'graphql/validationTestMultiValuesProperty.graphql',
             variables: {
                 nodeName: nodeName,
                 texts: [
@@ -140,7 +140,7 @@ describe('Ensure node validation is returning translated messages', () => {
 
         cy.step(`Create testing node "${nodeName}" with content`, () => {
             cy.apollo({
-                mutationFile: 'graphql/validationTestPropertyMultiple.graphql',
+                mutationFile: 'graphql/validationTestMultiValuesProperty.graphql',
                 variables: {
                     nodeName: nodeName,
                     texts: [

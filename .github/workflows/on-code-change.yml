@@ -64,8 +64,6 @@ jobs:
             docker volume create jacoco-data
             # Create a temporary container to set permissions
             docker run --rm -v jacoco-data:/jacoco-data alpine sh -c "mkdir -p /jacoco-data && chmod -R 777 /jacoco-data"
-            # TODO temp list volumes
-            docker volume ls
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
           module_id: html-filtering
@@ -129,9 +127,8 @@ jobs:
         with:
           name: jacoco-cypress-execution-data
           path: target
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Generate JaCoCo Cypress report
+        # The Java classes must be compiled before creating the report
         run: mvn compile org.jacoco:jacoco-maven-plugin:report -Djacoco.dataFile=target/jacoco-cypress.exec
       - name: Rename JaCoCo report directory
         run: mv target/site/jacoco target/site/jacoco-cypress
@@ -151,10 +148,6 @@ jobs:
         with:
           name: jacoco-cypress-report
           path: target/site/jacoco-cypress
-      - name: Display structure of downloaded files
-        run: ls -R .
-      - name: Display structure of target/site/
-        run: ls -R target/site/
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:
           # If the primary release branch is other than "main", specify it here

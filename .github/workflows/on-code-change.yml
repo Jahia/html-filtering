@@ -145,12 +145,16 @@ jobs:
     needs: integration-tests-jacoco-report
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Download JaCoCo Cypress report
         uses: actions/download-artifact@v4
         with:
           name: jacoco-cypress-report
           path: target/site/jacoco-cypress
-      - uses: actions/checkout@v4
+      - name: Display structure of downloaded files
+        run: ls -R .
+      - name: Display structure of target/site/
+        run: ls -R target/site/
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:
           # If the primary release branch is other than "main", specify it here

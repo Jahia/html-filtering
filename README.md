@@ -63,7 +63,7 @@ htmlFiltering:
 
 #### Format Definitions
 
-The `formatDefinitions` section contains regular expression patterns that can be reused in rules:
+The `formatDefinitions` defines regular expression patterns with a unique name that can be referenced in rules:
 
 ```yaml
 formatDefinitions:

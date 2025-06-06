@@ -197,10 +197,10 @@ Example of property definitions in a .cnd file:
 ```
 [nt:myNodeType] > jnt:content, jmix:droppableContent
     - myHTMLProperty (string, richtext)
-    - willNotProcessed (string)
+    - willNotBeProcessed (string)
 ```
 
-In this example, `myHTMLProperty` will be processed by HTML filtering because it has the `richtext` constraint, while `willNotProcessed` will not be processed because it lacks this constraint.
+In this example, `myHTMLProperty` will be processed by HTML filtering because it has the `richtext` constraint, while `willNotBeProcessed` will not be processed because it lacks this constraint.
 
 ### JSON Overrides and HTML Filtering
 
@@ -227,13 +227,10 @@ coupled with a JSON Override:
               "name": "willNotProcessed",
               "selectorType": "RichText"
             }
-          ]
-        }
       ]
     }
   ]
 }
-```
 
 This configuration will have no effect on HTML filtering. jContent will display a WYSIWYG field for your property, allowing you to contribute HTML markup, but HTML filtering will simply ignore this property because it's not declared as `richtext` in the .cnd definition.
 

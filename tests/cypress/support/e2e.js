@@ -64,7 +64,7 @@ Cypress.on('test:after:run', (test, runnable) => {
 // Cleanup default.custom config on CI to avoid affecting other tests
 // To be moved to jahia-cypress later on
 after(() => {
-    if (Cypress.env('JAHIA_HOST') === 'jahia') {
+    if (Cypress.env('JAHIA_URL') === 'http://jahia:8080') {
         removeGlobalCustomConfig();
     }
 });

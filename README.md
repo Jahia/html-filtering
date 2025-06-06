@@ -2,7 +2,7 @@
 
 ## Overview
 
-The HTML Filtering module provides XSS (Cross-Site Scripting) filtering protection in Jahia when contributing contents that have properties containing HTML markup. It helps ensure that user-generated HTML content is safe and free from potentially malicious code.
+The HTML Filtering module provides XSS (Cross-Site Scripting) filtering protection in Jahia when contributing content that have properties containing HTML markup. It helps ensure that user-generated HTML content is safe and free from potentially malicious code.
 
 The module doesn't have to be enabled on a site to work and start filtering HTML. As soon as the module is installed and started, it will be applied and fully working based on the global default configuration that is installed with it.
 

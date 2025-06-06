@@ -97,6 +97,10 @@ jobs:
           incident_google_client_email: ${{ secrets.INCIDENT_GOOGLE_CLIENT_EMAIL }}
           incident_google_api_key_base64: ${{ secrets.INCIDENT_GOOGLE_API_KEY_BASE64 }}
           zencrepes_secret: ${{ secrets.ZENCREPES_WEBHOOK_SECRET }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-cypress-report
+          path: target/site/jacoco-cypress/
       - name: Test Report
         uses: phoenix-actions/test-reporting@v12
         if: success() || failure()
@@ -109,10 +113,16 @@ jobs:
 
   sonar-analysis:
     name: Sonar Analysis
-    needs: build
+    # wait for the integration tests to complete, to get the JaCoCo execution report for the Cypress tests code coverage
+    needs: integration-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download JaCoCo Cypress report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-cypress-report
+          path: target/site/jacoco-cypress/
       - uses: jahia/jahia-modules-action/sonar-analysis@v2
         with:
           # If the primary release branch is other than "main", specify it here

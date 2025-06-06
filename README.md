@@ -13,9 +13,8 @@ The HTML Filtering module provides XSS (Cross-Site Scripting) filtering protecti
 The module can be configured at three different levels, with a clear priority order:
 
 1. **Site-specific configuration** (highest priority)
-    - Filename: `org.jahia.modules.htmlfiltering.site-SITE_KEY.yml`
+    - Filename: `org.jahia.modules.htmlfiltering.site-<SITE_KEY>.yml` (example: `org.jahia.modules.htmlfiltering.site-digitall.yml`)
     - Purpose: Create separate configuration for a specific site
-    - Example: `org.jahia.modules.htmlfiltering.site-digitall.yml`
 
 2. **Global custom configuration** (medium priority)
     - Filename: `org.jahia.modules.htmlfiltering.global.custom.yml`

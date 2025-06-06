@@ -148,7 +148,7 @@ allowedRuleSet:
 Each rule can specify:
 - **tags**: Which HTML tags the rule applies to
 - **attributes**: Which attributes are allowed for those tags. Specifying attributes without tags means that those attributes are allowed on any tags
-- **format**: A reference to a format definition that the attribute value must match
+- **format**: A reference to a format definition that the attribute(s) values must match
 
 The `protocols` section defines which URL protocols are allowed in attributes like `href` and `src`.
 

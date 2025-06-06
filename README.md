@@ -27,7 +27,7 @@ The module can be configured at three different levels, with a clear priority or
     - Installed automatically by the module
     - Not recommended to modify as it will be reinstalled with each module update
 
-If a configuration file is invalid or contains incorrect values, it will not be loaded, and the system will fall back to the next configuration in the priority chain. Error logs will indicate which configuration was not loaded and why.
+If a configuration file is invalid or contains incorrect values, it will not be loaded, and the system will fall back to the next configuration in the priority chain. Error logs will indicate which configuration file was not loaded and why.
 
 ### Configuration Structure
 

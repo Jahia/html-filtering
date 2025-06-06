@@ -159,7 +159,7 @@ The `protocols` section defines which URL protocols are allowed in attributes li
 The module exposes a GraphQL API for validating and sanitizing HTML content:
 
 ```graphql
-query HtmlFiltering($html: String!, $workspace: Workspace = EDIT, $siteKey: String) {
+query HtmlFiltering($html: String!, $workspace: Workspace = EDIT, $siteKey: String!) {
     htmlFiltering {
         validate(html: $html, workspace: $workspace, siteKey: $siteKey) {
             removedTags

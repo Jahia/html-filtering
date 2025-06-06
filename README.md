@@ -95,7 +95,7 @@ The `strategy` setting defines how the module handles HTML content with potentia
     - Returns constraint violations listing all invalid tags
     - Requires the user to manually fix the content before saving
     - Jahia recommended strategy for default workspace where content creators have access to advanced editing UI
-
+A content is considered invalid if it contains tags and/or attributes that got removed after being sanitized by the module
 #### Process and Skip Settings
 
 These settings define which node types and properties should be processed or skipped by the HTML filtering:

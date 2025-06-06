@@ -12,7 +12,7 @@
 target
 
 # Temporary dynamic fixtures
-/tests/cypress/fixtures/tmp
+/tests/cypress/downloads
 
 # Jahia DX Studio
 repository.xml.generated

@@ -17,6 +17,7 @@
 
 import './commands';
 import addContext from 'mochawesome/addContext';
+import {removeGlobalCustomConfig} from '../fixtures/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('cypress-terminal-report/src/installLogsCollector')({
@@ -57,5 +58,13 @@ Cypress.on('test:after:run', (test, runnable) => {
         const screenshotFolderName = Cypress.spec.relative.replace('cypress/e2e/', '');
         const screenshotFileName = `${runnable.parent.title} -- ${test.title} (failed).png`;
         addContext({test}, `screenshots/${screenshotFolderName}/${screenshotFileName}`);
+    }
+});
+
+// Cleanup default.custom config on CI to avoid affecting other tests
+// To be moved to jahia-cypress later on
+after(() => {
+    if (Cypress.env('JAHIA_URL') === 'http://jahia:8080') {
+        removeGlobalCustomConfig();
     }
 });

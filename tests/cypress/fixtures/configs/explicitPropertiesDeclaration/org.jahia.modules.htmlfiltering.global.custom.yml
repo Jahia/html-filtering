@@ -1,0 +1,17 @@
+htmlFiltering:
+  editWorkspace:
+    strategy: SANITIZE
+    process: ['nt:base.*']
+    allowedRuleSet:
+      protocols: [http, https]
+      elements:
+        - attributes: [id]
+        - tags: [p]
+  liveWorkspace:
+    strategy: SANITIZE
+    process: ['nt:base.*']
+    allowedRuleSet:
+      protocols: [http, https]
+      elements:
+        - attributes: [id]
+        - tags: [p]

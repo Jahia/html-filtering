@@ -231,6 +231,7 @@ coupled with a JSON Override:
     }
   ]
 }
+```
 
 This configuration will have no effect on HTML filtering. jContent will display a WYSIWYG field for your property, allowing you to contribute HTML markup, but HTML filtering will simply ignore this property because it's not declared as `richtext` in the .cnd definition.
 
@@ -255,6 +256,16 @@ This configuration will have no effect on HTML filtering. jContent will display 
     - Verify that your configuration has been properly loaded
     - Some configuration properties are mandatory and subject to validation
     - If a configuration is invalid, it will not be loaded, and HTML filtering will fall back to another configuration in the priority chain
+
+# Known Limitations
+
+On Jahia 8.1.7.x versions, there was a bug that has been fixed in Jahia 8.2.0.0 and 8.1.8.0. 
+The bug affected validation of internationalized (i18n) properties during content creation (content edition was not affected). 
+
+This has a direct impact on HTML-filtering's new `REJECT` strategy, since this strategy is based on validators. If you are using Jahia 8.1.7.x, the `REJECT` strategy won't work properly when creating content with rich-text internationalized properties (editing content is not affected). 
+
+If you are in this situation, we recommend upgrading your Jahia to at least version 8.1.8.x.
+
 
 # Migrating from HTML Filtering v1.x to v2.x
 

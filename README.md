@@ -39,7 +39,6 @@ htmlFiltering:
   formatDefinitions:
     HTML_ID: '[a-zA-Z0-9\:\-_\.]+'
     NUMBER_OR_PERCENT: '\d+%?'
-    LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
   editWorkspace:
     strategy: REJECT
     skipOnPermissions: []

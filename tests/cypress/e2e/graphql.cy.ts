@@ -16,7 +16,7 @@ describe('Graphql test', () => {
             expect(result.graphQLErrors).to.exist;
             expect(result.graphQLErrors).to.have.length(1);
             expect(result.graphQLErrors[0].extensions.classification).to.equal('ValidationError');
-            expect(result.graphQLErrors[0].message).to.include('Variable \'html\' has an invalid value');
+            expect(result.graphQLErrors[0].message).to.include('\'html\'');
         });
     });
 

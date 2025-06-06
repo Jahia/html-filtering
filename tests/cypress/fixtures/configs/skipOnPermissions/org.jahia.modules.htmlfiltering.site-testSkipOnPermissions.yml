@@ -1,7 +1,7 @@
 htmlFiltering:
   editWorkspace:
     strategy: SANITIZE
-    skipOnPermissions: ['view-full-wysiwyg-editor']
+    skipOnPermissions: ['publish']
     process: ['nt:base.*']
     allowedRuleSet:
       elements:

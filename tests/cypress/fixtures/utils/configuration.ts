@@ -87,7 +87,7 @@ export const readYAMLConfig = (pathName: string) => {
 };
 
 /**
- * Saves the provided configuration data to a file in the `cypress/fixtures/tmp` folder
+ * Saves the provided configuration data to a file in the `cypress/download` folder
  * and installs it using the `installConfig` function.
  * @param name - file name to save the configuration as
  * @param data - configuration data to save

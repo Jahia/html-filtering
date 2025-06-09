@@ -1,9 +1,9 @@
 import {removeGlobalCustomConfig} from '../fixtures/utils';
 import {graphqlValidate} from '../fixtures/utils/graphql';
 
-describe('Graphql test', () => {
+describe('Test the GraphQL APIs endpoints', () => {
     const safeHTML = '<p>value</p>';
-    const unsafeHTML = '<badTag badTagAttribute>value</badTag><p class="myClass" badPAttribute>test</p><script>alert(document.location)</script>';
+    const unsafeHTML = '<badTag badTagAttribute>value</badTag><p class="myClass" badAttribute>test</p><script>alert(document.location)</script>';
     const sanitizedUnsafeHTML = 'value<p class="myClass">test</p>';
 
     before(() => {

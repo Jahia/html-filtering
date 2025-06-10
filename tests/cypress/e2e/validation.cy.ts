@@ -178,14 +178,15 @@ describe('Ensure the SANITIZE strategy automatically sanitize HTML content when 
         // Clean up any previous configurations
         removeGlobalCustomConfig();
         removeSiteConfig(SITE_KEY);
-        deleteSite(SITE_KEY);
 
-        // Create a site to be used for testing
-        createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
+        // Configure to use the SANITIZE strategy
+        installConfig(CONFIG_SITE_PATH_SANITIZE);
     });
 
     beforeEach(() => {
-        installConfig(CONFIG_SITE_PATH_SANITIZE);
+        // Start each test with an empty site so the same TEST_NODE can be used for all tests
+        deleteSite(SITE_KEY);
+        createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
     });
 
     it('Should SANITIZE a property with multi values', () => {

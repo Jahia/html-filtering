@@ -5,7 +5,8 @@ import {
     removeGlobalCustomConfig,
     removeSiteConfig
 } from '../fixtures/utils';
-import {createSite, deleteSite, getNodeByPath} from '@jahia/cypress';
+import {createSite, deleteSite, getJahiaVersion, getNodeByPath} from '@jahia/cypress';
+import {compare} from 'compare-versions';
 
 const SITE_KEY = 'testValidation';
 const CONFIG_SITE_NAME = `org.jahia.modules.htmlfiltering.site-${SITE_KEY}.yml`;
@@ -55,6 +56,18 @@ const containsValidationErrorMessages = (result, expectedErrorMessages:string[])
     });
 };
 
+function skipIfValidationOnI18nNotSupported(context: Mocha.Context, testFunction: () => void) {
+    getJahiaVersion().then(jahiaVersion => {
+        if (compare(jahiaVersion.release.replace('-SNAPSHOT', ''), '8.1.8.0', '<')) {
+            // The validation was not triggered when creating nodes.
+            // Fixed in https://github.com/Jahia/jahia-private/pull/1326 and backported in 8.1.8 in https://github.com/Jahia/jahia-private/pull/2170
+            context.skip();
+        }
+
+        testFunction();
+    });
+}
+
 describe('Ensure the REJECT strategy triggers a validation when creating/updating content', () => {
     before(() => {
         // Clean up any previous configurations
@@ -91,8 +104,9 @@ describe('Ensure the REJECT strategy triggers a validation when creating/updatin
         it(`Should return an error when updating with invalid content: ${test.name}`, () => {
             // First create a valid content
             createTestNode([{name: 'textA', value: VALID}])
-                .then(errors => {
-                    expect(errors.graphQLErrors).to.be.undefined;
+                .then(result => {
+                    expect(result.graphQLErrors).to.be.undefined;
+                    expect(result.data?.jcr?.addNode).to.exist;
                 });
 
             // Then update it with invalid content
@@ -133,30 +147,34 @@ describe('Ensure the REJECT strategy triggers a validation when creating/updatin
             });
     });
 
-    it('Should return an error when creating invalid content in an i18n property', () => {
-        createTestNode(
-            [
-                {name: 'textI18n', language: 'de', value: VALID}, // TODO does not work with multiple errors, why?
-                {name: 'textI18n', language: 'es', value: VALID},
-                {name: 'textI18n', language: 'it', value: INVALID_ATTRIBUTE}
-            ]
-        )
-            .then(errors => {
-                containsValidationErrorMessages(errors, [INVALID_ATTRIBUTE_MESSAGE]);
-            });
+    it('Should return an error when creating invalid content in an i18n property', function () {
+        skipIfValidationOnI18nNotSupported(this, () => {
+            createTestNode(
+                [
+                    {name: 'textI18n', language: 'de', value: VALID},
+                    {name: 'textI18n', language: 'es', value: VALID},
+                    {name: 'textI18n', language: 'it', value: INVALID_ATTRIBUTE}
+                ]
+            )
+                .then(errors => {
+                    containsValidationErrorMessages(errors, [INVALID_ATTRIBUTE_MESSAGE]);
+                });
+        });
     });
 
-    it('Should return an error when when creating invalid content in an i18n multi-value property', () => {
-        createTestNode(
-            [
-                {name: 'textI18nMultiValues', language: 'de', values: [VALID]},
-                {name: 'textI18nMultiValues', language: 'es', values: [VALID, VALID]}, // TODO does not work with another error
-                {name: 'textI18nMultiValues', language: 'it', values: [INVALID_TAG]}
-            ]
-        )
-            .then(errors => {
-                containsValidationErrorMessages(errors, [INVALID_TAG_MESSAGE]);
-            });
+    it('Should return an error when when creating invalid content in an i18n multi-value property', function () {
+        skipIfValidationOnI18nNotSupported(this, () => {
+            createTestNode(
+                [
+                    {name: 'textI18nMultiValues', language: 'de', values: [VALID]},
+                    {name: 'textI18nMultiValues', language: 'es', values: [VALID, INVALID_TAG]},
+                    {name: 'textI18nMultiValues', language: 'it', values: [VALID, VALID]}
+                ]
+            )
+                .then(errors => {
+                    containsValidationErrorMessages(errors, [INVALID_TAG_MESSAGE]);
+                });
+        });
     });
 });
 

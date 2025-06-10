@@ -75,9 +75,8 @@ describe('Ensure the REJECT strategy triggers a validation when creating/updatin
     });
 
     beforeEach(() => {
+        // Start each test with an empty site so the same TEST_NODE can be used for all tests
         deleteSite(SITE_KEY);
-
-        // Create a site to be used for testing
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
     });
 

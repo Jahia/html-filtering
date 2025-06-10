@@ -3,7 +3,7 @@ name: Nightly Test run
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 1 * * *"
+    - cron:  '15 1 * * *'
 
 jobs:
   integration-tests-standalone:
@@ -18,23 +18,23 @@ jobs:
             pagerduty-incident-service: html-filtering-JahiaSN
           - jahia-image: jahia-ee:8.1
             provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
-            pagerduty-incident-service: html-filtering-Jahia8170
+            pagerduty-incident-service: html-filtering-Jahia81
     timeout-minutes: 120
     steps:
       - uses: jahia/jahia-modules-action/helper@v2
       - uses: KengoTODA/actions-setup-docker-compose@main
         with:
-          version: "1.29.2"
+          version: '1.29.2'
       - uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
       - uses: actions/checkout@v3
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
-          module_id: jcontent
+          module_id: html-filtering
           jahia_image: jahia/${{ matrix.env.jahia-image }}
           testrail_project: HTML Filtering Module
-          tests_manifest: ${{ matrix.env.provisioning }}
+          tests_manifest:  ${{ matrix.env.provisioning }}
           should_use_build_artifacts: false
           should_skip_artifacts: true
           should_skip_notifications: false
@@ -66,8 +66,8 @@ jobs:
           name: Nightly
           path: tests/artifacts/results/xml_reports/**/*.xml
           reporter: java-junit
-          fail-on-error: "false"
-          output-to: "step-summary"
+          fail-on-error: 'false'
+          output-to: 'step-summary'
       - name: Print test report URL
         run: |
           echo "Test report URL is ${{ steps.test-report.outputs.runHtmlUrl }}"

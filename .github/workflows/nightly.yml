@@ -16,9 +16,9 @@ jobs:
           - jahia-image: jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
             pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: jahia-ee:8.1.7.0
-            provisioning: provisioning-manifest-snapshot-jahia-8.1.7.0.yml
-            pagerduty-incident-service: html-filtering-Jahia8170
+          - jahia-image: jahia-ee:8.1
+            provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
+            pagerduty-incident-service: html-filtering-Jahia81
     timeout-minutes: 120
     steps:
       - uses: jahia/jahia-modules-action/helper@v2
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: jahia/jahia-modules-action/integration-tests@v2
         with:
-          module_id: jcontent
+          module_id: html-filtering
           jahia_image: jahia/${{ matrix.env.jahia-image }}
           testrail_project: HTML Filtering Module
           tests_manifest:  ${{ matrix.env.provisioning }}

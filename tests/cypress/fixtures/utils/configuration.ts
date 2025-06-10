@@ -1,11 +1,9 @@
-import gql from 'graphql-tag';
 import {executeGroovy} from '@jahia/cypress';
-import {load, dump} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {join} from 'path';
 import {v4 as uuidv4} from 'uuid';
 
-const pid = 'org.jahia.modules.htmlfiltering.config';
-const configProvisioningDelayMs = 300;
+const configProvisioningDelayMs = 3000;
 
 // Wait for the configuration to be applied
 const waitForConfigProvisioning = () => {

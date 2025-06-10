@@ -129,8 +129,6 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
         return response.data.jcr.mutateNode.mutateProperty.property.value;
     });
 };
-// Multiple props, one value for each
-// one prop, multiple values i18n
 
 export const getContent = (path: string) => {
     const getContentGql = gql`

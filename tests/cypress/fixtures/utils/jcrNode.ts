@@ -57,20 +57,6 @@ export const mutateNodeProperty = (
     });
 };
 
-/**
- * Mutate a node text property and return its updated value
- * @param pathOrId path or id of the node to modify
- * @param propertyName name of the property to modify
- * @param text new value of the property
- * @param apolloClient optional Apollo Client instance to use, if not provided the default one will be used
- */
-
-export const mutateAndGetNodeProperty = (pathOrId: string, propertyName:string, text: string, apolloClient = undefined) => {
-    return mutateNodeProperty(pathOrId, propertyName, text, apolloClient).then(response => {
-        return response?.data?.jcr?.mutateNode?.mutateProperty?.property?.value;
-    });
-};
-
 export const getContent = (path: string) => {
     const getContentGql = gql`
         query getContent($path: String!) {

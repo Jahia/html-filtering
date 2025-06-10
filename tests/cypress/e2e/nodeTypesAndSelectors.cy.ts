@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {installConfig, mutateAndGetNodeProperty, removeSiteConfig, removeGlobalCustomConfig} from '../fixtures/utils';
+import {installConfig, mutateNodeProperty, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
 import gql from 'graphql-tag';
 
 describe('Test the filtering on node types and selectors', () => {
@@ -134,8 +134,8 @@ describe('Test the filtering on node types and selectors', () => {
         const expected = alteredProperties.includes(fullPath) ? SANITIZED_HTML_TEXT : ORIGINAL_HTML_TEXT;
         console.log('mutateAndAssert: ', node, propertyName, fullPath, expected);
 
-        return mutateAndGetNodeProperty(PATH + node, propertyName, ORIGINAL_HTML_TEXT).then(updatedTextProperty => {
-            expect(updatedTextProperty).to.be.equal(expected);
+        return mutateNodeProperty(PATH + node, propertyName, ORIGINAL_HTML_TEXT).then(response => {
+            expect(response.data.jcr.mutateNode.mutateProperty.property.value).to.be.equal(expected);
         });
     }
 

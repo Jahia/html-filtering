@@ -1,5 +1,5 @@
 import {addNode, createSite, createUser, deleteSite, deleteUser, grantRoles} from '@jahia/cypress';
-import {installConfig, mutateAndGetNodeProperty, removeSiteConfig, removeGlobalCustomConfig} from '../fixtures/utils';
+import {installConfig, mutateNodeProperty, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
 
 describe('Test the skipOnPermissions configuration', () => {
     const SITE_KEY = 'testSkipOnPermissions';
@@ -44,9 +44,9 @@ describe('Test the skipOnPermissions configuration', () => {
         // - skipOnPermissions: ['publish']
         // it's a permission granted to the 'editor-in-chief' role by default in Jahia, but not to the 'editor' role.
         // So bob (editor) should not be able to bypass the HTML filtering.
-        mutateAndGetNodeProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, cy.apolloClient({username: USER_EDITOR, password: PASSWORD}))
-            .then(updatedTextProperty => {
-                expect(updatedTextProperty).to.be.equal(SANITIZED_HTML_TEXT);
+        mutateNodeProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, cy.apolloClient({username: USER_EDITOR, password: PASSWORD}))
+            .then(response => {
+                expect(response.data.jcr.mutateNode.mutateProperty.property.value).to.be.equal(SANITIZED_HTML_TEXT);
             });
     });
 
@@ -55,9 +55,9 @@ describe('Test the skipOnPermissions configuration', () => {
         // - skipOnPermissions: ['publish']
         // it's a permission granted to the 'editor-in-chief' role by default in Jahia, but not to the 'editor' role.
         // But billy (editor-in-chief) should be able to bypass the HTML filtering.
-        mutateAndGetNodeProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, cy.apolloClient({username: USER_EDITOR_IN_CHIEF, password: 'password'}))
-            .then(updatedTextProperty => {
-                expect(updatedTextProperty).to.be.equal(ORIGINAL_HTML_TEXT);
+        mutateNodeProperty(`/sites/${SITE_KEY}/home/pagecontent/content`, 'textA', ORIGINAL_HTML_TEXT, cy.apolloClient({username: USER_EDITOR_IN_CHIEF, password: 'password'}))
+            .then(response => {
+                expect(response.data.jcr.mutateNode.mutateProperty.property.value).to.be.equal(ORIGINAL_HTML_TEXT);
             });
     });
 });

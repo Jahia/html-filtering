@@ -32,6 +32,6 @@
     - textA (string, richtext)
     - textB (string, richtext)
     - textC (string, richtext)
-
-[htmlFilteringTestModule:testValidationMultiple] > jnt:content, jmix:droppableContent
-    - textA (string, richtext) multiple
+    - textMultiValues (string, richtext) multiple
+    - textI18n (string, richtext) i18n
+    - textI18nMultiValues (string, richtext) i18n multiple

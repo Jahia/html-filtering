@@ -1,10 +1,8 @@
-import gql from 'graphql-tag';
 import {executeGroovy} from '@jahia/cypress';
-import {load, dump} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {join} from 'path';
 import {v4 as uuidv4} from 'uuid';
 
-const pid = 'org.jahia.modules.htmlfiltering.config';
 const configProvisioningDelayMs = 3000;
 
 // Wait for the configuration to be applied
@@ -30,42 +28,6 @@ export const removeGlobalCustomConfig = () => {
 export const removeSiteConfig = siteKey => {
     executeGroovy('groovy/removeConfig.groovy', {PID: 'org.jahia.modules.htmlfiltering.site', IDENTIFIER: siteKey});
     waitForConfigProvisioning();
-};
-
-export const editSiteConfig = (key, value, siteKey) => {
-    const editConfigGql = gql`
-        mutation editConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
-            admin {
-                jahia {
-                    configuration(pid: $pid, identifier: $identifier) {
-                        value(name: $key value: $value)
-                    }
-                }
-            }
-        }
-    `;
-    return cy.apollo({
-        mutation: editConfigGql,
-        variables: {pid: 'org.jahia.modules.htmlfiltering', identifier: siteKey, key, value}
-    });
-};
-
-export const editConfig = (key, value, siteKey = 'default') => {
-    const editConfigGql = gql`
-        mutation editConfig($pid: String!, $identifier: String!, $key: String!, $value: String!) {
-            admin {
-                jahia {
-                    configuration(pid: $pid, identifier: $identifier) {
-                        value(name: $key value: $value)
-                    }
-                }
-            }
-        }
-    `;
-    return cy.apollo({
-        mutation: editConfigGql,
-        variables: {pid, identifier: siteKey, key, value}
-    });
 };
 
 /**

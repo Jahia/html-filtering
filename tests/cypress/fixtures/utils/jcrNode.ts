@@ -19,16 +19,21 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
 };
 
 /**
- * Mutate a node text property and return its updated value
- * @param pathOrId path or id of the node to modify
- * @param propertyName name of the property to modify
- * @param text new value of the property
+ * Mutates a node's property with the specified text
+ * @param pathOrId Path of the node to update
+ * @param propertyName Name of the property to update
+ * @param text Value of the property to set with
  * @param apolloClient optional Apollo Client instance to use, if not provided the default one will be used
+ * @returns The Apollo query result
  */
-
-export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, text: string, apolloClient = undefined) => {
-    const modifyNodeGql = gql`
-        mutation modifyContent($pathOrId: String!, $propertyName: String!, $text: String!) {
+export const mutateNodeProperty = (
+    pathOrId: string,
+    propertyName: string,
+    text: string,
+    apolloClient = undefined
+) => {
+    const mutateNodePropertyGql = gql`
+        mutation mutate($pathOrId: String!, $propertyName: String!, $text: String!) {
             jcr {
                 mutateNode(pathOrId: $pathOrId) {
                     mutateProperty(name:$propertyName) {
@@ -43,10 +48,12 @@ export const mutateNodeTextProperty = (pathOrId: string, propertyName:string, te
     `;
     const client = apolloClient || cy.apolloClient();
     return client.apollo({
-        mutation: modifyNodeGql,
-        variables: {pathOrId, propertyName, text}
-    }).then(response => {
-        return response.data.jcr.mutateNode.mutateProperty.property.value;
+        mutation: mutateNodePropertyGql,
+        variables: {
+            pathOrId,
+            propertyName,
+            text
+        }
     });
 };
 

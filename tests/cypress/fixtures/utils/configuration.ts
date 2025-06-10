@@ -3,7 +3,7 @@ import {dump, load} from 'js-yaml';
 import {join} from 'path';
 import {v4 as uuidv4} from 'uuid';
 
-const configProvisioningDelayMs = 3000;
+const configProvisioningDelayMs = 300;
 
 // Wait for the configuration to be applied
 const waitForConfigProvisioning = () => {

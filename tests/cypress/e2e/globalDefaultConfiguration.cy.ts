@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {mutateNodeTextProperty} from '../fixtures/utils';
+import {mutateAndGetNodeProperty} from '../fixtures/utils';
 
 /**
  * Test scenarios for the global default configuration (org.jahia.modules.htmlfiltering.global.default.yml).
@@ -31,7 +31,7 @@ describe('Test global default configuration', () => {
     });
 
     function modifyAndCheck(text: string, expected = text) {
-        mutateNodeTextProperty(PATH, 'prop', text).then(result => {
+        mutateAndGetNodeProperty(PATH, 'prop', text).then(result => {
             const resultNoSpace = result.replace(/\s/g, '');
             const expectedNoSpace = expected.replace(/\s/g, '');
             console.log('result', resultNoSpace);

@@ -1,11 +1,5 @@
-import {
-    createNode,
-    installConfig,
-    mutateNodeProperty,
-    removeGlobalCustomConfig,
-    removeSiteConfig
-} from '../fixtures/utils';
-import {createSite, deleteSite, getJahiaVersion, getNodeByPath} from '@jahia/cypress';
+import {installConfig, mutateNodeProperty, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
+import {addNode, createSite, deleteSite, getJahiaVersion, getNodeByPath} from '@jahia/cypress';
 import {compare} from 'compare-versions';
 
 const SITE_KEY = 'testValidation';
@@ -38,11 +32,13 @@ const createTestNode = (properties: Array<{
     values?: string[],
     language?: string
 }>) => {
-    return createNode(
-        TEST_NODE,
-        '/sites/testValidation/contents',
-        'htmlFilteringTestModule:testValidation',
-        properties
+    return addNode(
+        {
+            parentPathOrId: '/sites/testValidation/contents',
+            primaryNodeType: 'htmlFilteringTestModule:testValidation',
+            name: TEST_NODE,
+            properties: properties
+        }
     );
 };
 
@@ -197,17 +193,19 @@ describe('Ensure the SANITIZE strategy automatically sanitize HTML content when 
         const nodeName = 'invalidPropertyMultipleSanitize';
         //
         cy.step(`Create testing node "${nodeName}" with content`, () => {
-            createNode(
-                nodeName,
-                '/sites/testValidation/contents',
-                'htmlFilteringTestModule:testValidation',
-                [
-                    {values: [
-                        INVALID_TAG,
-                        VALID,
-                        INVALID_ATTRIBUTE
-                    ], name: 'textMultiValues'}
-                ]
+            addNode(
+                {
+                    parentPathOrId: '/sites/testValidation/contents',
+                    primaryNodeType: 'htmlFilteringTestModule:testValidation',
+                    name: nodeName,
+                    properties: [
+                        {values: [
+                            INVALID_TAG,
+                            VALID,
+                            INVALID_ATTRIBUTE
+                        ], name: 'textMultiValues'}
+                    ]
+                }
             );
         });
 

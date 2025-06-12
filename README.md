@@ -9,3 +9,5 @@ HTML filtering in Jahia uses a multi-level configuration resolution strategy to 
 The system tries to find a policy in the order listed above. If a site-specific configuration exists, it will be used. If not, the global custom configuration applies. If neither exists, the system falls back to the global default built-in configuration.
 
 **Note**: The global default configuration should not be modified as module updates would replace it.
+
+Full documentation for the module can be found in [this Jahia Academy page](https://academy.jahia.com/documentation/jahia-cms/jahia-8-2/developer/security/html-filtering).

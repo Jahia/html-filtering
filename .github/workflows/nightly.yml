@@ -16,7 +16,7 @@ jobs:
           - jahia-image: jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
             pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: jahia-ee:8.1
+          - jahia-image: jahia-ee:8.1.8
             provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
             pagerduty-incident-service: html-filtering-Jahia81
     timeout-minutes: 120

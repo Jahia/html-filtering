@@ -41,6 +41,10 @@
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFF5VQcL93sSKboxJGN2vLju7Kz1MAhRflHAOlRq/JQoy2378Z4ahzKg7EA==</jahia-module-signature>
+        <!-- overwrite versions of Jackson libraries defined in jahia-parent -->
+        <!-- this fixes https://nvd.nist.gov/vuln/detail/CVE-2025-52999 -->
+        <jackson.core.version>2.15.0</jackson.core.version>
+        <jackson-databind.osgi.version>${jackson.core.version}</jackson-databind.osgi.version>
     </properties>
 
     <repositories>

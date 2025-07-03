@@ -296,6 +296,8 @@
                                 <!-- dependencies used at runtime to perform validation, without direct imports: -->
                                 <ignoredUnusedDeclaredDependency>org.ops4j.pax.web:pax-web-jsp</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.hibernate.validator:hibernate-validator</ignoredUnusedDeclaredDependency>
+                                <!-- com.fasterxml.jackson.core is declared as provided, so it's not pulled transitively and embedded in the bundle -->
+                                <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.core:jackson-core</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>

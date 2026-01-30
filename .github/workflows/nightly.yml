@@ -24,7 +24,7 @@ jobs:
       - uses: jahia/jahia-modules-action/helper@v2
       - uses: KengoTODA/actions-setup-docker-compose@main
         with:
-          version: '1.29.2'
+          version: '2.40.3'
       - uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
@@ -39,6 +39,7 @@ jobs:
           should_skip_artifacts: true
           should_skip_notifications: false
           should_skip_testrail: false
+          github_token: ${{ secrets.GH_ISSUES_PRS_CHORES }}
           github_artifact_name: html-filtering-nightly-${{ matrix.env.jahia-image }}-${{ github.run_number }}
           jahia_artifact_name: html-filtering-nightly-${{ matrix.env.jahia-image }}-${{ github.run_number }}
           bastion_ssh_private_key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}

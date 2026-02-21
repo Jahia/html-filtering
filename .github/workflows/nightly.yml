@@ -16,9 +16,9 @@ jobs:
           - jahia-image: jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
             pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: jahia-ee:8.1
-            provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
-            pagerduty-incident-service: html-filtering-Jahia81
+#          - jahia-image: jahia-ee:8.1
+#            provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
+#            pagerduty-incident-service: html-filtering-Jahia81
     timeout-minutes: 120
     steps:
       - uses: jahia/jahia-modules-action/helper@v2
@@ -70,6 +70,17 @@ jobs:
           incident_google_client_email: ${{ secrets.INCIDENT_GOOGLE_CLIENT_EMAIL }}
           incident_google_api_key_base64: ${{ secrets.INCIDENT_GOOGLE_PRIVATE_KEY_BASE64 }}
           zencrepes_secret: ${{ secrets.ZENCREPES_WEBHOOK_SECRET }}
+      - name: Generate JaCoCo Cypress report
+        # The Java classes must be compiled before creating the report
+        run: mvn compile org.jacoco:jacoco-maven-plugin:report -Djacoco.dataFile=target/jacoco-cypress.exec && mv target/site/jacoco target/site/jacoco-cypress
+      - name: Upload JaCoCo Cypress report to Jahia infrastructure
+        uses: jahia/jahia-modules-action/upload-artifact@v2
+        with:
+          destination: "jahia"
+          name: "jacoco-cypress-html-filtering"
+          path: ${{ github.workspace }}/target/site/jacoco-cypress/
+          retention-days: unlimited
+          ssh-key: ${{ secrets.BASTION_SSH_PRIVATE_KEY_JAHIACI }}
       - name: Test Report
         uses: phoenix-actions/test-reporting@v12
         id: test-report

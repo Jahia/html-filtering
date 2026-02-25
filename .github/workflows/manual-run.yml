@@ -30,8 +30,10 @@ jobs:
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: html-filtering
+      module_branch: ${{ github.ref}}
       jahia_image: ${{ github.event.inputs.jahia_image }}
       provisioning_manifest: ${{ github.event.inputs.manifest }}
-      timeout_job: 120
+      pagerduty_skip_notification: true
+      timeout_job: 65
       artifact_prefix: html-filtering-standalone-artifacts
       testrail_project: HTML Filtering Module

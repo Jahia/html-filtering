@@ -22,7 +22,7 @@ jobs:
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: html-filtering
-      module_branch: main
+      module_branch: ${{ github.ref }}
       jahia_image: ${{ matrix.env.jahia-image }}
       provisioning_manifest: ${{ matrix.env.provisioning }}
       pagerduty_incident_service: ${{ matrix.env.pagerduty-incident-service }}

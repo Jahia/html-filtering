@@ -25,7 +25,7 @@ jobs:
       module_branch: ${{ github.ref }}
       jahia_image: ${{ matrix.env.jahia-image }}
       provisioning_manifest: ${{ matrix.env.provisioning }}
-      pagerduty_incident_service: ${{ matrix.env.pagerduty-incident-service }}
+      incident_service: ${{ matrix.env.pagerduty-incident-service }}
       timeout_job: 65
       artifact_prefix: html-filtering-nightly-${{ matrix.env.jahia-image }}
       testrail_project: HTML Filtering Module

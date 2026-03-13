@@ -64,6 +64,7 @@ jobs:
       module_branch: ${{ github.ref }}
       jahia_image: jahia/jahia-ee:8
       provisioning_manifest: provisioning-manifest-build.yml
+      incident_service: html-filtering-JahiaSN
       timeout_job: 45
       artifact_prefix: html-filtering-artifacts
       testrail_project: HTML Filtering Module

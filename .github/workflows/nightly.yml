@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - jahia-image: jahia-ee-dev:8-SNAPSHOT
+          - jahia-image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
             pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: jahia-ee:8.1
+          - jahia-image: ghcr.io/jahia/jahia-ee:8.1
             provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
             pagerduty-incident-service: html-filtering-Jahia81
     secrets: inherit

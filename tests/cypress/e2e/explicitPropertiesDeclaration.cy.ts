@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig, readYAMLConfig, installYAMLConfig} from '../fixtures/utils';
+import {expectHtmlValidationError, getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig, readYAMLConfig, installYAMLConfig} from '../fixtures/utils';
 
 describe('Test explicit properties declaration', () => {
     const SPEC_NAME = Cypress.spec.name.split('.')[0];
@@ -24,12 +24,22 @@ describe('Test explicit properties declaration', () => {
     const HTML_TEXT = '<h1 id="@invalid">H1 Header</h1> | <p id="abc" class="myClass">my text</p><script>alert(document.location)</script>';
     const EXPECTED_HTML_TEXT_WITH_PER_SITE = '<h1>H1 Header</h1> | <p class="myClass">my text</p>';
     const EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM = 'H1 Header | <p id="abc">my text</p>';
-    const EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT = '<h1>H1 Header</h1> | <p id="abc" class="myClass">my text</p>';
 
     const modifyAndValidate = (path: string, htmlText: string, expectedHtmlText: string) => {
         modifyContent(path, htmlText);
         getContent(path).then(result => {
             expect(result.data.jcr.nodeByPath.property.value).to.be.equal(expectedHtmlText);
+        });
+    };
+
+    /**
+     * Verifies that the global default REJECT strategy is active: submitting the invalid HTML_TEXT
+     * must produce a validation error, proving that the (invalid) site config was ignored and the
+     * global default was applied instead.
+     */
+    const modifyAndExpectRejection = (path: string) => {
+        modifyContent(path, HTML_TEXT).then(result => {
+            expectHtmlValidationError(result);
         });
     };
 
@@ -79,8 +89,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -93,8 +103,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -106,8 +116,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -119,8 +129,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -132,8 +142,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -145,8 +155,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
 
@@ -158,8 +168,8 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
         });
     });
@@ -281,12 +291,12 @@ describe('Test explicit properties declaration', () => {
                 });
             });
 
-            cy.step('Modify RichText content in site-1 and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[0].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content in site-1 and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[0].NODE_PATH);
             });
 
-            cy.step('Modify RichText content in site-2 and make sure global.default config is applied', () => {
-                modifyAndValidate(SITES[1].NODE_PATH, HTML_TEXT, EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            cy.step('Modify RichText content in site-2 and make sure global.default REJECT strategy is applied', () => {
+                modifyAndExpectRejection(SITES[1].NODE_PATH);
             });
         });
 

@@ -1,40 +1,25 @@
-# global default configuration that is not meant to be updated.
-# To create a global configuration for multiple sites, use a configuration file named org.jahia.modules.htmlfiltering.global.custom.yml
-# To create a site-specific configuration, use a configuration file named org.jahia.modules.htmlfiltering.site-<site key>.yml
+# Global custom configuration that mirrors the global default rule set but uses SANITIZE strategy
+# for the edit workspace. Used by globalDefaultSanitizeStrategy.cy.ts to test the sanitization
+# behavior (output normalization, attribute/tag removal, etc.).
 htmlFiltering:
   formatDefinitions:
-    HTML_ID: '[a-zA-Z][a-zA-Z0-9\:\-_\.]*'  # IDs must start with a letter and can contain letters, digits, colons, hyphens, underscores, or dots
-    NUMBER_OR_PERCENT: '([0-9]+%?|[0-9]+\.[0-9]+%?|auto)' # Examples: "123", "123.45", "123.45%", "25%", "auto"
+    HTML_ID: '[a-zA-Z][a-zA-Z0-9\:\-_\.]*'
+    NUMBER_OR_PERCENT: '([0-9]+%?|[0-9]+\.[0-9]+%?|auto)'
     LINKS_URL: '(?:(?:[\p{L}\p{N}\\\.#@$%\+&;\-_~,\?=/!{}:]+|#(\w)+)|(\s*(?:(?:ht|f)tps?://|mailto:)[\p{L}\p{N}][\p{L}\p{N}\p{Zs}\.#@$%\+&:\-_~,\?=/!\(\)]*+\s*))'
   editWorkspace:
-    strategy: REJECT
+    strategy: SANITIZE
     skipOnPermissions: []
     process: [ 'nt:base.*' ]
     skip: [ ]
     allowedRuleSet:
-      # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
-        #   - the event handlers (onclick, etc.)
-        #   - the generic data-* that can potentially be misused by malicious JavaScript
-        #   - the experimental ones: anchor, virtualkeyboardpolicy, etc.)
-        #   - potentially risky ones: contenteditable, is,
-        #   - id that is restricted with a pattern
         - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
-
-        # allow id attribute on all tags but with format validation
         - attributes:
             - id
           format: HTML_ID
-
-        # inline formatting:
         - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
-
-        # blocks:
         - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
-
-        # forms:
         - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
         - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
           tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
@@ -44,9 +29,6 @@ htmlFiltering:
           tags: [ textarea ]
         - attributes: [ low, high, optimum ]
           tags: [ meter ]
-
-        # table-related tags and attributes
-        # table tags:
         - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
         - attributes: [ colspan, rowspan ]
           tags: [ td, th ]
@@ -57,13 +39,9 @@ htmlFiltering:
         - attributes: [ headers ]
           tags: [ td, th ]
         - attributes: [ height, width ]
-          tags: [  table, td, th, col, colgroup, video ]
+          tags: [ table, td, th, col, colgroup, video ]
           format: NUMBER_OR_PERCENT
-
-        # other common tags:
         - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
-
-        # common attributes on image and media tags
         - attributes: [ alt ]
           tags: [ img ]
         - attributes: [ src ]
@@ -82,15 +60,11 @@ htmlFiltering:
           tags: [ audio, img, source, video ]
         - attributes: [ default, kind, label, srclang ]
           tags: [ track ]
-
-        # Link attributes
         - attributes: [ href ]
           tags: [ a ]
           format: LINKS_URL
         - attributes: [ hreflang, media, rel, target, download ]
           tags: [ a ]
-
-        # Other useful element-specific attributes
         - attributes: [ cite ]
           tags: [ blockquote, del, ins, q ]
         - attributes: [ datetime ]
@@ -107,29 +81,14 @@ htmlFiltering:
     process: [ 'nt:base.*' ]
     skip: [ ]
     allowedRuleSet:
-      # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
-        #   - the event handlers (onclick, etc.)
-        #   - the generic data-* that can potentially be misused by malicious JavaScript
-        #   - the experimental ones: anchor, virtualkeyboardpolicy, etc.)
-        #   - potentially risky ones: contenteditable, is,
-        #   - id that is restricted with a pattern
         - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
-
-        # allow id attribute on all tags but with format validation
         - attributes:
             - id
           format: HTML_ID
-
-        # inline formatting:
         - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
-
-        # blocks:
         - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
-
-        # forms:
         - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
         - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
           tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
@@ -139,9 +98,6 @@ htmlFiltering:
           tags: [ textarea ]
         - attributes: [ low, high, optimum ]
           tags: [ meter ]
-
-        # table-related tags and attributes
-        # table tags:
         - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
         - attributes: [ colspan, rowspan ]
           tags: [ td, th ]
@@ -154,11 +110,7 @@ htmlFiltering:
         - attributes: [ height, width ]
           tags: [ table, td, th, col, colgroup, video ]
           format: NUMBER_OR_PERCENT
-
-        # other common tags:
         - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
-
-        # common attributes on image and media tags
         - attributes: [ alt ]
           tags: [ img ]
         - attributes: [ src ]
@@ -177,15 +129,11 @@ htmlFiltering:
           tags: [ audio, img, source, video ]
         - attributes: [ default, kind, label, srclang ]
           tags: [ track ]
-
-        # Link attributes
         - attributes: [ href ]
           tags: [ a ]
           format: LINKS_URL
         - attributes: [ hreflang, media, rel, target, download ]
           tags: [ a ]
-
-        # Other useful element-specific attributes
         - attributes: [ cite ]
           tags: [ blockquote, del, ins, q ]
         - attributes: [ datetime ]
@@ -196,3 +144,4 @@ htmlFiltering:
           tags: [ ol, ul, button ]
         - attributes: [ value ]
           tags: [ li ]
+

@@ -15,92 +15,249 @@ htmlFiltering:
       # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
-        #   - the event handlers (onclick, etc.)
-        #   - the generic data-* that can potentially be misused by malicious JavaScript
-        #   - the experimental ones: anchor, virtualkeyboardpolicy, etc.)
-        #   - potentially risky ones: contenteditable, is,
-        #   - id that is restricted with a pattern
-        - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
 
-        # allow id attribute on all tags but with format validation
+        # -------------------------------------------------------
+        # Global attributes — apply to every HTML element
+        # Excluded intentionally:
+        #   - event handlers (onclick, oninput, …)             → XSS vectors
+        #   - data-* generic attributes                        → readable/writable from JavaScript
+        #   - contenteditable                                  → enables in-browser editing
+        #   - is                                               → web-component upgrade, potential attack surface
+        #   - id                                               → allowed below with format validation
+        #   - experimental: anchor, virtualkeyboardpolicy
+        # -------------------------------------------------------
+        - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, role, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
+
+        # id is allowed on all elements but its value must match the HTML_ID format pattern
         - attributes:
             - id
           format: HTML_ID
 
-        # inline formatting:
-        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
+        # HTML Microdata attributes — used for Schema.org / SEO structured data (https://schema.org)
+        - attributes: [ itemid, itemprop, itemref, itemtype ]
+        - attributes: [ itemscope ]  # boolean, no value
 
-        # blocks:
-        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
+        # ARIA attributes — required for accessible rich content (https://www.w3.org/TR/wai-aria/)
+        - attributes: [
+            aria-activedescendant, aria-atomic, aria-autocomplete,
+            aria-braillelabel, aria-brailleroledescription,
+            aria-busy,
+            aria-checked, aria-colcount, aria-colindex, aria-colindextext, aria-colspan,
+            aria-controls, aria-current,
+            aria-describedby, aria-description, aria-details, aria-disabled, aria-dropeffect,
+            aria-errormessage, aria-expanded,
+            aria-flowto,
+            aria-grabbed,
+            aria-haspopup, aria-hidden,
+            aria-invalid,
+            aria-keyshortcuts,
+            aria-label, aria-labelledby, aria-level, aria-live,
+            aria-modal, aria-multiline, aria-multiselectable,
+            aria-orientation, aria-owns,
+            aria-placeholder, aria-posinset, aria-pressed,
+            aria-readonly, aria-relevant, aria-required,
+            aria-roledescription, aria-rowcount, aria-rowindex, aria-rowindextext, aria-rowspan,
+            aria-selected, aria-setsize, aria-sort,
+            aria-valuemax, aria-valuemin, aria-valuenow, aria-valuetext
+          ]
 
-        # forms:
-        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
-        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
-          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
-        - attributes: [ type ]
+        # -------------------------------------------------------
+        # Inline (text-level / phrasing) elements
+        # -------------------------------------------------------
+        - tags: [ a, abbr, b, bdi, bdo, big, br, cite, code, data, del, dfn, em, font, i, ins, kbd, mark, o, q, rp, rt, ruby, s, samp, small, span, strike, strong, sub, sup, time, tt, u, var, wbr ]
+
+        # -------------------------------------------------------
+        # Block-level and structural elements
+        # -------------------------------------------------------
+        - tags: [ address, article, aside, blockquote, dd, details, dialog, div, dl, dt, figcaption, figure, footer, h1, h2, h3, h4, h5, h6, header, hgroup, hr, legend, li, main, nav, ol, p, pre, section, summary, ul ]
+
+        # -------------------------------------------------------
+        # Forms
+        # Attributes are scoped per element to avoid permitting invalid combinations.
+        # -------------------------------------------------------
+        - tags: [ button, datalist, fieldset, form, input, label, meter, optgroup, option, output, progress, select, textarea ]
+
+        # <form>
+        - attributes: [ accept-charset, action, autocomplete, enctype, method, name, novalidate, rel, target ]
+          tags: [ form ]
+
+        # <input>
+        - attributes: [ accept, autocomplete, capture, checked, dirname, list, max, maxlength, min, minlength, multiple, name, pattern, placeholder, readonly, required, size, step, type, value ]
           tags: [ input ]
-        - attributes: [ cols, rows ]
+
+        # <button>
+        - attributes: [ name, type, value ]
+          tags: [ button ]
+
+        # <select>
+        - attributes: [ autocomplete, multiple, name, required, size ]
+          tags: [ select ]
+
+        # <textarea>
+        - attributes: [ autocomplete, cols, dirname, maxlength, minlength, name, placeholder, readonly, required, rows, wrap ]
           tags: [ textarea ]
-        - attributes: [ low, high, optimum ]
+
+        # disabled — applies to all interactive form controls
+        - attributes: [ disabled ]
+          tags: [ button, fieldset, input, optgroup, option, select, textarea ]
+
+        # form association — allows controls to live outside their <form> element
+        - attributes: [ form ]
+          tags: [ button, input, select, textarea ]
+
+        # submit override attributes on submit buttons and image inputs
+        - attributes: [ formaction, formenctype, formmethod, formnovalidate, formtarget ]
+          tags: [ button, input ]
+
+        # <label> and <output>: for attribute associates the control
+        - attributes: [ for ]
+          tags: [ label, output ]
+
+        # <option>
+        - attributes: [ label, selected, value ]
+          tags: [ option ]
+
+        # <optgroup>: label is a required attribute per spec
+        - attributes: [ label ]
+          tags: [ optgroup ]
+
+        # <progress>
+        - attributes: [ max, value ]
+          tags: [ progress ]
+
+        # <meter>
+        - attributes: [ high, low, max, min, optimum, value ]
           tags: [ meter ]
 
-        # table-related tags and attributes
-        # table tags:
+        # -------------------------------------------------------
+        # Tables
+        # -------------------------------------------------------
         - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
+
+        # column spanning
+        - attributes: [ span ]
+          tags: [ col, colgroup ]
+
         - attributes: [ colspan, rowspan ]
           tags: [ td, th ]
-        - attributes: [ align ]
-          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
-        - attributes: [ border, cellpadding, cellspacing, summary ]
-          tags: [ table ]
+
+        # <th> accessibility attributes
+        - attributes: [ scope, abbr ]
+          tags: [ th ]
+
         - attributes: [ headers ]
           tags: [ td, th ]
+
         - attributes: [ height, width ]
-          tags: [  table, td, th, col, colgroup, video ]
+          tags: [ table, td, th, col, colgroup ]
           format: NUMBER_OR_PERCENT
 
-        # other common tags:
-        - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
+        # Deprecated table presentation attributes — included for backward compatibility with legacy CMS content
+        - attributes: [ align ]
+          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ valign ]
+          tags: [ col, colgroup, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ border, cellpadding, cellspacing, summary ]
+          tags: [ table ]
+        - attributes: [ bgcolor ]
+          tags: [ table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ nowrap ]
+          tags: [ td, th ]
 
-        # common attributes on image and media tags
-        - attributes: [ alt ]
-          tags: [ img ]
+        # -------------------------------------------------------
+        # Embedded content and media
+        # -------------------------------------------------------
+        - tags: [ audio, canvas, img, map, area, picture, source, track, video ]
+
+        # src with URL format validation
         - attributes: [ src ]
           tags: [ audio, img, source, track, video ]
           format: LINKS_URL
-        - attributes: [ media, type ]
-          tags: [ source ]
-        - attributes: [ height, width ]
-          tags: [ canvas, img, video ]
-          format: NUMBER_OR_PERCENT
-        - attributes: [ srcset ]
+
+        # <img>
+        - attributes: [ alt, decoding, fetchpriority, loading, referrerpolicy, usemap ]
+          tags: [ img ]
+
+        # srcset + sizes for responsive images (both <img> and <source> inside <picture>)
+        - attributes: [ srcset, sizes ]
           tags: [ img, source ]
-        - attributes: [ autoplay, controls, loop, muted, preload ]
-          tags: [ audio, video ]
+
+        # dimensions
+        - attributes: [ height, width ]
+          tags: [ canvas, img, source, video ]
+          format: NUMBER_OR_PERCENT
+
         - attributes: [ crossorigin ]
           tags: [ audio, img, source, video ]
+
+        # <audio> / <video> playback controls
+        - attributes: [ autoplay, controls, loop, muted, preload ]
+          tags: [ audio, video ]
+
+        # <video>-only
+        - attributes: [ poster, playsinline ]
+          tags: [ video ]
+
+        # <source> (inside <picture>, <video>, or <audio>)
+        - attributes: [ media, type ]
+          tags: [ source ]
+
+        # <track> (subtitles / captions)
         - attributes: [ default, kind, label, srclang ]
           tags: [ track ]
 
-        # Link attributes
+        # <map> / <area> (client-side image maps)
+        - attributes: [ name ]
+          tags: [ map ]
+        - attributes: [ alt, coords, rel, shape, target ]
+          tags: [ area ]
+        - attributes: [ href ]
+          tags: [ area ]
+          format: LINKS_URL
+
+        # -------------------------------------------------------
+        # Links — <a> is declared in the inline elements section above
+        # -------------------------------------------------------
         - attributes: [ href ]
           tags: [ a ]
           format: LINKS_URL
-        - attributes: [ hreflang, media, rel, target, download ]
+        - attributes: [ download, hreflang, media, referrerpolicy, rel, target, type ]
           tags: [ a ]
 
-        # Other useful element-specific attributes
+        # -------------------------------------------------------
+        # Element-specific attributes
+        # -------------------------------------------------------
+
+        # Quotations and editorial annotations
         - attributes: [ cite ]
           tags: [ blockquote, del, ins, q ]
         - attributes: [ datetime ]
           tags: [ del, ins, time ]
-        - attributes: [ disabled ]
-          tags: [ button ]
+
+        # Ordered lists
+        - attributes: [ reversed, start, type ]
+          tags: [ ol ]
         - attributes: [ type ]
-          tags: [ ol, ul, button ]
+          tags: [ ul ]
         - attributes: [ value ]
           tags: [ li ]
+
+        # Interactive disclosure and dialogs
+        - attributes: [ open ]
+          tags: [ details, dialog ]
+
+        # <data> — machine-readable annotation alongside human-readable content
+        - attributes: [ value ]
+          tags: [ data ]
+
+        # <font> is a deprecated tag included for legacy content; its element-specific attributes must be listed explicitly
+        - attributes: [ color, face, size ]
+          tags: [ font ]
+
+        # compact (deprecated) — included for backward compatibility with legacy content
+        - attributes: [ compact ]
+          tags: [ dl, ol, ul ]
+
   liveWorkspace:
     strategy: SANITIZE
     skipOnPermissions: []
@@ -110,89 +267,245 @@ htmlFiltering:
       # list of supported protocols. You may need to update LINKS_URL regex in case you add specific protocols
       protocols: [ http, https, mailto ]
       elements:
-        # allow all global attributes (see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes), except:
-        #   - the event handlers (onclick, etc.)
-        #   - the generic data-* that can potentially be misused by malicious JavaScript
-        #   - the experimental ones: anchor, virtualkeyboardpolicy, etc.)
-        #   - potentially risky ones: contenteditable, is,
-        #   - id that is restricted with a pattern
-        - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
 
-        # allow id attribute on all tags but with format validation
+        # -------------------------------------------------------
+        # Global attributes — apply to every HTML element
+        # Excluded intentionally:
+        #   - event handlers (onclick, oninput, …)             → XSS vectors
+        #   - data-* generic attributes                        → readable/writable from JavaScript
+        #   - contenteditable                                  → enables in-browser editing
+        #   - is                                               → web-component upgrade, potential attack surface
+        #   - id                                               → allowed below with format validation
+        #   - experimental: anchor, virtualkeyboardpolicy
+        # -------------------------------------------------------
+        - attributes: [ accesskey, autocapitalize, autocorrect, autofocus, class, dir, draggable, enterkeyhint, exportparts, hidden, inert, inputmode, lang, nonce, part, popover, role, slot, spellcheck, style, tabindex, title, translate, writingsuggestions ]
+
+        # id is allowed on all elements but its value must match the HTML_ID format pattern
         - attributes:
             - id
           format: HTML_ID
 
-        # inline formatting:
-        - tags: [ b, big, br, code, del, em, font, i, ins, o, s, small, span, strike, strong, sub, sup, tt, u ]
+        # HTML Microdata attributes — used for Schema.org / SEO structured data (https://schema.org)
+        - attributes: [ itemid, itemprop, itemref, itemtype ]
+        - attributes: [ itemscope ]  # boolean, no value
 
-        # blocks:
-        - tags: [ blockquote, div, h1, h2, h3, h4, h5, h6, li, ol, p, ul ]
+        # ARIA attributes — required for accessible rich content (https://www.w3.org/TR/wai-aria/)
+        - attributes: [
+          aria-activedescendant, aria-atomic, aria-autocomplete,
+          aria-braillelabel, aria-brailleroledescription,
+          aria-busy,
+          aria-checked, aria-colcount, aria-colindex, aria-colindextext, aria-colspan,
+          aria-controls, aria-current,
+          aria-describedby, aria-description, aria-details, aria-disabled, aria-dropeffect,
+          aria-errormessage, aria-expanded,
+          aria-flowto,
+          aria-grabbed,
+          aria-haspopup, aria-hidden,
+          aria-invalid,
+          aria-keyshortcuts,
+          aria-label, aria-labelledby, aria-level, aria-live,
+          aria-modal, aria-multiline, aria-multiselectable,
+          aria-orientation, aria-owns,
+          aria-placeholder, aria-posinset, aria-pressed,
+          aria-readonly, aria-relevant, aria-required,
+          aria-roledescription, aria-rowcount, aria-rowindex, aria-rowindextext, aria-rowspan,
+          aria-selected, aria-setsize, aria-sort,
+          aria-valuemax, aria-valuemin, aria-valuenow, aria-valuetext
+        ]
 
-        # forms:
-        - tags: [ form, fieldset, input, label, option, optgroup, select, textarea, datalist, output, progress, meter ]
-        - attributes: [ accept, accept-charset, action, autocomplete, checked, dirname, enctype, for, formaction, formenctype, formmethod, formnovalidate, formtarget, list, max, maxlength, method, min, minlength, multiple, name, novalidate, pattern, placeholder, readonly, required, selected, size, step, value ]
-          tags: [ form, input, button, select, textarea, option, optgroup, fieldset, label, datalist, output, progress, meter ]
-        - attributes: [ type ]
+        # -------------------------------------------------------
+        # Inline (text-level / phrasing) elements
+        # -------------------------------------------------------
+        - tags: [ a, abbr, b, bdi, bdo, big, br, cite, code, data, del, dfn, em, font, i, ins, kbd, mark, o, q, rp, rt, ruby, s, samp, small, span, strike, strong, sub, sup, time, tt, u, var, wbr ]
+
+        # -------------------------------------------------------
+        # Block-level and structural elements
+        # -------------------------------------------------------
+        - tags: [ address, article, aside, blockquote, dd, details, dialog, div, dl, dt, figcaption, figure, footer, h1, h2, h3, h4, h5, h6, header, hgroup, hr, legend, li, main, nav, ol, p, pre, section, summary, ul ]
+
+        # -------------------------------------------------------
+        # Forms
+        # Attributes are scoped per element to avoid permitting invalid combinations.
+        # -------------------------------------------------------
+        - tags: [ button, datalist, fieldset, form, input, label, meter, optgroup, option, output, progress, select, textarea ]
+
+        # <form>
+        - attributes: [ accept-charset, action, autocomplete, enctype, method, name, novalidate, rel, target ]
+          tags: [ form ]
+
+        # <input>
+        - attributes: [ accept, autocomplete, capture, checked, dirname, list, max, maxlength, min, minlength, multiple, name, pattern, placeholder, readonly, required, size, step, type, value ]
           tags: [ input ]
-        - attributes: [ cols, rows ]
+
+        # <button>
+        - attributes: [ name, type, value ]
+          tags: [ button ]
+
+        # <select>
+        - attributes: [ autocomplete, multiple, name, required, size ]
+          tags: [ select ]
+
+        # <textarea>
+        - attributes: [ autocomplete, cols, dirname, maxlength, minlength, name, placeholder, readonly, required, rows, wrap ]
           tags: [ textarea ]
-        - attributes: [ low, high, optimum ]
+
+        # disabled — applies to all interactive form controls
+        - attributes: [ disabled ]
+          tags: [ button, fieldset, input, optgroup, option, select, textarea ]
+
+        # form association — allows controls to live outside their <form> element
+        - attributes: [ form ]
+          tags: [ button, input, select, textarea ]
+
+        # submit override attributes on submit buttons and image inputs
+        - attributes: [ formaction, formenctype, formmethod, formnovalidate, formtarget ]
+          tags: [ button, input ]
+
+        # <label> and <output>: for attribute associates the control
+        - attributes: [ for ]
+          tags: [ label, output ]
+
+        # <option>
+        - attributes: [ label, selected, value ]
+          tags: [ option ]
+
+        # <optgroup>: label is a required attribute per spec
+        - attributes: [ label ]
+          tags: [ optgroup ]
+
+        # <progress>
+        - attributes: [ max, value ]
+          tags: [ progress ]
+
+        # <meter>
+        - attributes: [ high, low, max, min, optimum, value ]
           tags: [ meter ]
 
-        # table-related tags and attributes
-        # table tags:
+        # -------------------------------------------------------
+        # Tables
+        # -------------------------------------------------------
         - tags: [ caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr ]
+
+        # column spanning
+        - attributes: [ span ]
+          tags: [ col, colgroup ]
+
         - attributes: [ colspan, rowspan ]
           tags: [ td, th ]
-        - attributes: [ align ]
-          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
-        - attributes: [ border, cellpadding, cellspacing, summary ]
-          tags: [ table ]
+
+        # <th> accessibility attributes
+        - attributes: [ scope, abbr ]
+          tags: [ th ]
+
         - attributes: [ headers ]
           tags: [ td, th ]
+
         - attributes: [ height, width ]
-          tags: [ table, td, th, col, colgroup, video ]
+          tags: [ table, td, th, col, colgroup ]
           format: NUMBER_OR_PERCENT
 
-        # other common tags:
-        - tags: [ a, abbr, address, article, aside, audio, button, canvas, cite, dd, details, dl, dt, figcaption, figure, footer, header, hgroup, hr, img, legend, main, mark, nav, picture, pre, q, section, source, summary, time, track, var, video, wbr ]
+        # Deprecated table presentation attributes — included for backward compatibility with legacy CMS content
+        - attributes: [ align ]
+          tags: [ caption, col, colgroup, hr, img, table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ valign ]
+          tags: [ col, colgroup, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ border, cellpadding, cellspacing, summary ]
+          tags: [ table ]
+        - attributes: [ bgcolor ]
+          tags: [ table, tbody, td, tfoot, th, thead, tr ]
+        - attributes: [ nowrap ]
+          tags: [ td, th ]
 
-        # common attributes on image and media tags
-        - attributes: [ alt ]
-          tags: [ img ]
+        # -------------------------------------------------------
+        # Embedded content and media
+        # -------------------------------------------------------
+        - tags: [ audio, canvas, img, map, area, picture, source, track, video ]
+
+        # src with URL format validation
         - attributes: [ src ]
           tags: [ audio, img, source, track, video ]
           format: LINKS_URL
-        - attributes: [ media, type ]
-          tags: [ source ]
-        - attributes: [ height, width ]
-          tags: [ canvas, img, video ]
-          format: NUMBER_OR_PERCENT
-        - attributes: [ srcset ]
+
+        # <img>
+        - attributes: [ alt, decoding, fetchpriority, loading, referrerpolicy, usemap ]
+          tags: [ img ]
+
+        # srcset + sizes for responsive images (both <img> and <source> inside <picture>)
+        - attributes: [ srcset, sizes ]
           tags: [ img, source ]
-        - attributes: [ autoplay, controls, loop, muted, preload ]
-          tags: [ audio, video ]
+
+        # dimensions
+        - attributes: [ height, width ]
+          tags: [ canvas, img, source, video ]
+          format: NUMBER_OR_PERCENT
+
         - attributes: [ crossorigin ]
           tags: [ audio, img, source, video ]
+
+        # <audio> / <video> playback controls
+        - attributes: [ autoplay, controls, loop, muted, preload ]
+          tags: [ audio, video ]
+
+        # <video>-only
+        - attributes: [ poster, playsinline ]
+          tags: [ video ]
+
+        # <source> (inside <picture>, <video>, or <audio>)
+        - attributes: [ media, type ]
+          tags: [ source ]
+
+        # <track> (subtitles / captions)
         - attributes: [ default, kind, label, srclang ]
           tags: [ track ]
 
-        # Link attributes
+        # <map> / <area> (client-side image maps)
+        - attributes: [ name ]
+          tags: [ map ]
+        - attributes: [ alt, coords, rel, shape, target ]
+          tags: [ area ]
+        - attributes: [ href ]
+          tags: [ area ]
+          format: LINKS_URL
+
+        # -------------------------------------------------------
+        # Links — <a> is declared in the inline elements section above
+        # -------------------------------------------------------
         - attributes: [ href ]
           tags: [ a ]
           format: LINKS_URL
-        - attributes: [ hreflang, media, rel, target, download ]
+        - attributes: [ download, hreflang, media, referrerpolicy, rel, target, type ]
           tags: [ a ]
 
-        # Other useful element-specific attributes
+        # -------------------------------------------------------
+        # Element-specific attributes
+        # -------------------------------------------------------
+
+        # Quotations and editorial annotations
         - attributes: [ cite ]
           tags: [ blockquote, del, ins, q ]
         - attributes: [ datetime ]
           tags: [ del, ins, time ]
-        - attributes: [ disabled ]
-          tags: [ button ]
+
+        # Ordered lists
+        - attributes: [ reversed, start, type ]
+          tags: [ ol ]
         - attributes: [ type ]
-          tags: [ ol, ul, button ]
+          tags: [ ul ]
         - attributes: [ value ]
           tags: [ li ]
+
+        # Interactive disclosure and dialogs
+        - attributes: [ open ]
+          tags: [ details, dialog ]
+
+        # <data> — machine-readable annotation alongside human-readable content
+        - attributes: [ value ]
+          tags: [ data ]
+
+        # <font> is a deprecated tag included for legacy content; its element-specific attributes must be listed explicitly
+        - attributes: [ color, face, size ]
+          tags: [ font ]
+
+        # compact (deprecated) — included for backward compatibility with legacy content
+        - attributes: [ compact ]
+          tags: [ dl, ol, ul ]

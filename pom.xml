@@ -40,7 +40,7 @@
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
-        <jahia-module-signature>MCwCFF5VQcL93sSKboxJGN2vLju7Kz1MAhRflHAOlRq/JQoy2378Z4ahzKg7EA==</jahia-module-signature>
+        <jahia-module-signature>MCwCFC1B63uozzN/IRhcAwjNpswyX7bIAhRa5m2PSBB13YR44nP3Vn3QjDENNA==</jahia-module-signature>
     </properties>
 
     <repositories>
@@ -137,7 +137,7 @@
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>20260102.1</version>
+            <version>20260313.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

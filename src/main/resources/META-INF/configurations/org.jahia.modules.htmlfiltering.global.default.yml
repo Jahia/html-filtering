@@ -113,7 +113,7 @@ htmlFiltering:
         - attributes: [ for ]
           tags: [ label, output ]
         - attributes: [ name ]
-          tags: [ output ]
+          tags: [ fieldset, output ]
 
         # <option>
         - attributes: [ label, selected, value ]
@@ -367,7 +367,7 @@ htmlFiltering:
         - attributes: [ for ]
           tags: [ label, output ]
         - attributes: [ name ]
-          tags: [ output ]
+          tags: [ fieldset, output ]
 
         # <option>
         - attributes: [ label, selected, value ]

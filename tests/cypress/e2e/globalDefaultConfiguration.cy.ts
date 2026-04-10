@@ -40,15 +40,16 @@ describe('Test global default configuration', () => {
         });
     }
 
-    // -------------------
-    // global attributes :
-    // -------------------
+    // -----------------------------------------------
+    // exhaustive fixture — all allowed elements :
+    // -----------------------------------------------
 
-    it('Global attributes are allowed', () => {
-        const text = `<div id="sample-element" accesskey="s" autocapitalize="sentences" autocorrect="on" autofocus="autofocus" class="demo-element highlight" dir="ltr" draggable="true" enterkeyhint="send" exportparts="header footer" hidden="hidden" inert="inert" inputmode="text" lang="en-US" nonce="abc123random456" part="custom-section" popover="auto" slot="content-area" spellcheck="true" style="color:navy;padding:10px" tabindex="0" title="Hover for more information" translate="yes" writingsuggestions="on">
-      Sample with all the common global attributes
-    </div>`;
-        modifyAndCheck(text);
+    it('all supported tags and attributes are preserved (exhaustive fixture)', () => {
+        cy.fixture('html/exhaustive-supported-elements.html', 'utf-8').then((content: string) => {
+            cy.fixture('html/exhaustive-supported-elements.sanitized.html', 'utf-8').then((expectedContent: string) => {
+                modifyAndCheck(content, expectedContent);
+            });
+        });
     });
 
     // --------------
@@ -101,13 +102,6 @@ describe('Test global default configuration', () => {
     // inline formatting :
     // -------------------
 
-    const inlineFormattingTags = ['b', 'big', 'code', 'del', 'em', 'i', 'ins', 'o', 's', 'small', 'strike', 'strong', 'sub', 'sup', 'tt', 'u'];
-    inlineFormattingTags.forEach(tag => {
-        it(`inline formatting tag "${tag}" is allowed`, () => {
-            const text = `<p>text with <${tag}>special formatting</${tag}></p>`;
-            modifyAndCheck(text);
-        });
-    });
     // List of inline formatting tags are removed if they have no attribute. See HtmlPolicyBuilder#DEFAULT_SKIP_IF_EMPTY for details.
     const inlineFormattingTagsRemovedIfEmpty = ['font', 'span'];
     inlineFormattingTagsRemovedIfEmpty.forEach(tag => {
@@ -119,88 +113,6 @@ describe('Test global default configuration', () => {
     it('inline formatting line breaks <br> tag is allowed and formatted', () => {
         const text = '<p>text<br>with<br/>line<br />breaks</p>';
         modifyAndCheck(text, '<p>text<br />with<br />line<br />breaks</p>');
-    });
-
-    // --------
-    // blocks :
-    // --------
-
-    it('block tags are allowed', () => {
-        const text = '<div>this is a div</div><blockquote cite="https://example.com/more.html"><p>my text</p></blockquote>';
-        modifyAndCheck(text);
-    });
-    const blockHeaderTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-    blockHeaderTags.forEach(tag => {
-        it(`header tag "${tag}" is allowed`, () => {
-            const text = `<${tag}>title</${tag}>`;
-            modifyAndCheck(text);
-        });
-    });
-    it('list tags are allowed', () => {
-        const text = `
-    <ol><li>Coffee</li><li>Tea</li><li>Milk</li></ol>
-    <ul><li>Coffee</li><li>Tea</li><li>Milk</li></ul>`;
-        modifyAndCheck(text);
-    });
-
-    // -------
-    // forms :
-    // -------
-
-    it('common form tags are allowed', () => {
-        const text = `<form>
-  <fieldset>
-    <legend>Choose your favorite monster</legend>
-    <input type="radio" id="kraken" name="monster" value="K" />
-    <label for="kraken">Kraken</label><br />
-    <input type="radio" id="sasquatch" name="monster" value="S" />
-    <label for="sasquatch">Sasquatch</label><br />
-
-    <label for="pet-select">Choose a pet:</label>
-    <select id="pet-select"><option value="dog">Dog</option><option value="cat">Cat</option></select>
-
-    <label for="story">Tell us your story:</label>
-    <textarea id="story" name="story" rows="5" cols="33">
-    It was a dark and stormy night...
-    </textarea>
-
-    <input type="range" id="b" name="b" value="50" /> plus
-    <input type="number" id="a" name="a" value="10" /> minus
-    <output name="result" for="a b">60</output>
-
-    <label for="file">File progress:</label>
-    <progress id="file" max="100" value="70">70%</progress>
-
-    <label for="fuel">Fuel level:</label>
-    <meter id="fuel" min="0" max="100" low="33" high="66" optimum="80" value="50">
-      at 50/100
-    </meter>
-  </fieldset>
-</form>`;
-        // The following HTML should be allowed in the <form> but is currently not:
-        // <select id="dino-select">
-        //   <optgroup label="Theropods">
-        //     <option>Tyrannosaurus</option>
-        //     <option>Velociraptor</option>
-        //     <option>Deinonychus</option>
-        //     </optgroup>
-        //     <optgroup label="Sauropods">
-        //     <option>Diplodocus</option>
-        //     <option>Saltasaurus</option>
-        //     <option>Apatosaurus</option>
-        //   </optgroup>
-        // </select>
-        // <label for="ice-cream-choice">Choose a flavor:</label>
-        // <input list="ice-cream-flavors" id="ice-cream-choice" name="ice-cream-choice" />
-        // <datalist id="ice-cream-flavors">
-        //   <option value="Chocolate"></option>
-        //   <option value="Coconut"></option>
-        //   <option value="Mint"></option>
-        //   <option value="Strawberry"></option>
-        //   <option value="Vanilla"></option>
-        // </datalist>
-        // TODO add it once the library is fixed. See https://github.com/OWASP/java-html-sanitizer/issues/358
-        modifyAndCheck(text);
     });
 
     // --------------------------

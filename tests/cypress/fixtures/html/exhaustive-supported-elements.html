@@ -1,0 +1,856 @@
+<!--
+  ========================
+  Reference document exercising every tag and attribute permitted by
+  org.jahia.modules.htmlfiltering.global.default.yml (editWorkspace ruleset).
+  It is meant be used inside a <body> tag, hence is not a valid HTML page
+  ========================
+
+  Sections
+  ────────
+  1. Global attributes  (accesskey … writingsuggestions, id, Microdata, ARIA)
+  2. Inline / phrasing elements
+  3. Block-level & structural elements
+  4. Forms
+  5. Tables
+  6. Embedded content & media
+-->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §1 — GLOBAL ATTRIBUTES
+     accesskey, autocapitalize, autocorrect, autofocus, class, dir,
+     draggable, enterkeyhint, exportparts, hidden, inert, inputmode,
+     lang, nonce, part, popover, role, slot, spellcheck, style,
+     tabindex, title, translate, writingsuggestions
+     id (HTML_ID format)
+     Microdata: itemscope, itemtype, itemid, itemprop, itemref
+     ARIA: all 47 aria-* attributes
+     ══════════════════════════════════════════════════════════════════════ -->
+<section
+        id="global-attrs"
+        class="demo-section"
+        lang="en"
+        dir="ltr"
+        title="Global attributes showcase"
+        tabindex="0"
+        role="region"
+        style="background: #fafafa;"
+        accesskey="g"
+        autocapitalize="sentences"
+        autocorrect="on"
+        draggable="true"
+        enterkeyhint="done"
+        exportparts="inner"
+        inputmode="text"
+        nonce="lorem-nonce-42"
+        part="demo-part"
+        spellcheck="true"
+        translate="yes"
+        writingsuggestions="true"
+        itemscope
+        itemtype="https://schema.org/Article"
+        itemid="https://example.com/articles/1"
+>
+  <h2 itemprop="name">Lorem Ipsum — HTML Filtering Allowed-Elements Sample</h2>
+
+  <!-- aria-* attributes — all 47 on one element for completeness -->
+  <p
+          id="intro-para"
+          itemprop="description"
+          itemref="author-card"
+          aria-atomic="true"
+          aria-autocomplete="none"
+          aria-braillelabel="Intro"
+          aria-brailleroledescription="paragraph"
+          aria-busy="false"
+          aria-checked="false"
+          aria-colcount="3"
+          aria-colindex="1"
+          aria-colindextext="Column 1"
+          aria-colspan="1"
+          aria-controls="panel-1"
+          aria-current="page"
+          aria-describedby="desc-note"
+          aria-description="Introductory paragraph exercising every ARIA attribute"
+          aria-details="details-block"
+          aria-disabled="false"
+          aria-dropeffect="none"
+          aria-errormessage="error-msg"
+          aria-expanded="true"
+          aria-flowto="next-section"
+          aria-grabbed="false"
+          aria-haspopup="false"
+          aria-hidden="false"
+          aria-invalid="false"
+          aria-keyshortcuts="Alt+Shift+P"
+          aria-label="Introduction paragraph"
+          aria-labelledby="global-attrs"
+          aria-level="1"
+          aria-live="polite"
+          aria-modal="false"
+          aria-multiline="false"
+          aria-multiselectable="false"
+          aria-orientation="horizontal"
+          aria-owns="desc-note"
+          aria-placeholder="Placeholder text"
+          aria-posinset="1"
+          aria-pressed="false"
+          aria-readonly="false"
+          aria-relevant="additions"
+          aria-required="false"
+          aria-roledescription="intro paragraph"
+          aria-rowcount="1"
+          aria-rowindex="1"
+          aria-rowindextext="Row 1"
+          aria-rowspan="1"
+          aria-selected="false"
+          aria-setsize="5"
+          aria-sort="none"
+          aria-valuemax="100"
+          aria-valuemin="0"
+          aria-valuenow="50"
+          aria-valuetext="fifty"
+          aria-activedescendant="desc-note"
+  >
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+    ut labore et dolore magna aliqua.
+  </p>
+
+  <span id="desc-note">Description note referenced by aria-describedby.</span>
+
+  <!-- hidden, inert, popover — global boolean attributes -->
+  <div id="hidden-el" hidden>This element is hidden (display:none).</div>
+  <div id="inert-el" inert>This element is inert (non-interactive).</div>
+  <div id="popover-el" popover role="tooltip" slot="tooltip-slot">Popover content.</div>
+
+  <!-- autofocus — global attribute, applied to first interactive element in section -->
+  <button type="button" autofocus tabindex="1" title="Auto-focused button">Focus me</button>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §2 — INLINE / PHRASING ELEMENTS
+     a, abbr, b, bdi, bdo, big, br, cite, code, data, del, dfn, em,
+     font, i, ins, kbd, mark, o, q, rp, rt, ruby, s, samp, small,
+     span, strike, strong, sub, sup, time, tt, u, var, wbr
+     ══════════════════════════════════════════════════════════════════════ -->
+<section id="inline-elements" aria-label="Inline elements">
+  <h2>Inline / Phrasing Elements</h2>
+  <p>
+    <!-- a — href (LINKS_URL), download, hreflang, media, referrerpolicy, rel, target, type -->
+    <a href="https://example.com/document.pdf"
+       download="lorem-ipsum.pdf"
+       hreflang="en"
+       media="screen"
+       referrerpolicy="no-referrer"
+       rel="noopener noreferrer"
+       target="_blank"
+       type="application/pdf">Download Lorem Ipsum (PDF)</a>,
+
+    <!-- abbr -->
+    <abbr title="HyperText Markup Language">HTML</abbr>,
+
+    <!-- b -->
+    <b>bold text</b>,
+
+    <!-- bdi — isolates bidirectional text -->
+    <bdi>مرحبا</bdi>,
+
+    <!-- bdo — overrides text direction -->
+    <bdo dir="rtl">tfel ot thgir</bdo>,
+
+    <!-- big (deprecated, legacy) -->
+    <big>larger legacy text</big>,
+
+    <!-- br -->
+    line break<br />continued here,
+
+    <!-- cite — title of a creative work -->
+    <cite>De Finibus Bonorum et Malorum</cite> by Cicero,
+
+    <!-- code -->
+    <code>const x = 42;</code>,
+
+    <!-- data — machine-readable value -->
+    <data value="SKU-98765">Product #98765</data>,
+
+    <!-- del — cite + datetime -->
+    <del cite="https://example.com/changelog" datetime="2024-03-01">removed content</del>,
+
+    <!-- dfn — definition term -->
+    <dfn>HTML</dfn> is a markup language,
+
+    <!-- em -->
+    <em>emphasized text</em>,
+
+    <!-- font (deprecated, legacy) — color, face, size -->
+    <font color="#336699" face="Arial" size="3">legacy font styling</font>,
+
+    <!-- i -->
+    <i>italic text</i>,
+
+    <!-- ins — cite + datetime -->
+    <ins cite="https://example.com/changelog" datetime="2024-04-01">inserted text</ins>,
+
+    <!-- kbd -->
+    press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy,
+
+    <!-- mark -->
+    <mark>highlighted text</mark>,
+
+    <!-- o (legacy MS Office tag) -->
+    <o>office-flavoured span</o>,
+
+    <!-- q — inline quotation — cite -->
+    <q cite="https://example.com/source">Ut enim ad minim veniam.</q>,
+
+    <!-- ruby + rp + rt -->
+    <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>,
+
+    <!-- s — strikethrough -->
+    <s>no longer accurate</s>,
+
+    <!-- samp — sample output -->
+    <samp>Error: file not found</samp>,
+
+    <!-- small -->
+    <small>fine print</small>,
+
+    <!-- span -->
+    <span lang="fr" title="French text">texte en français</span>,
+
+    <!-- strike (deprecated, legacy) -->
+    <strike>deprecated strikethrough</strike>,
+
+    <!-- strong -->
+    <strong>important text</strong>,
+
+    <!-- sub / sup -->
+    H<sub>2</sub>O and E=mc<sup>2</sup>,
+
+    <!-- time — datetime -->
+    <time datetime="2026-04-10">10 April 2026</time>,
+
+    <!-- tt (deprecated, legacy) -->
+    <tt>teletype text</tt>,
+
+    <!-- u -->
+    <u>underlined text</u>,
+
+    <!-- var -->
+    solve for <var>x</var> in <var>f(x)</var>,
+
+    <!-- wbr — word-break opportunity -->
+    superlongword<wbr />withabreakopportunity.
+  </p>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §3 — BLOCK-LEVEL & STRUCTURAL ELEMENTS
+     address, article, aside, blockquote, dd, details, dialog, div,
+     dl, dt, figcaption, figure, footer, h1–h6, header, hgroup, hr,
+     legend, li, main, nav, ol, p, pre, section, summary, ul
+     ══════════════════════════════════════════════════════════════════════ -->
+<main id="main-content" aria-label="Main content">
+  <article id="article-lorem" aria-labelledby="article-heading">
+
+    <header>
+      <!-- hgroup -->
+      <hgroup>
+        <h1 id="article-heading">Lorem Ipsum Article</h1>
+        <h2>Consectetur Adipiscing Elit</h2>
+      </hgroup>
+    </header>
+
+    <!-- nav -->
+    <nav aria-label="In-page navigation">
+      <ul>
+        <li><a href="#section-block">Block elements</a></li>
+        <li><a href="#section-lists">Lists</a></li>
+        <li><a href="#section-disclosure">Disclosure &amp; dialogs</a></li>
+      </ul>
+    </nav>
+
+    <!-- h3 / h4 / h5 / h6 -->
+    <h3>Heading level 3</h3>
+    <h4>Heading level 4</h4>
+    <h5>Heading level 5</h5>
+    <h6>Heading level 6</h6>
+
+    <section id="section-block">
+      <h2>Block Elements</h2>
+
+      <!-- p -->
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+      </p>
+
+      <!-- blockquote — cite -->
+      <blockquote cite="https://example.com/source">
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+          fugiat nulla pariatur.</p>
+      </blockquote>
+
+      <!-- pre -->
+      <pre>function greet(name) {
+  return `Hello, ${name}!`;
+}</pre>
+
+      <!-- address -->
+      <address>
+        Written by <a href="mailto:author@example.com">Jane Doe</a>.<br />
+        42 Lorem Street, Ipsum City
+      </address>
+
+      <!-- hr — align (deprecated, allowed for legacy) -->
+      <hr align="center" />
+
+      <!-- div -->
+      <div id="div-demo" class="container" dir="ltr">
+        Pellentesque habitant morbi tristique senectus et netus.
+      </div>
+    </section>
+
+    <section id="section-lists">
+      <h2>Lists</h2>
+
+      <!-- dl + dt + dd — compact (deprecated) -->
+      <dl compact>
+        <dt>Lorem</dt>
+        <dd>Ipsum dolor sit amet, consectetur adipiscing elit.</dd>
+        <dt>Consectetur</dt>
+        <dd>Adipiscing elit, sed do eiusmod tempor.</dd>
+      </dl>
+
+      <!-- ol — reversed, start, type, compact; li — value -->
+      <ol reversed start="5" type="A" compact>
+        <li value="5">First item (A)</li>
+        <li>Second item (B)</li>
+        <li>Third item (C)</li>
+      </ol>
+
+      <!-- ul — type (deprecated), compact; li -->
+      <ul type="disc" compact>
+        <li>Alpha</li>
+        <li>Beta</li>
+        <li>Gamma</li>
+      </ul>
+    </section>
+
+    <section id="section-disclosure">
+      <h2>Disclosure &amp; Dialogs</h2>
+
+      <!-- details + summary — open -->
+      <details id="details-block" open>
+        <summary>Expand for more lorem ipsum</summary>
+        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+          mollit anim id est laborum.</p>
+      </details>
+
+      <!-- dialog — open -->
+      <dialog id="panel-1" open>
+        <p>This is a <strong>dialog</strong> element. Sed ut perspiciatis unde omnis iste natus.</p>
+      </dialog>
+    </section>
+
+    <!-- figure + figcaption -->
+    <figure>
+      <!-- img with all its attributes (align from table-deprecated also applies here) -->
+      <img
+              src="https://example.com/lorem-ipsum.jpg"
+              alt="A decorative image illustrating Lorem Ipsum"
+              decoding="async"
+              fetchpriority="auto"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              usemap="#figure-map"
+              srcset="https://example.com/lorem-ipsum-2x.jpg 2x, https://example.com/lorem-ipsum-3x.jpg 3x"
+              sizes="(max-width: 600px) 480px, 800px"
+              height="400"
+              width="600"
+              crossorigin="anonymous"
+              align="center"
+              id="main-image"
+      />
+      <figcaption>Figure 1 — Lorem ipsum image with all allowed attributes.</figcaption>
+    </figure>
+
+    <!-- map + area -->
+    <map name="figure-map">
+      <area
+              shape="rect"
+              coords="0,0,200,150"
+              href="https://example.com/region-rect"
+              alt="Rectangular region"
+              rel="noopener"
+              target="_blank"
+      />
+      <area
+              shape="circle"
+              coords="300,75,50"
+              href="https://example.com/region-circle"
+              alt="Circular region"
+              rel="noreferrer"
+              target="_self"
+      />
+      <area
+              shape="poly"
+              coords="400,0,500,100,350,100"
+              href="https://example.com/region-poly"
+              alt="Polygon region"
+              rel="noopener"
+              target="_top"
+      />
+    </map>
+
+    <!-- aside -->
+    <aside id="sidebar" aria-label="Related content">
+      <p>Aside: sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </aside>
+
+    <footer>
+      <p>Published: <time datetime="2026-04-10T09:00:00Z">10 April 2026</time></p>
+    </footer>
+
+  </article>
+</main>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §4 — FORMS
+     button, datalist, fieldset, form, input, label, meter, optgroup,
+     option, output, progress, select, textarea
+     ══════════════════════════════════════════════════════════════════════ -->
+<section id="forms-section" aria-label="Forms demo">
+  <h2>Forms</h2>
+
+  <form
+          id="lorem-form"
+          accept-charset="UTF-8"
+          action="https://example.com/submit"
+          autocomplete="on"
+          enctype="multipart/form-data"
+          method="post"
+          name="loremForm"
+          novalidate
+          rel="noopener"
+          target="_self"
+  >
+
+    <!-- ── fieldset 1: Personal info ── -->
+    <fieldset id="fs-personal" name="personal-info">
+      <legend>Personal Information</legend>
+
+      <!-- text -->
+      <label for="full-name">Full name:</label>
+      <input type="text" id="full-name" name="fullName"
+             placeholder="Lorem Ipsum" autocomplete="name"
+             maxlength="100" minlength="2" required size="40" />
+
+      <!-- email -->
+      <label for="email-addr">Email:</label>
+      <input type="email" id="email-addr" name="email"
+             placeholder="lorem@ipsum.com" autocomplete="email" required />
+
+      <!-- password -->
+      <label for="pwd-input">Password:</label>
+      <input type="password" id="pwd-input" name="password"
+             minlength="8" maxlength="64" required autocomplete="new-password" />
+
+      <!-- number -->
+      <label for="age-input">Age:</label>
+      <input type="number" id="age-input" name="age"
+             min="0" max="120" step="1" value="30" />
+
+      <!-- range -->
+      <label for="volume-range">Volume:</label>
+      <input type="range" id="volume-range" name="volume"
+             min="0" max="100" step="5" value="50" />
+
+      <!-- checkbox -->
+      <label for="subscribe-chk">Subscribe to newsletter:</label>
+      <input type="checkbox" id="subscribe-chk" name="subscribe" checked />
+
+      <!-- radio -->
+      <label for="gender-m">Male:</label>
+      <input type="radio" id="gender-m" name="gender" value="male" />
+      <label for="gender-f">Female:</label>
+      <input type="radio" id="gender-f" name="gender" value="female" />
+      <label for="gender-o">Other:</label>
+      <input type="radio" id="gender-o" name="gender" value="other" />
+
+      <!-- file — accept, multiple, capture -->
+      <label for="avatar-file">Avatar:</label>
+      <input type="file" id="avatar-file" name="avatar"
+             accept="image/*" multiple capture="user" />
+
+      <!-- search — pattern, dirname, list -->
+      <label for="search-input">Search:</label>
+      <input type="search" id="search-input" name="q"
+             pattern="[A-Za-z ]+" placeholder="Lorem terms"
+             dirname="q.dir" list="search-hints" />
+      <datalist id="search-hints">
+        <option value="Lorem" label="Lorem">
+        <option value="Ipsum" label="Ipsum">
+        <option value="Dolor" label="Dolor">
+      </datalist>
+
+      <!-- readonly -->
+      <label for="readonly-fld">Read-only:</label>
+      <input type="text" id="readonly-fld" name="readonlyField"
+             value="Lorem ipsum read-only" readonly />
+
+      <!-- disabled input -->
+      <input type="text" id="disabled-fld" name="disabledField"
+             value="Disabled input" disabled />
+
+      <!-- hidden -->
+      <input type="hidden" name="csrf" value="tok-lorem-ipsum" />
+
+      <!-- date / time family -->
+      <label for="dob-input">Date of birth:</label>
+      <input type="date" id="dob-input" name="dob" />
+
+      <label for="time-input">Preferred time:</label>
+      <input type="time" id="time-input" name="preferredTime" />
+
+      <label for="dt-input">Appointment:</label>
+      <input type="datetime-local" id="dt-input" name="appointment" />
+
+      <label for="month-input">Month:</label>
+      <input type="month" id="month-input" name="month" />
+
+      <label for="week-input">Week:</label>
+      <input type="week" id="week-input" name="week" />
+
+      <!-- color -->
+      <label for="color-pick">Favourite colour:</label>
+      <input type="color" id="color-pick" name="favouriteColor" value="#336699" />
+
+      <!-- url / tel -->
+      <label for="website-url">Website:</label>
+      <input type="url" id="website-url" name="website"
+             placeholder="https://example.com" autocomplete="url" />
+
+      <label for="phone-tel">Phone:</label>
+      <input type="tel" id="phone-tel" name="phone"
+             placeholder="+1-800-LOREM" autocomplete="tel" />
+
+      <!-- textarea — autocomplete, cols, dirname, maxlength, minlength,
+                       name, placeholder, readonly, required, rows, wrap -->
+      <label for="bio-area">Biography:</label>
+      <textarea
+              id="bio-area"
+              name="bio"
+              rows="5"
+              cols="40"
+              placeholder="Tell us about yourself…"
+              maxlength="1000"
+              minlength="10"
+              autocomplete="off"
+              required
+              wrap="soft"
+              dirname="bio.dir"
+      >Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+
+      <!-- select — autocomplete, multiple, name, required, size -->
+      <label for="country-sel">Country:</label>
+      <select id="country-sel" name="country"
+              autocomplete="country-name" required size="1">
+        <!-- optgroup — label, disabled -->
+        <optgroup label="Europe">
+          <!-- option — label, selected, value -->
+          <option value="fr" selected label="France">France</option>
+          <option value="de" label="Germany">Germany</option>
+          <option value="es" disabled label="Spain">Spain (unavailable)</option>
+        </optgroup>
+        <optgroup label="Americas" disabled>
+          <option value="us" label="United States">United States</option>
+          <option value="ca" label="Canada">Canada</option>
+        </optgroup>
+      </select>
+
+      <!-- multi-select -->
+      <label for="skills-sel">Skills:</label>
+      <select id="skills-sel" name="skills" multiple required>
+        <option value="html" selected>HTML</option>
+        <option value="css">CSS</option>
+        <option value="js">JavaScript</option>
+      </select>
+
+      <!-- progress — max, value -->
+      <label for="upload-prog">Upload progress:</label>
+      <progress id="upload-prog" max="100" value="65">65%</progress>
+
+      <!-- meter — high, low, max, min, optimum, value -->
+      <label for="disk-meter">Disk usage:</label>
+      <meter id="disk-meter" min="0" max="200" low="50" high="150"
+             optimum="80" value="120">120 GB</meter>
+
+      <!-- output — for, name -->
+      <label for="calc-out">Calculation:</label>
+      <output id="calc-out" name="result" for="age-input volume-range">80</output>
+
+    </fieldset>
+
+    <!-- ── fieldset 2 (disabled) ── -->
+    <fieldset id="fs-disabled" name="disabled-group" disabled>
+      <legend>Disabled Fieldset</legend>
+      <label for="dis-txt">Disabled text:</label>
+      <input type="text" id="dis-txt" name="disabledTxt" value="Not editable" />
+      <select id="dis-sel" name="disabledSel" disabled>
+        <option value="x">Disabled option</option>
+      </select>
+      <textarea id="dis-ta" name="disabledTa" rows="2" cols="30">Disabled textarea</textarea>
+      <button type="button" name="disBtn" value="no" disabled>Disabled button</button>
+    </fieldset>
+
+    <!-- ── Buttons ── -->
+    <fieldset id="fs-actions" name="actions">
+      <legend>Actions</legend>
+
+      <button type="submit" name="action" value="submit">Submit</button>
+      <button type="reset"  name="action" value="reset">Reset</button>
+
+      <!-- formaction, formenctype, formmethod, formnovalidate, formtarget on button -->
+      <button
+              type="submit"
+              name="action"
+              value="alt"
+              formaction="https://example.com/alt-submit"
+              formenctype="application/x-www-form-urlencoded"
+              formmethod="get"
+              formnovalidate
+              formtarget="_blank"
+      >Alternative Submit</button>
+
+      <!-- formaction / formmethod / formnovalidate / formtarget / formenctype on input -->
+      <input type="submit" name="action" value="Input Submit"
+             formaction="https://example.com/input-submit"
+             formenctype="text/plain"
+             formmethod="post"
+             formnovalidate
+             formtarget="_self" />
+    </fieldset>
+
+  </form>
+
+  <!-- Controls outside the form, linked via form="lorem-form" -->
+  <input  type="text"     name="ext-text"     form="lorem-form" value="External input"    />
+  <select                  name="ext-sel"      form="lorem-form"><option value="a">A</option></select>
+  <textarea                name="ext-ta"       form="lorem-form" rows="2" cols="20">External textarea</textarea>
+  <button type="button"    name="ext-btn"      form="lorem-form" value="ext">External button</button>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §5 — TABLES
+     caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr
+     Attributes: span, colspan, rowspan, scope, abbr, headers,
+     height, width, align, valign, border, cellpadding, cellspacing,
+     summary, bgcolor, nowrap
+     ══════════════════════════════════════════════════════════════════════ -->
+<section id="tables-section" aria-label="Tables demo">
+  <h2>Tables</h2>
+
+  <table
+          id="lorem-table"
+          border="1"
+          cellpadding="6"
+          cellspacing="0"
+          summary="Sample table exercising every allowed table attribute"
+          height="200"
+          width="100%"
+          align="center"
+          bgcolor="#fafafa"
+  >
+    <caption align="top">Table 1 — Lorem Ipsum Data</caption>
+
+    <colgroup span="3" width="33%" align="center" valign="middle">
+      <col span="1" width="40%" align="left"   valign="top"    height="30" />
+      <col span="1" width="30%" align="center" valign="middle" />
+      <col span="1" width="30%" align="right"  valign="bottom" />
+    </colgroup>
+
+    <thead>
+    <tr align="center" valign="middle" bgcolor="#e0e0ff">
+      <th id="col-name"  scope="col" abbr="Name"  headers="col-name"
+          colspan="1" rowspan="1" height="40" width="200"
+          align="left" valign="top" bgcolor="#d0d0ff" nowrap>Name</th>
+      <th id="col-val"   scope="col" abbr="Value" headers="col-val"
+          align="center">Value</th>
+      <th id="col-desc"  scope="col" abbr="Desc"  headers="col-desc"
+          align="right">Description</th>
+    </tr>
+    </thead>
+
+    <tbody bgcolor="#ffffff" valign="middle">
+    <tr>
+      <td headers="col-name" colspan="1" rowspan="1"
+          align="left" valign="top" bgcolor="#f5f5f5" nowrap>Lorem</td>
+      <td headers="col-val"  align="center">42</td>
+      <td headers="col-desc" align="right">Ipsum dolor sit amet</td>
+    </tr>
+    <tr>
+      <td headers="col-name" align="left">Consectetur</td>
+      <td headers="col-val"  align="center">99</td>
+      <td headers="col-desc" align="right">Adipiscing elit</td>
+    </tr>
+    <!-- rowspan on td -->
+    <tr>
+      <td headers="col-name" rowspan="2" align="left" valign="middle">Sed do</td>
+      <td headers="col-val"  align="center">7</td>
+      <td headers="col-desc" align="right">Eiusmod tempor</td>
+    </tr>
+    <tr>
+      <td headers="col-val"  align="center">3</td>
+      <td headers="col-desc" align="right">Incididunt ut labore</td>
+    </tr>
+    </tbody>
+
+    <tfoot bgcolor="#e8e8e8" valign="bottom">
+    <tr align="right" bgcolor="#ddd">
+      <td colspan="2" align="right"><strong>Total</strong></td>
+      <td align="right">151</td>
+    </tr>
+    </tfoot>
+
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §6 — EMBEDDED CONTENT & MEDIA
+     audio, canvas, img (already shown in §3), map/area (§3),
+     picture, source, track, video
+     ══════════════════════════════════════════════════════════════════════ -->
+<section id="media-section" aria-label="Media elements demo">
+  <h2>Embedded Content &amp; Media</h2>
+
+  <!-- canvas — height, width -->
+  <canvas id="my-canvas" height="150" width="300"
+          aria-label="Drawing canvas" role="img"></canvas>
+
+  <!-- picture + source + img -->
+  <picture>
+    <!-- source — src, srcset, sizes, media, type, height, width, crossorigin -->
+    <source
+            src="https://example.com/lorem.avif"
+            srcset="https://example.com/lorem-lg.avif 1920w, https://example.com/lorem-md.avif 960w"
+            sizes="(min-width: 1200px) 1920px, (min-width: 600px) 960px, 100vw"
+            media="(min-width: 600px)"
+            type="image/avif"
+            width="1920"
+            height="1080"
+            crossorigin="anonymous"
+    />
+    <source
+            src="https://example.com/lorem.webp"
+            srcset="https://example.com/lorem-lg.webp 1920w, https://example.com/lorem-md.webp 960w"
+            sizes="(min-width: 600px) 960px, 100vw"
+            type="image/webp"
+            crossorigin="use-credentials"
+    />
+    <!-- img fallback with all its own attributes -->
+    <img
+            src="https://example.com/lorem.jpg"
+            alt="Responsive Lorem Ipsum image"
+            decoding="async"
+            fetchpriority="auto"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            usemap="#picture-map"
+            srcset="https://example.com/lorem-2x.jpg 2x"
+            sizes="800px"
+            height="450"
+            width="800"
+            crossorigin="anonymous"
+            id="responsive-img"
+    />
+  </picture>
+
+  <map name="picture-map">
+    <area shape="rect" coords="0,0,100,100"
+          href="https://example.com/area" alt="Map area"
+          rel="noopener" target="_blank" />
+  </map>
+
+  <!-- audio — src, controls, autoplay, loop, muted, preload, crossorigin -->
+  <audio
+          src="https://example.com/lorem.mp3"
+          controls
+          autoplay
+          loop
+          muted
+          preload="metadata"
+          crossorigin="anonymous"
+  >
+    <!-- source inside audio — src, type, media -->
+    <source src="https://example.com/lorem.ogg" type="audio/ogg"  media="screen" />
+    <source src="https://example.com/lorem.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- video — src, controls, autoplay, loop, muted, preload,
+               poster, playsinline, height, width, crossorigin -->
+  <video
+          src="https://example.com/lorem.mp4"
+          controls
+          autoplay
+          loop
+          muted
+          preload="auto"
+          poster="https://example.com/lorem-poster.jpg"
+          playsinline
+          height="360"
+          width="640"
+          crossorigin="anonymous"
+          id="main-video"
+  >
+    <!-- source inside video — src, type, media, width, height, crossorigin -->
+    <source src="https://example.com/lorem.webm" type="video/webm"
+            media="screen" width="640" height="360" crossorigin="anonymous" />
+    <source src="https://example.com/lorem.mp4"  type="video/mp4" />
+
+    <!-- track — src, kind, srclang, label, default -->
+    <track src="https://example.com/subtitles-en.vtt"
+           kind="subtitles" srclang="en" label="English" default />
+    <track src="https://example.com/captions-fr.vtt"
+           kind="captions"  srclang="fr" label="Français" />
+    <track src="https://example.com/chapters.vtt"
+           kind="chapters"  srclang="en" label="Chapters" />
+    <track src="https://example.com/descriptions.vtt"
+           kind="descriptions" srclang="en" label="Descriptions" />
+    <track src="https://example.com/metadata.vtt"
+           kind="metadata" srclang="en" label="Metadata" />
+
+    Your browser does not support the video element.
+  </video>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     §7 — MICRODATA (Schema.org structured data)
+     itemscope, itemtype, itemid, itemprop, itemref
+     ══════════════════════════════════════════════════════════════════════ -->
+<section id="microdata-section" aria-label="Microdata demo">
+  <h2>Microdata (Schema.org)</h2>
+
+  <div id="author-card"
+       itemscope
+       itemtype="https://schema.org/Person"
+       itemid="https://example.com/people/jane-doe"
+       itemref="contact-block">
+    <span itemprop="name">Jane Doe</span> —
+    <span itemprop="jobTitle">Software Engineer</span>
+  </div>
+
+  <div id="contact-block">
+    <a href="mailto:jane@example.com" itemprop="email">jane@example.com</a>
+  </div>
+
+</section>
+

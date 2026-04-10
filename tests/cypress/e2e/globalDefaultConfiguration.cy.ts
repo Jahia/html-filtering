@@ -30,10 +30,10 @@ describe('Test global default configuration', () => {
         deleteSite(SITE_KEY);
     });
 
-    function modifyAndCheck(text: string, expected = text) {
+    function modifyAndCheck(text: string) {
         mutateNodeProperty(PATH, 'prop', text).then(response => {
             const resultNoSpace = response.data.jcr.mutateNode.mutateProperty.property.value.replace(/\s/g, '');
-            const expectedNoSpace = expected.replace(/\s/g, '');
+            const expectedNoSpace = text.replace(/\s/g, '');
             console.log('result', resultNoSpace);
             console.log('expected', expectedNoSpace);
             expect(resultNoSpace).to.eq(expectedNoSpace);
@@ -46,9 +46,7 @@ describe('Test global default configuration', () => {
 
     it('all supported tags and attributes are preserved (exhaustive fixture)', () => {
         cy.fixture('html/exhaustive-supported-elements.html', 'utf-8').then((content: string) => {
-            cy.fixture('html/exhaustive-supported-elements.sanitized.html', 'utf-8').then((expectedContent: string) => {
-                modifyAndCheck(content, expectedContent);
-            });
+            modifyAndCheck(content);
         });
     });
 

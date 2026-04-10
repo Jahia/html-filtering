@@ -112,6 +112,8 @@ htmlFiltering:
         # <label> and <output>: for attribute associates the control
         - attributes: [ for ]
           tags: [ label, output ]
+        - attributes: [ name ]
+          tags: [ output ]
 
         # <option>
         - attributes: [ label, selected, value ]
@@ -364,6 +366,8 @@ htmlFiltering:
         # <label> and <output>: for attribute associates the control
         - attributes: [ for ]
           tags: [ label, output ]
+        - attributes: [ name ]
+          tags: [ output ]
 
         # <option>
         - attributes: [ label, selected, value ]

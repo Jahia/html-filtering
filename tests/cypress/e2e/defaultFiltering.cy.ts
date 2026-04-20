@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, modifyContent, removeGlobalCustomConfig} from '../fixtures/utils';
+import {expectHtmlValidationError, getContent, modifyContent, removeGlobalCustomConfig} from '../fixtures/utils';
 
 /**
  * Test scenarios for default filtering cases
@@ -47,7 +47,7 @@ describe('Default HTML filtering', () => {
 
     it('allows internal links - content', () => {
         // Note that the actual href text being sent over to the sanitizer is '##cms-context##/{mode}/{lang}/##ref:link1##'
-        const text = `<p><a href="/cms/{mode}/{lang}/sites/${SITE_KEY}/home.html" title="go to home page">home page</a></p>`;
+        const text = `<p><a href="/cms/{mode}/{lang}/sites/${SITE_KEY}/home.html" title="go to home page">home email@address.com page</a></p>`;
         modifyContent(path, text);
         getContent(path).then(result => {
             const value = result.data.jcr.nodeByPath.property.value;
@@ -73,24 +73,15 @@ describe('Default HTML filtering', () => {
 
     it('rejects invalid protocol links', () => {
         const text = '<p>This is an <a href="javascript://%0aalert(document.location)">xss test</a></p>';
-        modifyContent(path, text);
-        getContent(path).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.contain('<p>');
-            expect(value).to.not.contain('<a');
-            expect(value).to.not.contain('href');
+        modifyContent(path, text).then(result => {
+            expectHtmlValidationError(result);
         });
     });
 
     it('rejects invalid href links', () => {
         const text = '<p>This is an <a href="#javascript:alert(\'hello\')" target="_blank">xss test</a></p>';
-        modifyContent(path, text);
-        getContent(path).then(result => {
-            const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.contain('<p>');
-            expect(value).to.contain('<a');
-            expect(value).to.not.contain('href');
-            expect(value).to.contain('target');
+        modifyContent(path, text).then(result => {
+            expectHtmlValidationError(result);
         });
     });
 });

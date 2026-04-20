@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {mutateNodeProperty} from '../fixtures/utils';
+import {expectHtmlValidationError, mutateNodeProperty} from '../fixtures/utils';
 
 /**
  * Test scenarios for the global default configuration (org.jahia.modules.htmlfiltering.global.default.yml).
@@ -94,7 +94,9 @@ describe('Test global default configuration', () => {
     invalidIdValues.forEach(value => {
         it(`"${value}" is not a valid value for the 'id' attribute`, () => {
             const text = `<div id="${value}">sample</div>`;
-            modifyAndCheck(text, '<div>sample</div>');
+            mutateNodeProperty(PATH, 'prop', text).then(response => {
+                expectHtmlValidationError(response);
+            });
         });
     });
 
@@ -107,12 +109,15 @@ describe('Test global default configuration', () => {
     inlineFormattingTagsRemovedIfEmpty.forEach(tag => {
         it(`inline formatting tag "${tag}" is removed if it has not attribute, kept otherwise`, () => {
             const text = `<${tag}>no attribute</${tag}><${tag} id="myid">with id</${tag}>`;
-            modifyAndCheck(text, `no attribute<${tag} id="myid">with id</${tag}>`);
+            mutateNodeProperty(PATH, 'prop', text).then(response => {
+                expectHtmlValidationError(response);
+            });
         });
     });
-    it('inline formatting line breaks <br> tag is allowed and formatted', () => {
+    it('inline formatting line breaks <br> tag is allowed', () => {
         const text = '<p>text<br>with<br/>line<br />breaks</p>';
-        modifyAndCheck(text, '<p>text<br />with<br />line<br />breaks</p>');
+        // With REJECT strategy the content is stored as-is (no normalization); all <br> variants are accepted
+        modifyAndCheck(text);
     });
 
     // --------------------------
@@ -138,24 +143,20 @@ describe('Test global default configuration', () => {
     // href links on <a> :
     // -------------------
 
-    const allowedHrefOnA = [{input: '/path/of/link.html', expected: '/path/of/link.html'}, {
-        input: 'http://sample.link',
-        expected: 'http://sample.link'
-    }, {input: 'https://sample.link', expected: 'https://sample.link'}, {
-        input: 'mailto:johndoe@gmail.com',
-        expected: 'mailto:johndoe&#64;gmail.com'
-    }, {
-        input: 'https://sample.com/sub/path/asset.pdf',
-        expected: 'https://sample.com/sub/path/asset.pdf'
-    }, {
-        input: 'http://mywebsite.io/mypage.html?p1=v1&p2=v2',
-        expected: 'http://mywebsite.io/mypage.html?p1&#61;v1&amp;p2&#61;v2'
-    }];
+    // Note: with REJECT strategy the content is stored as-is (no character encoding by the sanitizer).
+    // The encoding behavior (e.g. @ -> &#64;) is tested separately in globalDefaultSanitizeStrategy.cy.ts.
+    const allowedHrefOnA = [
+        '/path/of/link.html',
+        'http://sample.link',
+        'https://sample.link',
+        'mailto:johndoe@gmail.com',
+        'https://sample.com/sub/path/asset.pdf',
+        'http://mywebsite.io/mypage.html?p1=v1&p2=v2'
+    ];
     allowedHrefOnA.forEach(link => {
-        it(`"${link.input}" is allowed as a[href]`, () => {
-            const text = `<a href="${link.input}">sample</a>`;
-            const expected = `<a href="${link.expected}">sample</a>`;
-            modifyAndCheck(text, expected);
+        it(`"${link}" is allowed as a[href]`, () => {
+            const text = `<a href="${link}">sample</a>`;
+            modifyAndCheck(text);
         });
     });
     // eslint-disable-next-line no-script-url
@@ -163,7 +164,9 @@ describe('Test global default configuration', () => {
     disallowedHrefOnA.forEach(link => {
         it(`"${link}" is not allowed as a[href]`, () => {
             const text = `<a href="${link}">sample</a>`;
-            modifyAndCheck(text, 'sample'); // The whole <a> tag should be removed
+            mutateNodeProperty(PATH, 'prop', text).then(response => {
+                expectHtmlValidationError(response);
+            });
         });
     });
 
@@ -218,37 +221,9 @@ describe('Test global default configuration', () => {
     disallowedMediaLinks.forEach(link => {
         it(`${link} is not an allowed media link`, () => {
             const text = mediaTextForLink(link);
-            const expectedText = `
-    <audio controls="controls" muted="muted">
-      <source type="audio/ogg"/>
-    Your browser does not support the audio element.
-    </audio>
-
-    <img
-      alt="alt text" />
-
-    <video controls="controls" width="250" height="200" muted="muted">
-      <source type="video/webm" />
-    </video>
-
-    <video controls="controls">
-      <track
-        default="default"
-        kind="captions"
-        srclang="en" />
-      Download the
-      MP4
-      video, and
-      subtitles.
-    </video>
-
-    <picture>
-      <source
-        media="(orientation: portrait)" />
-      <img alt="alt text" />
-    </picture>
-    `;
-            modifyAndCheck(text, expectedText);
+            mutateNodeProperty(PATH, 'prop', text).then(response => {
+                expectHtmlValidationError(response);
+            });
         });
     });
 
@@ -257,9 +232,10 @@ describe('Test global default configuration', () => {
     // ----------------------
 
     it('Style attribute is protected against CSS-based attacks while preserving safe styles', () => {
-        const text = `
-    <div style="color: blue; font-size: 14px; margin: 10px; border: 1px solid black;">Safe styling</div>
-    
+        const textSafeStyles = '<div style="color: blue; font-size: 14px; margin: 10px; border: 1px solid black;">Safe styling</div>';
+        modifyAndCheck(textSafeStyles);
+
+        const textDangerousStyles = `
     <div style="background-image: url('https://evil.com/tracking.jpg');">Remote image loading</div>
     <div style="background: url('javascript:alert(1)');">JavaScript URL</div>
     <div style="position: fixed; top: 0; left: 0; z-index: 9999;">Position manipulation</div>
@@ -269,20 +245,8 @@ describe('Test global default configuration', () => {
     <div style="background-image: url(data:image/svg+xml,%3Csvg%20onload%3Dalert(1)%3E%3C/svg%3E);">Data URL with SVG</div>
     <div style="pointer-events: none;">Interaction hijacking</div>
     `;
-
-        const expected = `
-    <div style="color:blue;font-size:14px;margin:10px;border:1px solid black">Safe styling</div>
-    
-    <div>Remote image loading</div>
-    <div>JavaScript URL</div>
-    <div>Position manipulation</div>
-    <div>XBL binding</div>
-    <div>IE behavior</div>
-    <div>CSS expression</div>
-    <div>Data URL with SVG</div>
-    <div>Interaction hijacking</div>
-    `;
-
-        modifyAndCheck(text, expected);
+        mutateNodeProperty(PATH, 'prop', textDangerousStyles).then(response => {
+            expectHtmlValidationError(response);
+        });
     });
 });

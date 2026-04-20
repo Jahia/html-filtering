@@ -26,7 +26,7 @@
 
     <artifactId>html-filtering</artifactId>
     <name>Jahia HTML Filtering</name>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This modules provides configuration for HTML filtering.</description>
 
@@ -40,7 +40,7 @@
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
         <jahia-depends>graphql-dxm-provider</jahia-depends>
-        <jahia-module-signature>MCwCFF5VQcL93sSKboxJGN2vLju7Kz1MAhRflHAOlRq/JQoy2378Z4ahzKg7EA==</jahia-module-signature>
+        <jahia-module-signature>MCwCFC1B63uozzN/IRhcAwjNpswyX7bIAhRa5m2PSBB13YR44nP3Vn3QjDENNA==</jahia-module-signature>
     </properties>
 
     <repositories>

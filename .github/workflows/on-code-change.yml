@@ -45,8 +45,8 @@ jobs:
     with:
       module_id: html-filtering
       module_branch: ${{ github.ref }}
-      jahia_image: jahia/jahia-ee:8
-      provisioning_manifest: provisioning-manifest-build.yml
+      jahia_image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
+      provisioning_manifest: provisioning-manifest-snapshot.yml
       timeout_job: 45
       artifact_prefix: html-filtering-artifacts
       testrail_project: HTML Filtering Module

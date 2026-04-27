@@ -7,25 +7,31 @@ on:
 
 jobs:
   integration-tests-standalone:
-    name: Integration Tests
+    name: Integration Tests - ${{ matrix.display_name }}
     strategy:
       fail-fast: false
       matrix:
-        env:
-          - jahia-image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
+        include:
+          - display_name: Jahia 8 (stable)
+            jahia_image: jahia/jahia-ee:8
             provisioning: provisioning-manifest-snapshot.yml
-            pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: jahia/jahia-ee:8.1
+            pagerduty_incident_service: html-filtering-JahiaRL
+          - display_name: Jahia 8 (snapshot)
+            jahia_image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
+            provisioning: provisioning-manifest-snapshot.yml
+            pagerduty_incident_service: html-filtering-JahiaSN
+          - display_name: Jahia 8.1
+            jahia_image: jahia/jahia-ee:8.1
             provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
-            pagerduty-incident-service: html-filtering-Jahia81
+            pagerduty_incident_service: html-filtering-Jahia81
     secrets: inherit
     uses: Jahia/jahia-modules-action/.github/workflows/reusable-integration-tests.yml@v2
     with:
       module_id: html-filtering
       module_branch: ${{ github.ref }}
-      jahia_image: ${{ matrix.env.jahia-image }}
-      provisioning_manifest: ${{ matrix.env.provisioning }}
-      incident_service: ${{ matrix.env.pagerduty-incident-service }}
+      jahia_image: ${{ matrix.jahia_image }}
+      provisioning_manifest: ${{ matrix.provisioning }}
+      incident_service: ${{ matrix.pagerduty_incident_service }}
       timeout_job: 65
-      artifact_prefix: html-filtering-nightly-${{ matrix.env.jahia-image }}
+      artifact_prefix: html-filtering-nightly-${{ matrix.jahia_image }}
       testrail_project: HTML Filtering Module

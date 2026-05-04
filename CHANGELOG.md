@@ -2,7 +2,6 @@
 
 ## 3.0.0
 
-
 ### Breaking Changes
 
 * Changed the default HTML filtering strategy for the edit workspace from `SANITIZE` to `REJECT`(#170).

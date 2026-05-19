@@ -59,11 +59,17 @@ describe('Test publications with HTML filtering module', () => {
         // Create a site with rich text component on the home page to store the HTML text to be filtered
         createSite(SITE_KEY, {locale: 'en', serverName: 'localhost', templateSet: 'html-filtering-test-module'});
         addContent('');
+
+        // Publish the node upfront so it already exists in LIVE before each test runs.
+        // Without this, the first test to run would publish the node for the first time, and the
+        // LIVE check would fail due to the async nature of the publication (the node may not exist
+        // in LIVE yet when the assertion runs).
+        publishContent();
     });
 
-    // EDIT workspace: SANITIZE everything, except [h1], LIVE: SANITIZE or REJECT everything, except [p]
+    // EDIT workspace: REJECT everything except [h1], LIVE: SANITIZE or REJECT everything, except [p]
     // Add content with tags that are allowed in EDIT workspace, but not in LIVE workspace (e.g. <h1>, <p>)
-    // (SANITIZED) content can be PUBLISHED in LIVE workspace, NO tags to be SANITIZED or REJECTED by LIVE config
+    // (Allowed) content can be PUBLISHED in LIVE workspace, NO tags to be SANITIZED or REJECTED by LIVE config
     ['SANITIZE', 'REJECT'].forEach(strategy => {
         it(`should publish content as is even if tags are restricted (${strategy}) in live config`, () => {
             cy.step('Install config', () => {

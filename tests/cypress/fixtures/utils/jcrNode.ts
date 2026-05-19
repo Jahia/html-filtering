@@ -12,7 +12,7 @@ export const modifyContent = (pathOrId: string, text: string, language: string =
             }
         }
     `;
-    cy.apollo({
+    return cy.apollo({
         mutation: modifyNodeGql,
         variables: {pathOrId, text, language}
     });

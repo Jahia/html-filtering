@@ -1,5 +1,5 @@
 import {addNode, createSite, deleteSite} from '@jahia/cypress';
-import {getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
+import {expectHtmlValidationError, getContent, installConfig, modifyContent, removeGlobalCustomConfig, removeSiteConfig} from '../fixtures/utils';
 
 // NB: this is not intended to be a comprehensive tests suite for the sanitization, but rather a quick sanity check
 //     to ensure that the right policy is used for a given site, depending on the configuration in place.
@@ -16,8 +16,9 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
     const CONFIG_OTHER_SITE_PATH = `configs/configurationStrategy/${CONFIG_OTHER_SITE_NAME}`;
     const RICH_TEXT_NODE = 'testRichTextNode';
     const PATH = `/sites/${SITE_KEY}/home/pagecontent/${RICH_TEXT_NODE}`;
-    const HTML_TEXT = '<h1 id="@invalid">my title</h1><p id="abc" class="myClass">my text</p>';
-    const EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT = '<h1>my title</h1><p id="abc" class="myClass">my text</p>';
+    const HTML_TEXT_INVALID = '<h1 id="@invalid">my title</h1><p id="abc" class="myClass">my text</p>';
+    const HTML_TEXT_VALID = '<h1 id="validId">my title</h1><p id="abc" class="myClass">my text</p>';
+    const INVALID_ID_MESSAGE = 'Unauthorized attribute "id" for tag <h1>.';
     const EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM = 'my title<p id="abc">my text</p>';
     const EXPECTED_HTML_TEXT_WITH_PER_SITE = '<h1>my title</h1><p>my text</p>';
 
@@ -49,11 +50,20 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         removeSiteConfig(OTHER_SITE);
     });
 
-    it('when no configuration is provided, the HTML text is sanitized using the global default strategy', () => {
-        modifyContent(PATH, HTML_TEXT);
+    it('when no configuration is provided, the REJECT strategy should reject invalid HTML', () => {
+        modifyContent(PATH, HTML_TEXT_INVALID).then(result => {
+            expectHtmlValidationError(result, INVALID_ID_MESSAGE);
+        });
         getContent(PATH).then(result => {
             const value = result.data.jcr.nodeByPath.property.value;
-            expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            expect(value, 'the content should not have been modified').to.be.equal('');
+        });
+    });
+
+    it('when no configuration is provided, valid HTML should be accepted using the global default strategy', () => {
+        modifyContent(PATH, HTML_TEXT_VALID);
+        getContent(PATH).then(result => {
+            expect(result.data.jcr.nodeByPath.property.value).to.be.equal(HTML_TEXT_VALID);
         });
     });
 
@@ -63,7 +73,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
+            modifyContent(PATH, HTML_TEXT_INVALID);
             getContent(PATH).then(result => {
                 const value = result.data.jcr.nodeByPath.property.value;
                 expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
@@ -77,7 +87,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
+            modifyContent(PATH, HTML_TEXT_INVALID);
             getContent(PATH).then(result => {
                 const value = result.data.jcr.nodeByPath.property.value;
                 expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
@@ -92,7 +102,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
+            modifyContent(PATH, HTML_TEXT_INVALID);
             getContent(PATH).then(result => {
                 const value = result.data.jcr.nodeByPath.property.value;
                 expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_PER_SITE);
@@ -106,10 +116,9 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
-            getContent(PATH).then(result => {
-                const value = result.data.jcr.nodeByPath.property.value;
-                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            modifyContent(PATH, HTML_TEXT_INVALID).then(result => {
+                // With REJECT strategy, this should fail validation
+                expectHtmlValidationError(result);
             });
         });
     });
@@ -121,7 +130,7 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
+            modifyContent(PATH, HTML_TEXT_INVALID);
             getContent(PATH).then(result => {
                 const value = result.data.jcr.nodeByPath.property.value;
                 expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_CUSTOM);
@@ -136,10 +145,9 @@ describe('Test the configuration strategy used by the HTML filtering module', ()
         });
 
         cy.step('Modify and validate content', () => {
-            modifyContent(PATH, HTML_TEXT);
-            getContent(PATH).then(result => {
-                const value = result.data.jcr.nodeByPath.property.value;
-                expect(value).to.be.equal(EXPECTED_HTML_TEXT_WITH_GLOBAL_DEFAULT);
+            modifyContent(PATH, HTML_TEXT_INVALID).then(result => {
+                // With REJECT strategy (global default), this should fail validation
+                expectHtmlValidationError(result);
             });
         });
     });

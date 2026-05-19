@@ -1,5 +1,4 @@
-import {removeGlobalCustomConfig} from '../fixtures/utils';
-import {graphqlValidate} from '../fixtures/utils/graphql';
+import {graphqlValidate, removeGlobalCustomConfig} from '../fixtures/utils';
 
 describe('Test the GraphQL APIs endpoints', () => {
     const safeHTML = '<p>value</p>';

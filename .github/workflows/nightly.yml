@@ -15,7 +15,7 @@ jobs:
           - jahia-image: ghcr.io/jahia/jahia-ee-dev:8-SNAPSHOT
             provisioning: provisioning-manifest-snapshot.yml
             pagerduty-incident-service: html-filtering-JahiaSN
-          - jahia-image: ghcr.io/jahia/jahia-ee:8.1
+          - jahia-image: jahia/jahia-ee:8.1
             provisioning: provisioning-manifest-snapshot-jahia-8.1.yml
             pagerduty-incident-service: html-filtering-Jahia81
     secrets: inherit

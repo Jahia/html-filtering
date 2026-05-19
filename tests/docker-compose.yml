@@ -4,9 +4,11 @@ services:
         image: '${JAHIA_IMAGE}'
         container_name: jahia
         deploy:
-          resources:
-            limits:
-              memory: 4gb
+            resources:
+                limits:
+                    memory: 6gb
+                reservations:
+                    memory: 4gb
         environment:
             JAHIA_LICENSE: ${JAHIA_LICENSE}
             SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
@@ -33,9 +35,11 @@ services:
         image: '${TESTS_IMAGE}'
         container_name: cypress
         deploy:
-          resources:
-            limits:
-              memory: 4gb
+            resources:
+                limits:
+                    memory: 4gb
+                reservations:
+                    memory: 2gb
         depends_on:
             - jahia
         environment:

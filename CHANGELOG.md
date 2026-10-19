@@ -1,5 +1,9 @@
 # html-filtering Changelog
 
+## 3.0.1
+
+* Added maven.jahia.com to the Maven repositories html-filtering uses to download its dependencies.
+
 ## 3.0.0
 
 ### Breaking Changes

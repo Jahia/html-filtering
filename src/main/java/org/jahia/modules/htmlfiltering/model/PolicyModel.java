@@ -109,7 +109,13 @@ public class PolicyModel {
          *
          * @see HtmlFilteringInterceptor#beforeSetValue(JCRNodeWrapper, String, ExtendedPropertyDefinition, Value)
          */
-        SANITIZE
+        SANITIZE,
+        /**
+         * Strategy to neither reject nor sanitize the HTML content when it is saved.
+         * The rules of the allowed rule set still apply when the HTML content is validated on demand,
+         * for example with the GraphQL {@code validate} query.
+         */
+        DISABLED
     }
 
     @Override

@@ -17,9 +17,12 @@ import org.osgi.service.cm.ConfigurationException;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import static org.jahia.modules.htmlfiltering.impl.ConfigBuilder.buildFromModel;
@@ -155,6 +158,7 @@ public class ConfigBuilderTest {
     @Parameters({
             "REJECT, REJECT",
             "SANITIZE, SANITIZE",
+            "DISABLED, DISABLED",
     })
     public void GIVEN_the_edit_workspace_with_a_specific_strategy_WHEN_building_THEN_the_strategy_matches(PolicyModel.PolicyStrategy strategyModel, Strategy expectedStrategy) throws ConfigurationException {
         ConfigModel configModel = TestHelper.buildConfigModel();
@@ -171,6 +175,7 @@ public class ConfigBuilderTest {
     @Parameters({
             "REJECT, REJECT",
             "SANITIZE, SANITIZE",
+            "DISABLED, DISABLED",
     })
     public void GIVEN_the_live_workspace_with_a_specific_strategy_WHEN_building_THEN_the_strategy_matches(PolicyModel.PolicyStrategy strategyModel, Strategy expectedStrategy) throws ConfigurationException {
         ConfigModel configModel = TestHelper.buildConfigModel();
@@ -180,6 +185,59 @@ public class ConfigBuilderTest {
         Policy policy = config.getLiveWorkspacePolicy();
 
         assertEquals(expectedStrategy, policy.getStrategy());
+    }
+
+    @Test
+    @Parameters({
+            "DISABLED",
+            "disabled",
+            "Disabled",
+    })
+    public void GIVEN_properties_with_the_disabled_strategy_in_any_case_WHEN_building_THEN_the_strategy_is_disabled(String strategyValue) throws ConfigurationException {
+        Dictionary<String, Object> properties = buildMinimalProperties(strategyValue, strategyValue);
+
+        Config config = ConfigBuilder.build(properties);
+
+        assertEquals(Strategy.DISABLED, config.getEditWorkspacePolicy().getStrategy());
+        assertEquals(Strategy.DISABLED, config.getLiveWorkspacePolicy().getStrategy());
+    }
+
+    @Test
+    public void GIVEN_properties_with_an_unknown_strategy_WHEN_building_THEN_configuration_error() {
+        Dictionary<String, Object> properties = buildMinimalProperties("DRY_RUN", "SANITIZE");
+
+        assertThrows(ConfigurationException.class, () -> ConfigBuilder.build(properties));
+    }
+
+    @Test
+    @Parameters({
+            "DISABLED, DISABLED, editWorkspace liveWorkspace",
+            "DISABLED, SANITIZE, editWorkspace",
+            "REJECT, DISABLED, liveWorkspace",
+            "REJECT, SANITIZE, ",
+    })
+    public void GIVEN_a_config_WHEN_checking_the_disabled_strategy_THEN_the_disabled_workspaces_are_listed(PolicyModel.PolicyStrategy editStrategy, PolicyModel.PolicyStrategy liveStrategy, String expectedWorkspaces) throws ConfigurationException {
+        ConfigModel configModel = TestHelper.buildConfigModel();
+        configModel.getEditWorkspace().setStrategy(editStrategy);
+        configModel.getLiveWorkspace().setStrategy(liveStrategy);
+        Config config = buildFromModel(configModel);
+
+        List<String> disabledWorkspaces = ConfigBuilder.warnOnDisabledStrategy(config, "org.jahia.modules.htmlfiltering.global.custom");
+
+        List<String> expected = expectedWorkspaces.isEmpty() ? Collections.emptyList() : Arrays.asList(expectedWorkspaces.split(" "));
+        assertEquals(expected, disabledWorkspaces);
+    }
+
+    private static Dictionary<String, Object> buildMinimalProperties(String editStrategy, String liveStrategy) {
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("felix.fileinstall.filename", "file:/var/jahia/karaf/etc/org.jahia.modules.htmlfiltering.global.custom.yaml");
+        properties.put("htmlFiltering.editWorkspace.strategy", editStrategy);
+        properties.put("htmlFiltering.editWorkspace.process[0]", "nt:base.*");
+        properties.put("htmlFiltering.editWorkspace.allowedRuleSet.elements[0].tags[0]", "p");
+        properties.put("htmlFiltering.liveWorkspace.strategy", liveStrategy);
+        properties.put("htmlFiltering.liveWorkspace.process[0]", "nt:base.*");
+        properties.put("htmlFiltering.liveWorkspace.allowedRuleSet.elements[0].tags[0]", "p");
+        return properties;
     }
 
     @Test

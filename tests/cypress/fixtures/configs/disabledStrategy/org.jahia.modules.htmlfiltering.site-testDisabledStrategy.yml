@@ -1,0 +1,14 @@
+# Site configuration that overrides the global custom configuration with the DISABLED strategy.
+htmlFiltering:
+  editWorkspace:
+    strategy: REJECT
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p]
+  liveWorkspace:
+    strategy: DISABLED
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p]

@@ -28,5 +28,10 @@ public enum Strategy {
      * Strategy to sanitize the HTML content by removing all tags and attributes that
      * are not part of allowed rules or that are defined in disallowed rules.
      */
-    SANITIZE
+    SANITIZE,
+    /**
+     * Strategy to neither reject nor sanitize the HTML content when it is saved.
+     * The rules of the policy still apply when the HTML content is validated on demand.
+     */
+    DISABLED
 }

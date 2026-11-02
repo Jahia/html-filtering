@@ -1,0 +1,5 @@
+mutation runReport($siteKey: String!, $workspace: Workspace) {
+    htmlFiltering {
+        runReport(siteKey: $siteKey, workspace: $workspace)
+    }
+}

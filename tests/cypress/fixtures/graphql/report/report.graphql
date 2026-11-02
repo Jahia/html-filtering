@@ -1,0 +1,23 @@
+query report($siteKey: String!, $path: String, $markup: String, $offset: Int, $limit: Int) {
+    htmlFiltering {
+        report(siteKey: $siteKey) {
+            status
+            workspace
+            started
+            finished
+            maxItems
+            itemCount
+            platformBusy
+            items(path: $path, markup: $markup, offset: $offset, limit: $limit) {
+                totalCount
+                nodes {
+                    path
+                    property
+                    language
+                    markups
+                }
+            }
+            csv(path: $path, markup: $markup)
+        }
+    }
+}

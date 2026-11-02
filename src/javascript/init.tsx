@@ -1,0 +1,39 @@
+import { Report } from "@jahia/moonstone/dist/icons";
+import { registry } from "@jahia/ui-extender";
+import { lazy, Suspense } from "react";
+import { i18n, NAMESPACE } from "./i18n.ts";
+
+const ReportApp = lazy(() => import("./report/ReportApp.tsx"));
+
+type RouteProps = { match?: { params?: { siteKey?: string; lang?: string } } };
+
+const siteKeyOf = (props: RouteProps): string =>
+  props?.match?.params?.siteKey ?? globalThis.jahia?.reduxStore?.getState().site ?? "";
+
+const languageOf = (props: RouteProps): string =>
+  props?.match?.params?.lang ?? globalThis.jahia?.reduxStore?.getState().language ?? "";
+
+export default function registerHtmlFilteringReport() {
+  registry.add("callback", "html-filtering-report", {
+    targets: ["jahiaApp-init:50"],
+    callback: () => {
+      i18n.loadNamespaces(NAMESPACE);
+
+      registry.add("adminRoute", "htmlFilteringReport", {
+        targets: ["administration-sites:90"],
+        icon: <Report/>,
+        label: "html-filtering:report.nav",
+        isSelectable: true,
+        requiredPermission: "viewHtmlFilteringReport",
+        render: (props: RouteProps) => {
+          const siteKey = siteKeyOf(props);
+          return (
+              <Suspense fallback={null}>
+                  <ReportApp key={siteKey} siteKey={siteKey} language={languageOf(props)}/>
+              </Suspense>
+          );
+        },
+      });
+    },
+  });
+}

@@ -1,0 +1,62 @@
+{
+  "label": "HTML filtering",
+  "report": {
+    "nav": "HTML filtering report",
+    "title": "HTML filtering report: {{siteName}}",
+    "runReport": "Run report",
+    "exportCsv": "Export to CSV",
+    "refresh": "Refresh",
+    "workspace": {
+      "EDIT": "Edit",
+      "LIVE": "Live"
+    },
+    "run": {
+      "title": "Run the HTML filtering report",
+      "editDescription": "Scans the content being edited, with the editWorkspace policy of the site.",
+      "liveDescription": "Scans the published content, with the liveWorkspace policy of the site.",
+      "start": "Run",
+      "cancel": "Cancel"
+    },
+    "state": {
+      "neverTitle": "Never run",
+      "never": "The report has not run on this site yet. Click \"Run report\" to scan the content of the site.",
+      "RUNNINGTitle": "Running on the workspace {{workspace}}",
+      "RUNNING": "{{count}} items found so far. The page refreshes when the report ends.",
+      "DONETitle": "Done on the workspace {{workspace}}",
+      "DONE": "The report scanned the whole site on {{date}} and found {{count}} items.",
+      "LIMIT_REACHEDTitle": "Stopped at the limit on the workspace {{workspace}}",
+      "LIMIT_REACHED": "The report stopped on {{date}} once it found {{max}} items. More content may break the rules.",
+      "FAILEDTitle": "Failed on the workspace {{workspace}}",
+      "FAILED": "The report stopped on an error on {{date}}. The log of the processing node holds the error."
+    },
+    "alreadyRunningTitle": "A report is already running",
+    "alreadyRunning": "Only one report runs at a time on the platform. Run the report again once the current one ends.",
+    "columns": {
+      "path": "Path",
+      "property": "Property",
+      "language": "Language",
+      "markups": "Markups",
+      "markup": "Markups include"
+    },
+    "filters": {
+      "chip": "{{name}}: {{value}}",
+      "chipName": "{{name}}:",
+      "clearOne": "Clear the filter {{name}}",
+      "close": "Close",
+      "pathPlaceholder": "For example {{example}}",
+      "pathHint": "Keeps the rows of the content at this path and under it.",
+      "pickPath": "Pick a content",
+      "markupPlaceholder": "For example script or onerror",
+      "markupHint": "Keeps the rows whose markups include this tag or this attribute.",
+      "noMatch": "No row matches the filters."
+    },
+    "pagination": {
+      "itemsPerPage": "Rows per page",
+      "of": "of"
+    },
+    "empty": "The report found no content that breaks the HTML filtering rules.",
+    "errorTitle": "The report cannot be displayed",
+    "error": "An error occurred while reading the report.",
+    "accessDenied": "You do not have the permission to view the HTML filtering report of this site."
+  }
+}

@@ -16,3 +16,10 @@ target
 
 # Jahia DX Studio
 repository.xml.generated
+
+# JavaScript build
+node_modules
+.yarn/*
+!.yarn/releases
+.__*
+src/main/resources/javascript/apps

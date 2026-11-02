@@ -21,7 +21,7 @@
     <parent>
         <artifactId>jahia-modules</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>8.1.9.0</version>
+        <version>8.2.2.0</version>
     </parent>
 
     <artifactId>html-filtering</artifactId>
@@ -39,7 +39,9 @@
 
     <properties>
         <jahia.plugin.version>6.9</jahia.plugin.version>
-        <jahia-depends>graphql-dxm-provider</jahia-depends>
+        <jahia-depends>graphql-dxm-provider,app-shell=4.0,jcontent=3.8.1</jahia-depends>
+        <node.version>v22.14.0</node.version>
+        <yarn.build.arguments>yarn build</yarn.build.arguments>
         <jahia-module-signature>MCwCFF6ol7yJmYoh6kbILfLe906tcWTMAhQbI/49fMOW3QqDjZ9LbqKemEE/iA==</jahia-module-signature>
     </properties>
 
@@ -130,7 +132,13 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>graphql-dxm-provider</artifactId>
-            <version>2.19.0</version>
+            <version>3.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>1.8.6</version> <!-- matches the version that Jahia 8.2.2.0 embeds -->
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -159,6 +167,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+            <version>${jackson.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <version>${jackson.core.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -211,6 +225,25 @@
             <version>${hibernate.validator.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- for unit tests, the signatures of JCRNodeWrapper and ExtendedPropertyDefinition name types of these libraries, which jahia-impl does not pull -->
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-spi-commons</artifactId>
+            <version>2.21.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -254,6 +287,7 @@
                             org.jahia.osgi,
                             org.jahia.services.content,
                             org.osgi.framework;version="[1.8,2)",
+                            org.quartz,
                             org.slf4j;version="[1.7,2)",
                             *
                         </Import-Package>
@@ -262,6 +296,59 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/resources/javascript/apps</directory>
+                            <includes>
+                                <include>*</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.1</version>
+                <configuration>
+                    <installDirectory>target</installDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-corepack</id>
+                        <goals>
+                            <goal>install-node-and-corepack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn-install</id>
+                        <goals>
+                            <goal>corepack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>yarn install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn-build</id>
+                        <goals>
+                            <goal>corepack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>${yarn.build.arguments}</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.cyclonedx</groupId>
@@ -307,6 +394,8 @@
                                 <!-- dependencies used at runtime to perform validation, without direct imports: -->
                                 <ignoredUnusedDeclaredDependency>org.ops4j.pax.web:pax-web-jsp</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.hibernate.validator:hibernate-validator</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>commons-lang:commons-lang</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.apache.jackrabbit:jackrabbit-spi-commons</ignoredUnusedDeclaredDependency>
                                 <!-- com.fasterxml.jackson.core is declared as provided, so it's not pulled transitively and embedded in the bundle -->
                                 <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.core:jackson-core</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>

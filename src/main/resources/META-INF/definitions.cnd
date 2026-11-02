@@ -1,2 +1,13 @@
 <jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+[jnt:htmlFilteringReports] > nt:base
+ + * (jnt:htmlFilteringReport)
+
+[jnt:htmlFilteringReport] > nt:base
+ - status (string)
+ - workspace (string)
+ - started (date)
+ - finished (date)
+ - maxItems (long)
+ - itemCount (long)
+ - items (string)

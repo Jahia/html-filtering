@@ -16,7 +16,7 @@ The HTML Filtering module provides XSS (Cross-Site Scripting) filtering protecti
 The module doesn't have to be enabled on a site to work and start filtering HTML. As soon as the module is installed and started, it **will be applied** and fully working based on the global configuration embedded with the module.
 :::
 
-The HTML Filtering module in v2.0.0 is compatible with versions of Jahia starting from 8.1.8.0.
+From v3.1.0, the HTML Filtering module requires Jahia 8.2.2.0 or later, with app-shell 4.0 and jContent 3.8.1 or later. The versions 2.x and 3.0.x of the module are compatible with Jahia 8.1.8.0 and later.
 
 ## Configuration
 
@@ -208,6 +208,86 @@ The API returns the following fields:
 - `removedAttributes`: A list of removed attributes along with the tags they were removed from
 - `sanitizedHtml`: A sanitized version of the input HTML markup based on the underlying configuration
 - `safe`: A boolean value that returns `true` if nothing was removed from the input HTML markup and it's valid according to the configuration that was used
+
+## HTML filtering report
+
+The module checks a rich text property when an editor saves it. Content saved before the module was installed, or before a rule changed, is not checked again. The HTML filtering report lists the content of a site that does not pass the current rules of the site.
+
+### Running the report
+
+Open **Administration > Sites > HTML filtering report**, then click **Run report** and choose the workspace:
+
+- **Edit**: the report scans the default workspace with the `editWorkspace` policy of the site.
+- **Live**: the report scans the live workspace with the `liveWorkspace` policy of the site.
+
+The report runs in the background on the processing node. The page shows the state of the last run: never run, running with the number of items found so far, done with its date, stopped at the limit, or failed. Only one report runs at a time on the platform, and the module keeps the result of the last run of each site.
+
+### What the report lists
+
+The report checks the same properties as the filtering at save time, with the same rules: a `STRING` property with the `richtext` selector in the CND, that matches `process` and does not match `skip`. The report checks each value of a multiple property, and each language of the site. A value is not valid when the policy rejects at least one tag or one attribute, whatever the strategy of the policy.
+
+The report ignores `skipOnPermissions`, because a background scan has no user. Content that a privileged user saved with markup that the rules reject therefore appears in the report.
+
+One row is one property of one content node in one language:
+
+- **Path**: the path of the content node.
+- **Property**: the name of the property.
+- **Language**: the language of the value, empty for a property that is not internationalized.
+- **Markups**: each rejected tag, such as `<script>`, and each rejected attribute with its tag, such as `<img onerror>`.
+
+Above the table, the **Path** filter keeps the rows of the content under a path, and the **Markups include** filter keeps the rows whose markups include a tag or an attribute. **Export to CSV** exports every row that the filters keep, on all the pages.
+
+### Permission
+
+The `viewHtmlFilteringReport` permission gives access to the report: view, run and export. The `site-administrator` and `server-administrator` roles have it by default.
+
+### Configuration
+
+The PID `org.jahia.modules.htmlfiltering.report` sets the limits of the report, for example in the file `org.jahia.modules.htmlfiltering.report.cfg`:
+
+| Key | Default | Purpose |
+| --- | --- | --- |
+| `maxItems` | `500` | The report stops once it finds this number of items. |
+| `batchSize` | `100` | The number of content nodes that the report reads between two pauses. |
+| `pauseMillis` | `100` | The pause between two batches, in milliseconds. A longer pause leaves more resources to editors and visitors. |
+
+The report queries only the node types that declare a rich text property, so its duration depends on the number of rich text contents of the site, not on its total size.
+
+### GraphQL API of the report
+
+```gql
+mutation RunReport($siteKey: String!, $workspace: Workspace = EDIT) {
+  htmlFiltering {
+    runReport(siteKey: $siteKey, workspace: $workspace)
+  }
+}
+
+query Report($siteKey: String!, $path: String, $markup: String, $offset: Int, $limit: Int) {
+  htmlFiltering {
+    report(siteKey: $siteKey) {
+      status
+      workspace
+      started
+      finished
+      maxItems
+      itemCount
+      platformBusy
+      items(path: $path, markup: $markup, offset: $offset, limit: $limit) {
+        totalCount
+        nodes {
+          path
+          property
+          language
+          markups
+        }
+      }
+      csv(path: $path, markup: $markup)
+    }
+  }
+}
+```
+
+`runReport` returns `false` and starts nothing when a report already runs on the platform. `report` returns `null` when the report never ran on the site. `status` is `RUNNING`, `DONE`, `LIMIT_REACHED` or `FAILED`. Both fields require the `viewHtmlFilteringReport` permission on the site.
 
 ## Usage
 

@@ -1,0 +1,62 @@
+{
+  "label": "HTML-Filterung",
+  "report": {
+    "nav": "HTML-Filterbericht",
+    "title": "HTML-Filterbericht: {{siteName}}",
+    "runReport": "Bericht ausführen",
+    "exportCsv": "Als CSV exportieren",
+    "refresh": "Aktualisieren",
+    "workspace": {
+      "EDIT": "Bearbeitung",
+      "LIVE": "Live"
+    },
+    "run": {
+      "title": "HTML-Filterbericht ausführen",
+      "editDescription": "Prüft den bearbeiteten Inhalt mit der editWorkspace-Richtlinie der Site.",
+      "liveDescription": "Prüft den veröffentlichten Inhalt mit der liveWorkspace-Richtlinie der Site.",
+      "start": "Ausführen",
+      "cancel": "Abbrechen"
+    },
+    "state": {
+      "neverTitle": "Nie ausgeführt",
+      "never": "Der Bericht wurde auf dieser Site noch nicht ausgeführt. Klicken Sie auf „Bericht ausführen“, um den Inhalt der Site zu prüfen.",
+      "RUNNINGTitle": "Läuft im Arbeitsbereich {{workspace}}",
+      "RUNNING": "Bisher {{count}} Einträge gefunden. Die Seite wird am Ende des Berichts aktualisiert.",
+      "DONETitle": "Abgeschlossen im Arbeitsbereich {{workspace}}",
+      "DONE": "Der Bericht hat am {{date}} die ganze Site geprüft und {{count}} Einträge gefunden.",
+      "LIMIT_REACHEDTitle": "Am Limit gestoppt im Arbeitsbereich {{workspace}}",
+      "LIMIT_REACHED": "Der Bericht wurde am {{date}} nach {{max}} Einträgen gestoppt. Weitere Inhalte können die Regeln verletzen.",
+      "FAILEDTitle": "Fehlgeschlagen im Arbeitsbereich {{workspace}}",
+      "FAILED": "Der Bericht wurde am {{date}} wegen eines Fehlers gestoppt. Das Protokoll des Verarbeitungsknotens enthält den Fehler."
+    },
+    "alreadyRunningTitle": "Ein Bericht läuft bereits",
+    "alreadyRunning": "Auf der Plattform läuft jeweils nur ein Bericht. Führen Sie den Bericht erneut aus, wenn der laufende Bericht beendet ist.",
+    "columns": {
+      "path": "Pfad",
+      "property": "Eigenschaft",
+      "language": "Sprache",
+      "markups": "Markups",
+      "markup": "Markups enthalten"
+    },
+    "filters": {
+      "chip": "{{name}}: {{value}}",
+      "chipName": "{{name}}:",
+      "clearOne": "Filter {{name}} löschen",
+      "close": "Schließen",
+      "pathPlaceholder": "Zum Beispiel {{example}}",
+      "pathHint": "Behält die Zeilen des Inhalts unter diesem Pfad.",
+      "pickPath": "Inhalt auswählen",
+      "markupPlaceholder": "Zum Beispiel script oder onerror",
+      "markupHint": "Behält die Zeilen, deren Markups diesen Tag oder dieses Attribut enthalten.",
+      "noMatch": "Keine Zeile entspricht den Filtern."
+    },
+    "pagination": {
+      "itemsPerPage": "Zeilen pro Seite",
+      "of": "von"
+    },
+    "empty": "Der Bericht hat keinen Inhalt gefunden, der die HTML-Filterregeln verletzt.",
+    "errorTitle": "Der Bericht kann nicht angezeigt werden",
+    "error": "Beim Lesen des Berichts ist ein Fehler aufgetreten.",
+    "accessDenied": "Sie haben keine Berechtigung, den HTML-Filterbericht dieser Site anzuzeigen."
+  }
+}

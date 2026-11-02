@@ -1,0 +1,62 @@
+{
+  "label": "Filtrage HTML",
+  "report": {
+    "nav": "Rapport de filtrage HTML",
+    "title": "Rapport de filtrage HTML : {{siteName}}",
+    "runReport": "Lancer le rapport",
+    "exportCsv": "Exporter en CSV",
+    "refresh": "Actualiser",
+    "workspace": {
+      "EDIT": "Édition",
+      "LIVE": "Live"
+    },
+    "run": {
+      "title": "Lancer le rapport de filtrage HTML",
+      "editDescription": "Analyse le contenu en cours d'édition, avec la politique editWorkspace du site.",
+      "liveDescription": "Analyse le contenu publié, avec la politique liveWorkspace du site.",
+      "start": "Lancer",
+      "cancel": "Annuler"
+    },
+    "state": {
+      "neverTitle": "Jamais lancé",
+      "never": "Le rapport n'a pas encore été lancé sur ce site. Cliquez sur « Lancer le rapport » pour analyser le contenu du site.",
+      "RUNNINGTitle": "En cours sur l'espace de travail {{workspace}}",
+      "RUNNING": "{{count}} éléments trouvés pour l'instant. La page s'actualise à la fin du rapport.",
+      "DONETitle": "Terminé sur l'espace de travail {{workspace}}",
+      "DONE": "Le rapport a analysé tout le site le {{date}} et a trouvé {{count}} éléments.",
+      "LIMIT_REACHEDTitle": "Arrêté à la limite sur l'espace de travail {{workspace}}",
+      "LIMIT_REACHED": "Le rapport s'est arrêté le {{date}} après avoir trouvé {{max}} éléments. D'autres contenus peuvent ne pas respecter les règles.",
+      "FAILEDTitle": "Échec sur l'espace de travail {{workspace}}",
+      "FAILED": "Le rapport s'est arrêté sur une erreur le {{date}}. Le journal du nœud de traitement contient l'erreur."
+    },
+    "alreadyRunningTitle": "Un rapport est déjà en cours",
+    "alreadyRunning": "Un seul rapport s'exécute à la fois sur la plateforme. Relancez le rapport quand le rapport en cours est terminé.",
+    "columns": {
+      "path": "Chemin",
+      "property": "Propriété",
+      "language": "Langue",
+      "markups": "Balises",
+      "markup": "Balises incluant"
+    },
+    "filters": {
+      "chip": "{{name}} : {{value}}",
+      "chipName": "{{name}} :",
+      "clearOne": "Effacer le filtre {{name}}",
+      "close": "Fermer",
+      "pathPlaceholder": "Par exemple {{example}}",
+      "pathHint": "Conserve les lignes du contenu à ce chemin et en dessous.",
+      "pickPath": "Choisir un contenu",
+      "markupPlaceholder": "Par exemple script ou onerror",
+      "markupHint": "Conserve les lignes dont les balises incluent cette balise ou cet attribut.",
+      "noMatch": "Aucune ligne ne correspond aux filtres."
+    },
+    "pagination": {
+      "itemsPerPage": "Lignes par page",
+      "of": "sur"
+    },
+    "empty": "Le rapport n'a trouvé aucun contenu qui enfreint les règles de filtrage HTML.",
+    "errorTitle": "Le rapport ne peut pas être affiché",
+    "error": "Une erreur s'est produite lors de la lecture du rapport.",
+    "accessDenied": "Vous n'avez pas la permission de consulter le rapport de filtrage HTML de ce site."
+  }
+}

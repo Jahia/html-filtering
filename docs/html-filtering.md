@@ -13,7 +13,7 @@ content:
 The HTML Filtering module provides XSS (Cross-Site Scripting) filtering protection in Jahia when contributing content that have properties containing HTML markup. It helps ensure that user-generated HTML content is safe and compliant with your configuration.
 
 :::info
-The module doesn't have to be enabled on a site to work and start filtering HTML. As soon as the module is installed and started, it **will be applied** and fully working based on the global configuration embedded with the module.
+The module doesn't have to be enabled on a site to work and start filtering HTML. As soon as the module is installed and started, it **will be applied** and fully working based on the global configuration embedded with the module. To install the module without enforcement first, see [Installing the module before any enforcement](#installing-the-module-before-any-enforcement).
 :::
 
 The HTML Filtering module in v2.0.0 is compatible with versions of Jahia starting from 8.1.8.0.
@@ -105,6 +105,44 @@ The strategy setting defines how the module handles HTML content with potentiall
 
 - `SANITIZE`: Automatically removes invalid markup when content is saved (recommended for `liveWorkspace` in which direct feedback may not be available).
 - `REJECT`: Validates content and rejects the save operation if invalid markup is found (recommended for `editWorkspace`). A content is considered invalid if it contains tags and/or attributes that got removed after being sanitized by the module.
+- `DISABLED`: Neither validates nor sanitizes content when it is saved. The HTML is stored unchanged in that workspace. The rules of the configuration still apply to the [GraphQL API](#graphql-api) and to the HTML filtering report, so you can measure the existing content before the module changes or rejects anything.
+
+The value of `strategy` is case-insensitive.
+
+:::warning
+A workspace with the `DISABLED` strategy has no XSS protection from the module. When the module loads a configuration that uses `DISABLED`, it logs a warning that names the configuration and the workspaces. Use `DISABLED` only for a limited time, for example to [install the module before any enforcement](#installing-the-module-before-any-enforcement).
+:::
+
+The priority chain still applies with `DISABLED`. For example, a site configuration with `REJECT` in `editWorkspace` overrides a global custom configuration with `DISABLED` for that site.
+
+##### Installing the module before any enforcement
+
+On a platform with existing content, you can install the module and run the HTML filtering report before the module rejects or sanitizes any content:
+
+1.  Create the file `org.jahia.modules.htmlfiltering.global.custom.yml` with `strategy: DISABLED` in `editWorkspace` and in `liveWorkspace`, and with the rules you plan to use. Put the file in the `karaf/etc` folder of each Jahia node, before you install the module:
+
+    ```yaml
+    htmlFiltering:
+      editWorkspace:
+        strategy: DISABLED
+        process: ['nt:base.*']
+        allowedRuleSet:
+          elements:
+            # Rules for allowed elements and attributes
+      liveWorkspace:
+        strategy: DISABLED
+        process: ['nt:base.*']
+        allowedRuleSet:
+          elements:
+            # Rules for allowed elements and attributes
+    ```
+
+2.  Install and start the module.
+3.  Check that the log contains the warning about the `DISABLED` strategy for `org.jahia.modules.htmlfiltering.global.custom`. If the log contains no such warning, the configuration is not loaded, and the global default configuration applies.
+4.  Run the HTML filtering report, and fix the content or the rules until the report is acceptable.
+5.  Set the strategies you want, for example `REJECT` in `editWorkspace` and `SANITIZE` in `liveWorkspace`. The module enforces them as soon as it loads the updated configuration.
+
+Site configurations override the global custom configuration. A site that has its own configuration file is not covered by the `DISABLED` strategy of the global custom configuration.
 
 ##### Sanitization
 

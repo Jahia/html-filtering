@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jahia.modules.htmlfiltering.Policy;
 import org.jahia.modules.htmlfiltering.Strategy;
@@ -21,6 +22,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -69,12 +71,45 @@ public class ConfigBuilder {
             ConfigModel configModel = javaPropsMapper.readValue(propertiesMapAsString, ConfigModel.class);
 
             logger.debug("html-filtering configuration model loaded: {}", configModel);
-            return buildFromModel(configModel);
+            Config config = buildFromModel(configModel);
+            warnOnDisabledStrategy(config, readConfigurationName(properties));
+            return config;
         } catch (Exception e) {
             // Globally catch any exceptions happening during the building process
             logger.debug("Unable to build html-filtering configuration due to an exception. Properties: {}", properties);
             throw new ConfigurationException(null, "Unable to build html-filtering configuration", e);
         }
+    }
+
+    /**
+     * Logs a warning for each workspace of the given configuration that uses the {@link Strategy#DISABLED} strategy.
+     *
+     * @param config            the configuration to check
+     * @param configurationName the name of the configuration, used in the warning
+     * @return the names of the workspaces that use the {@link Strategy#DISABLED} strategy
+     */
+    static List<String> warnOnDisabledStrategy(Config config, String configurationName) {
+        List<String> disabledWorkspaces = new ArrayList<>();
+        if (config.getEditWorkspacePolicy().getStrategy() == Strategy.DISABLED) {
+            disabledWorkspaces.add("editWorkspace");
+        }
+        if (config.getLiveWorkspacePolicy().getStrategy() == Strategy.DISABLED) {
+            disabledWorkspaces.add("liveWorkspace");
+        }
+        if (!disabledWorkspaces.isEmpty()) {
+            logger.warn("The html-filtering configuration {} uses the DISABLED strategy in {}: HTML content saved in {} is neither validated nor sanitized",
+                    configurationName, disabledWorkspaces, disabledWorkspaces.size() == 1 ? "this workspace" : "these workspaces");
+        }
+        return disabledWorkspaces;
+    }
+
+    private static String readConfigurationName(Dictionary<String, ?> properties) {
+        Object fileName = properties.get("felix.fileinstall.filename");
+        if (fileName != null) {
+            // the base name only, since Jahia stores a .yml configuration as a .yaml file
+            return FilenameUtils.getBaseName(fileName.toString());
+        }
+        return String.valueOf(properties.get("service.pid"));
     }
 
     /**
@@ -179,6 +214,8 @@ public class ConfigBuilder {
                 return Strategy.REJECT;
             case SANITIZE:
                 return Strategy.SANITIZE;
+            case DISABLED:
+                return Strategy.DISABLED;
         }
         return null; // should not happen as the configuration is validated beforehand
     }

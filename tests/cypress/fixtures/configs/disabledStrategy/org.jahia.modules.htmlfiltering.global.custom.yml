@@ -1,0 +1,15 @@
+# Global custom configuration with the DISABLED strategy in both workspaces.
+# The liveWorkspace writes the value in lower case, since the strategy is case-insensitive.
+htmlFiltering:
+  editWorkspace:
+    strategy: DISABLED
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p]
+  liveWorkspace:
+    strategy: disabled
+    process: ['nt:base.*']
+    allowedRuleSet:
+      elements:
+        - tags: [p]

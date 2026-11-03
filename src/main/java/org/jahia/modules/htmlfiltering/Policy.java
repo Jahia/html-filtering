@@ -57,6 +57,20 @@ public interface Policy {
                                    ExtendedPropertyDefinition propertyDefinition);
 
     /**
+     * Determines whether the policy is applicable to a given property, whatever the permissions of the current user.
+     * <p>
+     * Same as {@link #isApplicableToProperty(JCRNodeWrapper, String, ExtendedPropertyDefinition)}, without the
+     * <code>skipOnPermissions</code> check. A process that runs without a user, such as a scan of the content, uses it.
+     *
+     * @param node               the JCR node
+     * @param propertyName       the property name to evaluate
+     * @param propertyDefinition the property definition
+     * @return <code>true</code> if the policy is applicable to the given property, <code>false</code> otherwise
+     */
+    boolean isApplicableToPropertyIgnoringPermissions(JCRNodeWrapper node, String propertyName,
+                                                      ExtendedPropertyDefinition propertyDefinition);
+
+    /**
      * A policy is capable of processing HTML String input and:
      * - filter unwanted tags/attributes based on the configured rules
      * - provide information on the filtered tags/attributes

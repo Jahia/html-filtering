@@ -79,9 +79,7 @@ public final class PolicyImpl implements Policy {
     @Override
     public boolean isApplicableToProperty(JCRNodeWrapper node, String propertyName, ExtendedPropertyDefinition propertyDefinition) {
         boolean result = skipOnPermissions.stream().noneMatch(node::hasPermission) &&
-                isRichTextStringProperty(propertyDefinition)
-                && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
-                && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
+                isApplicableToPropertyIgnoringPermissions(node, propertyName, propertyDefinition);
 
         if (logger.isDebugEnabled()) {
             logger.debug("The policy is{} applicable to the node: {}, property: {}, definition: {}.", result ? "" : " not",
@@ -89,6 +87,14 @@ public final class PolicyImpl implements Policy {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean isApplicableToPropertyIgnoringPermissions(JCRNodeWrapper node, String propertyName,
+                                                             ExtendedPropertyDefinition propertyDefinition) {
+        return isRichTextStringProperty(propertyDefinition)
+                && isPropertyConfigured(node, propertyName, propsToProcessByNodeType)
+                && !isPropertyConfigured(node, propertyName, propsToSkipByNodeType);
     }
 
     @Override

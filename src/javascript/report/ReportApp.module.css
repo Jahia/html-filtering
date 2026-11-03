@@ -1,0 +1,141 @@
+/* The wrapper of LayoutContent wraps its flex column, so the content takes the width of the table instead of the page. */
+.layout {
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.tableWrapper {
+  min-height: 0;
+  overflow: auto;
+}
+
+/* The table keeps room for the fluid Path column. */
+.tableWrapper table {
+  min-width: 960px;
+}
+
+/* DataTable renders the pager after the table, inside the scrolling Paper, so the pager sticks to the bottom of the Paper.
+   The doubled class outranks the 64px height of the moonstone pager. */
+.stickyPagination.stickyPagination {
+  height: var(--moon-spacing-big);
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  background-color: var(--moon-color-white);
+  border-top: 1px solid var(--moon-color-gray_light);
+}
+
+.secondary {
+  color: var(--moon-color-gray);
+}
+
+/* The doubled class outranks the font-family that .moonstone-typography sets. */
+.monospace.monospace {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.filters {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--moon-spacing-small);
+  padding: var(--moon-spacing-small) calc(var(--moon-spacing-small) + var(--moon-spacing-nano));
+  border-bottom: 1px solid var(--moon-color-gray_light);
+  border-radius: var(--moon-radius) var(--moon-radius) 0 0;
+  background-color: var(--moon-color-white);
+}
+
+/* The filter row is the top band of the table, so the Paper below it has square top corners. */
+.tableWrapper.tableWrapper {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* A flex box drops the line box of an inline span, so the button sits in the middle of the filter row. */
+.chip {
+  display: flex;
+}
+
+/* moonstone has no dashed or tinted Button. The doubled class and the attributes outrank the colors of the outlined Button in each state. */
+.chipEmpty.chipEmpty[data-variant] {
+  border: 1px dashed var(--moon-color-gray_plain60);
+  background-color: var(--moon-color-gray_light_plain20);
+  color: var(--moon-color-gray_dark);
+}
+
+.chipEmpty.chipEmpty[data-variant]:hover:not(:disabled) {
+  border-color: var(--moon-color-gray);
+  background-color: var(--moon-color-gray_light_plain40);
+  color: var(--moon-color-gray_dark);
+}
+
+.chipEmpty.chipEmpty[data-variant]:active:not(:disabled) {
+  border-color: var(--moon-color-gray);
+  background-color: var(--moon-color-gray_light_plain60);
+  color: var(--moon-color-gray_dark);
+}
+
+.chipFilled.chipFilled[data-variant][data-color] {
+  border-color: var(--moon-color-accent_plain20);
+  background-color: var(--moon-color-accent_plain20);
+  color: var(--moon-color-accent_dark_contrast);
+}
+
+.chipFilled.chipFilled[data-variant][data-color]:hover:not(:disabled) {
+  border-color: var(--moon-color-accent_plain40);
+  background-color: var(--moon-color-accent_plain40);
+  color: var(--moon-color-accent_dark_contrast);
+}
+
+.chipFilled.chipFilled[data-variant][data-color]:active:not(:disabled) {
+  border-color: var(--moon-color-accent_plain60);
+  background-color: var(--moon-color-accent_plain60);
+  color: var(--moon-color-accent_dark_contrast);
+}
+
+.chipClear.chipClear[data-variant][data-color] {
+  border-left-color: var(--moon-color-accent_plain40);
+}
+
+/* A long value ends with an ellipsis, and the title of the button holds the full label. */
+.chipValue {
+  max-width: 400px;
+}
+
+.chipValue > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chipValue > svg {
+  flex: none;
+}
+
+.editorBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--moon-spacing-small);
+  padding: var(--moon-spacing-small) var(--moon-spacing-medium);
+}
+
+.typedEditor {
+  width: 336px;
+}
+
+.menuFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--moon-spacing-small);
+  border-top: 1px solid var(--moon-color-gray_light);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--moon-spacing-medium);
+  min-height: 0;
+}

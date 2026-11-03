@@ -59,7 +59,8 @@ final class ReportStore {
     }
 
     /**
-     * Replaces the last run of the report of the site with a run that starts.
+     * Replaces the last run of the report of the site with a run that starts. Only the job calls it, so a single
+     * node of a cluster writes the report.
      */
     static void start(String siteKey, String workspace, int maxItems) throws RepositoryException {
         JCRSessionWrapper session = session();
@@ -67,10 +68,13 @@ final class ReportStore {
             session.getNode("/settings").addNode("htmlFilteringReports", REPORTS_TYPE);
         }
         JCRNodeWrapper reports = session.getNode(REPORTS_PATH);
-        if (reports.hasNode(siteKey)) {
-            reports.getNode(siteKey).remove();
+        // The node is kept and overwritten: another node of the cluster can still hold it in a session.
+        JCRNodeWrapper node = reports.hasNode(siteKey) ? reports.getNode(siteKey) : reports.addNode(siteKey, REPORT_TYPE);
+        for (String name : new String[]{FINISHED, ITEMS}) {
+            if (node.hasProperty(name)) {
+                node.getProperty(name).remove();
+            }
         }
-        JCRNodeWrapper node = reports.addNode(siteKey, REPORT_TYPE);
         node.setProperty(STATUS, ReportStatus.RUNNING.name());
         node.setProperty(WORKSPACE, workspace);
         node.setProperty(STARTED, Calendar.getInstance());

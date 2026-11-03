@@ -12,7 +12,6 @@ import org.jahia.modules.htmlfiltering.report.ReportService;
 import org.quartz.SchedulerException;
 
 import javax.inject.Inject;
-import javax.jcr.RepositoryException;
 
 @GraphQLName("HTMLFilteringMutation")
 @GraphQLDescription("HTML filtering mutation")
@@ -34,7 +33,7 @@ public class GqlHtmlFilteringMutation {
         String checkedSiteKey = ReportAccess.checkSite(siteKey);
         try {
             return reportService.start(checkedSiteKey, (workspace == null ? NodeQueryExtensions.Workspace.EDIT : workspace).getValue());
-        } catch (RepositoryException | SchedulerException e) {
+        } catch (SchedulerException e) {
             throw new DataFetchingException(e);
         }
     }

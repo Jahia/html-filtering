@@ -132,7 +132,8 @@ const ReportTable = ({ report, error, isLoading, isFiltered, currentPage, itemsP
         </Banner>
     );
   }
-  if (!report || report.status === "RUNNING") {
+  // A failed run stores no item, so an empty list would read as a clean site.
+  if (!report || report.status === "RUNNING" || report.status === "FAILED") {
     return null;
   }
   if (rows.length === 0) {
@@ -294,7 +295,7 @@ const ReportPage = ({ siteKey, language }: ReportPageProps) => {
               </Banner>
           )}
               <RunState report={report} locale={uiLanguage}/>
-              {report && !isRunning && (
+              {report && !isRunning && report.status !== "FAILED" && (
               <ReportFilters filters={filters} siteKey={siteKey} sitePath={sitePath} language={language} onChange={setFilter}/>
           )}
               {loading && !report ? (
